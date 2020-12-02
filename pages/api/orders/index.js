@@ -42,7 +42,6 @@ export default async (req, res) => {
     statusPaid && requestArray.push("Paid");
     statusAll && requestArray.push("New","Assigned", "Picked","Delivered", "Paid" );
 
-    console.log(requestArray);
 
     var orderRef = firebase.firestore()
       .collection("carriers-records")

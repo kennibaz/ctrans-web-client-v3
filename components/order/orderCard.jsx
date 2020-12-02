@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { makeStyles } from "@material-ui/core/styles";
+import axios from "axios";
 
 import {
   Grid,
@@ -13,16 +14,13 @@ import {
   Divider,
   Collapse,
   IconButton,
-  KeyboardArrowDownIcon,
-  KeyboardArrowUpIcon,
-  EditIcon,
 } from "@material-ui/core";
-
+import EditIcon from "@material-ui/icons/Edit";
+import KeyboardArrowDownIcon from "@material-ui/icons/KeyboardArrowDown";
+import KeyboardArrowUpIcon from "@material-ui/icons/KeyboardArrowUp";
 
 //dialogs
 import AssignDriverDialog from "./dialogs/AssignDriverDialog";
-
-
 
 const useStyles = makeStyles((theme) => ({
   title: {
@@ -32,9 +30,6 @@ const useStyles = makeStyles((theme) => ({
   formControl: {
     margin: theme.spacing(1),
     minWidth: 200,
-  },
-  row_5: {
-    border: 10,
   },
   card: {
     marginTop: "5px",
@@ -49,12 +44,86 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function orderCard({orderData, drivers, orderId, reloadHandler}) {
+export default function orderCard({
+  orderData,
+  drivers,
+  orderId,
+  reloadHandler,
+}) {
   const classes = useStyles();
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [anchorElBol, setAnchorElBol] = useState(null);
+  const [anchorEl, setAnchorEl] = useState(null);
 
+  //HANDLERS
+  //cancel handler
+  const cancelOrderHandler = async () => {
+    await axios.post("/api/orders/order-cancel", {
+      carrierId: "1840b8a5-3381-41f7-9838-8ad23a7b50bd",
+      orderId,
+    });
+    reloadHandler();
+  };
+
+  // archive order
+  const archiveOrderHandler = async () => {
+    await axios.post("/api/orders/order-archive", {
+      carrierId: "1840b8a5-3381-41f7-9838-8ad23a7b50bd",
+      orderId,
+    });
+    reloadHandler();
+  };
+
+  // paid order
+  const paidOrderHandler = async () => {
+    if (props.order_status === "Delivered") {
+      db.collection("carriers-records")
+        .doc(props.carrier_id)
+        .collection("orders")
+        .doc(props.order_id)
+        .update({
+          order_status: "Paid",
+        });
+      menuHandleClose();
+    } else {
+      alert("You can mark as paid only after delivery");
+      menuHandleClose();
+    }
+  };
+  //BOL menu open
+  const menuBolHandleClick = (event) => {
+    setAnchorElBol(event.currentTarget);
+  };
+
+  // BOL  menu close
+  const menuBolHandleClose = () => {
+    setAnchorElBol(null);
+  };
+
+  //BOL pickup
+  const pickupBolOpenHandler = () => {
+    const newWindow = window.open(
+      orderData.order_bol?.pickup_BOL,
+      "_blank",
+      "noopener,noreferrer"
+    );
+    if (newWindow) newWindow.opener = null;
+    menuBolHandleClose();
+  };
+
+  //BOL delivery
+  const deliveryBolOpenHandler = () => {
+    const newWindow = window.open(
+      orderData.order_bol?.delivery_BOL,
+      "_blank",
+      "noopener,noreferrer"
+    );
+    if (newWindow) newWindow.opener = null;
+    menuBolHandleClose();
+  };
 
   //Assign Driver Dialog
-  const assignButtonAndDialog =  (
+  const assignButtonAndDialog = (
     <div>
       <AssignDriverDialog
         carrier_id={"1840b8a5-3381-41f7-9838-8ad23a7b50bd"}
@@ -62,14 +131,78 @@ export default function orderCard({orderData, drivers, orderId, reloadHandler}) 
         order_status={orderData.order_status}
         order_id={orderId}
         order_shipper_inner_id={orderData.order_shipper_inner_id}
-        order_assigned_driver={orderData.roles.driver_system_id !== ""
-        ? orderData.users_names.driver_name
-        : "Not assigned"}
+        order_assigned_driver={
+          orderData.roles.driver_system_id !== ""
+            ? orderData.users_names.driver_name
+            : "Not assigned"
+        }
         reloadHandler={reloadHandler}
       />
     </div>
   );
 
+  //CONTENT
+
+  let cancelButtonContent;
+  if (
+    orderData.order_status === "Assigned" ||
+    orderData.order_status === "New"
+  ) {
+    cancelButtonContent = (
+      <Button
+        onClick={cancelOrderHandler}
+        size="small"
+        variant="outlined"
+        className={classes.button}
+      >
+        Cancel
+      </Button>
+    );
+  }
+
+  let archiveButtonContent;
+  if (orderData.order_status === "Paid") {
+    archiveButtonContent = (
+      <Button
+        onClick={archiveOrderHandler}
+        size="small"
+        variant="outlined"
+        className={classes.button}
+      >
+        Archive
+      </Button>
+    );
+  }
+
+  let iconOriginEditContent;
+  if (isEditMode) {
+    iconOriginEditContent = (
+      <IconButton
+        aria-label="expand row"
+        size="small"
+        onClick={() => {
+          setIsLocationPickupDialogOpen(true);
+        }}
+      >
+        <EditIcon style={{ color: "red" }} />
+      </IconButton>
+    );
+  }
+
+  let iconDestinationEditContent;
+  if (isEditMode) {
+    iconDestinationEditContent = (
+      <IconButton
+        aria-label="expand row"
+        size="small"
+        onClick={() => {
+          setIsLocationDeliveryDialogOpen(true);
+        }}
+      >
+        <EditIcon style={{ color: "red" }} />
+      </IconButton>
+    );
+  }
 
   return (
     <Grid container spacing={0}>
@@ -96,7 +229,7 @@ export default function orderCard({orderData, drivers, orderId, reloadHandler}) 
                       fontWeight="fontWeightMedium"
                     >
                       <Button size="small" disabled className={classes.button}>
-                      {orderData.order_status}
+                        {orderData.order_status}
                       </Button>
                     </Box>
                   </Grid>
@@ -106,9 +239,25 @@ export default function orderCard({orderData, drivers, orderId, reloadHandler}) 
                       color="textPrimary"
                       align="left"
                     >
-    
-                        {assignButtonAndDialog}{" "}
-                     
+                      {assignButtonAndDialog}{" "}
+                    </Box>
+                  </Grid>
+                  <Grid item xs={1}>
+                    <Box
+                      className={classes.title}
+                      color="textPrimary"
+                      align="left"
+                    >
+                      {archiveButtonContent}
+                    </Box>
+                  </Grid>
+                  <Grid item xs={1}>
+                    <Box
+                      className={classes.title}
+                      color="textPrimary"
+                      align="left"
+                    >
+                      {cancelButtonContent}
                     </Box>
                   </Grid>
                   <Grid item xs={1}>
@@ -118,24 +267,13 @@ export default function orderCard({orderData, drivers, orderId, reloadHandler}) 
                       align="left"
                     >
                       <Button
+                        color="secondary"
                         size="small"
-                        variant="outlined"
+                        variant={isEditMode ? "contained" : "outlined"}
                         className={classes.button}
-                      >
-                        CANCEL{" "}
-                      </Button>
-                    </Box>
-                  </Grid>
-                  <Grid item xs={1}>
-                    <Box
-                      className={classes.title}
-                      color="textPrimary"
-                      align="left"
-                    >
-                      <Button
-                        size="small"
-                        variant="outlined"
-                        className={classes.button}
+                        onClick={() => {
+                          setIsEditMode(!isEditMode);
+                        }}
                       >
                         EDIT{" "}
                       </Button>
@@ -151,9 +289,25 @@ export default function orderCard({orderData, drivers, orderId, reloadHandler}) 
                         size="small"
                         variant="outlined"
                         className={classes.button}
+                        onClick={menuBolHandleClick}
                       >
                         BOL{" "}
                       </Button>
+                      <Menu
+                        id="bol-menu"
+                        anchorEl={anchorElBol}
+                        keepMounted
+                        open={Boolean(anchorElBol)}
+                        onClose={menuBolHandleClose}
+                      >
+                        <MenuItem onClick={pickupBolOpenHandler}>
+                          Pickup Bol
+                        </MenuItem>
+
+                        <MenuItem onClick={deliveryBolOpenHandler}>
+                          Delivery Bol
+                        </MenuItem>
+                      </Menu>
                     </Box>
                   </Grid>
                   <Grid item xs={1}>
