@@ -1,18 +1,17 @@
 import React, { useState, useEffect } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import AppBar from "@material-ui/core/AppBar";
-import Button from "@material-ui/core/Button";
 import Toolbar from "@material-ui/core/Toolbar";
-import Tabs from "@material-ui/core/Tabs";
-import Tab from "@material-ui/core/Tab";
 import Typography from "@material-ui/core/Typography";
-import Box from "@material-ui/core/Box";
 import Grid from "@material-ui/core/Grid";
-import Container from "@material-ui/core/Container";
+import Button from "@material-ui/core/Button";
 import Chip from "@material-ui/core/Chip";
 import Avatar from "@material-ui/core/Avatar";
-import DoneIcon from "@material-ui/icons/Done";
-import FaceIcon from "@material-ui/icons/Face";
+import axios from "axios";
+import { useRouter } from "next/router";
+import useSWR from "swr";
+
+import OrderCard from "../../components/order/orderCard";
 
 const drawerWidth = 120;
 
@@ -49,14 +48,30 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function orders() {
+export default function orders(props) {
   const classes = useStyles();
+  const router = useRouter();
+  const [orders, setOrders] = useState([]);
+  const [drivers, setDrivers] = useState([]);
+
   const [statusAll, setStatusAll] = useState(true);
   const [statusNew, setStatusNew] = useState(false);
   const [statusAssigned, setStatusAssigned] = useState(false);
   const [statusPicked, setStatusPicked] = useState(false);
   const [statusDelivered, setStatusDelivered] = useState(false);
   const [statusPaid, setStatusPaid] = useState(false);
+  const [readyToUpdateOrders, setReadyToUpdateOrders] = useState(false);
+  const [readyToReload, setReadyToReload] = useState(false)
+
+  useEffect(() => {
+    const request = async () => {
+      const resultOrders = await axios.get("/api/orders");
+      const resultDrivers = await axios.get("/api/drivers");
+      setOrders(resultOrders.data);
+      setDrivers(resultDrivers.data);
+    };
+    request();
+  }, [readyToReload]);
 
   useEffect(() => {
     if (
@@ -70,28 +85,51 @@ export default function orders() {
     }
   }, [statusNew, statusAssigned, statusPicked, statusDelivered, statusPaid]);
 
+  useEffect(() => {
+    if (readyToUpdateOrders) {
+      const request = async () => {
+        const resultOrders = await axios.post("/api/orders", {
+          statusAll,
+          statusNew,
+          statusAssigned,
+          statusPicked,
+          statusDelivered,
+          statusPaid,
+        });
+        setReadyToUpdateOrders(false)
+        setOrders(resultOrders.data)
+      };
+      request();
+    }
+  }, [readyToUpdateOrders]);
+
   // handler to select status of the load to show
   const statusSelectHandler = (status) => {
     switch (status) {
       case "New":
         setStatusNew(!statusNew);
         setStatusAll(false);
+        setReadyToUpdateOrders(true);
         break;
       case "Assigned":
         setStatusAssigned(!statusAssigned);
         setStatusAll(false);
+        setReadyToUpdateOrders(true);
         break;
       case "Picked":
         setStatusPicked(!statusPicked);
         setStatusAll(false);
+        setReadyToUpdateOrders(true);
         break;
       case "Delivered":
         setStatusDelivered(!statusDelivered);
         setStatusAll(false);
+        setReadyToUpdateOrders(true);
         break;
       case "Paid":
         setStatusPaid(!statusPaid);
         setStatusAll(false);
+        setReadyToUpdateOrders(true);
         break;
     }
   };
@@ -104,7 +142,13 @@ export default function orders() {
     setStatusPicked(false);
     setStatusDelivered(false);
     setStatusPaid(false);
+    setReadyToUpdateOrders(true);
   };
+
+  //reloadHandler
+  const reloadHandler = () =>{
+    setReadyToReload(!readyToReload)
+  }
 
   return (
     <div>
@@ -204,7 +248,16 @@ export default function orders() {
 
       <Grid container spacing={2} className={classes.container}>
         <Grid item xs={12}>
-          <div className={classes.scrollable}></div>
+          <div className={classes.scrollable}>
+            {orders.map((order) => (
+              <OrderCard
+                orderData={order.data}
+                orderId={order.id}
+                drivers={drivers}
+                reloadHandler={reloadHandler}
+              />
+            ))}
+          </div>
         </Grid>
       </Grid>
     </div>

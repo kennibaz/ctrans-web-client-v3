@@ -21,7 +21,7 @@ const useStyles = makeStyles((theme) => ({
   },
   drawerPaper: {
     width: drawerWidth,
-    background:'#735cab',
+    background:'#432c7d',
     color: "#d7d5da"
   },
   // necessary for content to be below app bar

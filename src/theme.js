@@ -5,6 +5,9 @@ import { red } from '@material-ui/core/colors';
 // Create a theme instance.
 const theme = createMuiTheme({
   palette: {
+    action: {
+      disabled: 'black'
+    },
    
     error: {
       main: red.A400,
