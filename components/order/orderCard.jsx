@@ -18,9 +18,12 @@ import {
 import EditIcon from "@material-ui/icons/Edit";
 import KeyboardArrowDownIcon from "@material-ui/icons/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@material-ui/icons/KeyboardArrowUp";
+import PhotoInspectionImages from "./PhotoInspectionImages";
+import LocationEditDialog from "./dialogs/LocationEditDialog";
 
 //dialogs
 import AssignDriverDialog from "./dialogs/AssignDriverDialog";
+import InstructionsModal from "./dialogs/InstructionDialogModal";
 
 const useStyles = makeStyles((theme) => ({
   title: {
@@ -48,12 +51,78 @@ export default function orderCard({
   orderData,
   drivers,
   orderId,
+  carrierId,
   reloadHandler,
 }) {
   const classes = useStyles();
   const [isEditMode, setIsEditMode] = useState(false);
   const [anchorElBol, setAnchorElBol] = useState(null);
   const [anchorEl, setAnchorEl] = useState(null);
+  const [
+    isPhotoInspectionDialogOpen,
+    setIsPhotoInspectionDialogOpen,
+  ] = useState(false);
+  const [isLocationPickupDialogOpen, setIsLocationPickupDialogOpen] = useState(
+    false
+  );
+  const [
+    isLocationDeliveryDialogOpen,
+    setIsLocationDeliveryDialogOpen,
+  ] = useState(false);
+  const [
+    isInstructionsModalDialogOpen,
+    setIsInstructionsModalDialogOpen,
+  ] = useState(false);
+  const [pickupImages, setPickupImages] = useState([]);
+  const [deliveryImages, setDeliveryImages] = useState([]);
+  const [openVehicles, setOpenVehicles] = useState(false);
+  const [openPickupAddress, setOpenPickupAddress] = useState(false);
+  const [openDeliveryAddress, setOpenDeliveryAddress] = useState(false);
+
+  //USEEFFECTS
+
+  // pack the photos object
+  useEffect(() => {
+    let imagesRawPickup = [];
+
+    if (orderData.pickup.pickup_conditions?.pickup_inspection_images_links) {
+      orderData.pickup.pickup_conditions.pickup_inspection_images_links.forEach(
+        (image) => {
+          const newImageSet = {
+            original: image,
+            thumbnail: image,
+          };
+          imagesRawPickup.push(newImageSet);
+        }
+      );
+
+      setPickupImages(imagesRawPickup);
+    }
+  }, [orderData.pickup.pickup_conditions?.pickup_inspection_images_links]);
+
+  // pack the photos object
+  useEffect(() => {
+    let imagesRawDelivery = [];
+
+    if (
+      orderData.delivery.delivery_conditions?.delivery_inspection_images_links
+    ) {
+      orderData.delivery.delivery_conditions.delivery_inspection_images_links.forEach(
+        (image) => {
+          const newImageSet = {
+            original: image,
+            thumbnail: image,
+          };
+          imagesRawDelivery.push(newImageSet);
+        }
+      );
+
+      setDeliveryImages(imagesRawDelivery);
+    }
+  }, [
+    orderData.delivery.delivery_conditions?.delivery_inspection_images_links,
+    orderData.pickup.pickup_conditions?.pickup_inspection_images_links,
+  ]);
 
   //HANDLERS
   //cancel handler
@@ -76,15 +145,13 @@ export default function orderCard({
 
   // paid order
   const paidOrderHandler = async () => {
-    if (props.order_status === "Delivered") {
-      db.collection("carriers-records")
-        .doc(props.carrier_id)
-        .collection("orders")
-        .doc(props.order_id)
-        .update({
-          order_status: "Paid",
-        });
+    if (orderData.order_status === "Delivered") {
+      await axios.post("/api/orders/order-paid", {
+        carrierId: "1840b8a5-3381-41f7-9838-8ad23a7b50bd",
+        orderId,
+      });
       menuHandleClose();
+      reloadHandler();
     } else {
       alert("You can mark as paid only after delivery");
       menuHandleClose();
@@ -100,6 +167,16 @@ export default function orderCard({
     setAnchorElBol(null);
   };
 
+  //open menu popup and set current order
+  const menuHandleClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  // Handler to close menu popup
+  const menuHandleClose = () => {
+    setAnchorEl(null);
+  };
+
   //BOL pickup
   const pickupBolOpenHandler = () => {
     const newWindow = window.open(
@@ -109,6 +186,24 @@ export default function orderCard({
     );
     if (newWindow) newWindow.opener = null;
     menuBolHandleClose();
+  };
+
+  //Close photo caroulse dialog
+  const closePhotoInspectionDialog = () => {
+    setIsPhotoInspectionDialogOpen(false);
+  };
+
+  //close pickup edit dialog
+  const closePickupEditDialog = () => {
+    setIsLocationPickupDialogOpen(false);
+  };
+  //close delivery edit dialog
+  const closeDeliveryEditDialog = () => {
+    setIsLocationDeliveryDialogOpen(false);
+  };
+  //close instruction dialog
+  const closeInstructionsDialog = () => {
+    setIsInstructionsModalDialogOpen(false);
   };
 
   //BOL delivery
@@ -139,6 +234,49 @@ export default function orderCard({
         reloadHandler={reloadHandler}
       />
     </div>
+  );
+  // pickup edit location dialog
+  const pickupEditDialog = (
+    <LocationEditDialog
+      isOpen={isLocationPickupDialogOpen}
+      closePickupEditDialog={closePickupEditDialog}
+      carrierId={carrierId}
+      orderId={orderId}
+      orderData={orderData}
+      pickup
+      reloadHandler={reloadHandler}
+    />
+  );
+
+  //Location editing dialog for delivery
+  const deliveryEditDialog = (
+    <LocationEditDialog
+      isOpen={isLocationDeliveryDialogOpen}
+      closePickupEditDialog={closeDeliveryEditDialog}
+      carrierId={carrierId}
+      orderId={orderId}
+      orderData={orderData}
+      reloadHandler={reloadHandler}
+    />
+  );
+
+  // Instructions dialog
+  let instructionsDialog = (
+    <InstructionsModal
+      order_instructions={orderData.order_instructions}
+      isOpen={isInstructionsModalDialogOpen}
+      closeInstructionsDialog={closeInstructionsDialog}
+    />
+  );
+
+  //show photo carouse dialog
+  let photoInspectionDialog = (
+    <PhotoInspectionImages
+      pickupImages={pickupImages}
+      deliveryImages={deliveryImages}
+      isOpen={isPhotoInspectionDialogOpen}
+      closePhotoInspectionDialog={closePhotoInspectionDialog}
+    />
   );
 
   //CONTENT
@@ -204,6 +342,86 @@ export default function orderCard({
     );
   }
 
+  let vehiclesContent;
+  if (orderData.vehiclesArray.length <= 1) {
+    vehiclesContent = (
+      <div>
+        <Grid item xs={12}>
+          <Box
+            color="textPrimary"
+            gutterBottom
+            align="left"
+            fontWeight="fontWeightMedium"
+          >
+            {orderData.vehiclesArray[0].year +
+              " " +
+              orderData.vehiclesArray[0].make +
+              " " +
+              orderData.vehiclesArray[0].model}
+          </Box>
+        </Grid>
+        <Grid item xs={12}>
+          <Box color="textPrimary" gutterBottom align="left">
+            {orderData.vehiclesArray[0].vin}
+          </Box>
+        </Grid>
+      </div>
+    );
+  }
+
+  if (orderData.vehiclesArray.length > 1) {
+    vehiclesContent = (
+      <div>
+        <Grid container item xs={12}>
+          <Grid container item xs={12}>
+            <Box color="textPrimary" gutterBottom fontWeight="fontWeightMedium">
+              {orderData.vehiclesArray.length} mix vehicles
+              <IconButton
+                aria-label="expand row"
+                size="small"
+                onClick={() => setOpenVehicles(!openVehicles)}
+              >
+                {openVehicles ? (
+                  <KeyboardArrowUpIcon />
+                ) : (
+                  <KeyboardArrowDownIcon />
+                )}
+              </IconButton>
+            </Box>
+          </Grid>
+          <Collapse in={openVehicles} timeout="auto" unmountOnExit>
+            {orderData.vehiclesArray.map((vehicle, index) => (
+              <div key={index}>
+                <Grid item xs={12}>
+                  <Box
+                    className={classes.title}
+                    color="textPrimary"
+                    gutterBottom
+                    align="left"
+                    fontWeight="fontWeightMedium"
+                  >
+                    {vehicle.year + " " + vehicle.make + " " + vehicle.model}
+                  </Box>
+                </Grid>
+                <Grid item xs={12}>
+                  <Box
+                    className={classes.title}
+                    color="textPrimary"
+                    gutterBottom
+                    align="left"
+                  >
+                    {vehicle.vin}
+                  </Box>
+                </Grid>
+                <Divider />
+              </div>
+            ))}
+          </Collapse>
+        </Grid>
+      </div>
+    );
+  }
+
   return (
     <Grid container spacing={0}>
       <Grid item xs={12}>
@@ -215,12 +433,13 @@ export default function orderCard({
                   <Grid item xs={2}>
                     <Button
                       variant="outlined"
-                      // onClick={selectCardHandler}
+                      onClick={()=>{console.log("hi")}}
                       size="small"
                       className={classes.button}
                     >
                       {orderData.order_shipper_inner_id}
                     </Button>
+                    
                   </Grid>
                   <Grid item xs={1}>
                     <Box
@@ -320,6 +539,15 @@ export default function orderCard({
                         size="small"
                         variant="outlined"
                         className={classes.button}
+                        onClick={() => {
+                          setIsPhotoInspectionDialogOpen(true);
+                        }}
+                        disabled={
+                          !orderData.pickup.pickup_conditions
+                            ?.pickup_inspection_images_links &&
+                          !orderData.delivery.delivery_conditions
+                            ?.delivery_inspection_images_links
+                        }
                       >
                         PHOTO{" "}
                       </Button>
@@ -329,17 +557,7 @@ export default function orderCard({
                 <Grid id="second_row" container item xs={12}>
                   <Grid id="first_column" container item xs={2}>
                     <Box borderLeft={1} borderColor="primary.main" p={1}>
-                      <Grid item xs={12}>
-                        <Box
-                          className={classes.title}
-                          color="textPrimary"
-                          align="left"
-                          fontWeight="fontWeightMedium"
-                        >
-                          1999 Ford Mustang
-                        </Box>
-                      </Grid>
-
+                      {vehiclesContent}
                       <Divider />
                       <Grid item xs={12}>
                         <h1></h1>{" "}
@@ -351,7 +569,7 @@ export default function orderCard({
                           align="left"
                           fontWeight="fontWeightMedium"
                         >
-                          Order amount: $
+                          Order amount: ${orderData.order_total_amount}
                         </Box>
                       </Grid>
                       <Grid item xs={12}>
@@ -374,22 +592,22 @@ export default function orderCard({
                             aria-haspopup="true"
                             variant="outlined"
                             size="small"
-                            //   id={props.order_id}
-                            //   onClick={menuHandleClick}
+                            id={orderId}
+                            onClick={menuHandleClick}
                             className={classes.inColumnButton}
                           >
                             Options
                           </Button>
                           <Menu
                             id="options-menu"
-                            //   anchorEl={anchorEl}
+                            anchorEl={anchorEl}
                             keepMounted
-                            //   open={Boolean(anchorEl)}
-                            //   onClose={menuHandleClose}
+                            open={Boolean(anchorEl)}
+                            onClose={menuHandleClose}
                           >
-                            {/* <MenuItem onClick={paidOrderHandler}>
-                            Mark as Paid
-                          </MenuItem> */}
+                            <MenuItem onClick={paidOrderHandler}>
+                              Mark as Paid
+                            </MenuItem>
                           </Menu>
                         </Box>
                       </Grid>
@@ -405,6 +623,7 @@ export default function orderCard({
                           color="text.secondary"
                           fontWeight="fontWeightMedium"
                         >
+                          {iconOriginEditContent}
                           ORIGIN
                         </Box>
                       </Grid>
@@ -415,7 +634,7 @@ export default function orderCard({
                           align="left"
                           fontStyle="italic"
                         >
-                          @ scheduled date
+                          @ {orderData.pickup.pickup_scheduled_first_date}
                         </Box>
                       </Grid>
                       <Grid item xs={12}>
@@ -425,7 +644,7 @@ export default function orderCard({
                           align="left"
                           fontWeight="fontWeightMedium"
                         >
-                          Business Name
+                          {orderData.pickup.pickup_address.business_name}
                         </Box>
                       </Grid>
                       <Grid item xs={12}>
@@ -434,9 +653,44 @@ export default function orderCard({
                           color="textPrimary"
                           align="left"
                         >
-                          Pinellas Park, FL 33781
+                          {orderData.pickup.pickup_address.city +
+                            "," +
+                            " " +
+                            orderData.pickup.pickup_address.state +
+                            " " +
+                            orderData.pickup.pickup_address.zip}
+                          <IconButton
+                            aria-label="expand row"
+                            size="small"
+                            onClick={() =>
+                              setOpenPickupAddress(!openPickupAddress)
+                            }
+                          >
+                            {openPickupAddress ? (
+                              <KeyboardArrowUpIcon />
+                            ) : (
+                              <KeyboardArrowDownIcon />
+                            )}
+                          </IconButton>
                         </Box>
                       </Grid>
+                      <Collapse
+                        in={openPickupAddress}
+                        timeout="auto"
+                        unmountOnExit
+                      >
+                        <Grid item xs={12}>
+                          <Box
+                            className={classes.title}
+                            color="textPrimary"
+                            gutterBottom
+                            align="left"
+                          >
+                            {orderData.pickup.pickup_address.address}
+                          </Box>
+                        </Grid>
+                      </Collapse>
+
                       <Grid item xs={12}>
                         <Box
                           className={classes.title}
@@ -444,7 +698,7 @@ export default function orderCard({
                           align="left"
                           pt={2}
                         >
-                          Mark Trockiy
+                          {orderData.pickup.pickup_address.contact_name}
                         </Box>
                       </Grid>
                       <Grid item xs={12}>
@@ -453,7 +707,7 @@ export default function orderCard({
                           color="textPrimary"
                           align="left"
                         >
-                          P: +7 7727898565
+                          P: {orderData.pickup.pickup_address.phone}
                         </Box>
                       </Grid>
                     </Box>
@@ -468,6 +722,7 @@ export default function orderCard({
                           color="text.secondary"
                           fontWeight="fontWeightMedium"
                         >
+                          {iconDestinationEditContent}
                           DESTINATION
                         </Box>
                       </Grid>
@@ -478,7 +733,7 @@ export default function orderCard({
                           align="left"
                           fontStyle="italic"
                         >
-                          @ scheduled date
+                          @ {orderData.delivery.delivery_scheduled_first_date}
                         </Box>
                       </Grid>
                       <Grid item xs={12}>
@@ -488,7 +743,7 @@ export default function orderCard({
                           align="left"
                           fontWeight="fontWeightMedium"
                         >
-                          Business Name
+                          {orderData.delivery.delivery_address.business_name}
                         </Box>
                       </Grid>
                       <Grid item xs={12}>
@@ -497,9 +752,43 @@ export default function orderCard({
                           color="textPrimary"
                           align="left"
                         >
-                          Pinellas Park, FL 33781
+                          {orderData.delivery.delivery_address.city +
+                            "," +
+                            " " +
+                            orderData.delivery.delivery_address.state +
+                            " " +
+                            orderData.delivery.delivery_address.zip}
+                          <IconButton
+                            aria-label="expand row"
+                            size="small"
+                            onClick={() =>
+                              setOpenDeliveryAddress(!openDeliveryAddress)
+                            }
+                          >
+                            {openDeliveryAddress ? (
+                              <KeyboardArrowUpIcon />
+                            ) : (
+                              <KeyboardArrowDownIcon />
+                            )}
+                          </IconButton>
                         </Box>
                       </Grid>
+                      <Collapse
+                        in={openDeliveryAddress}
+                        timeout="auto"
+                        unmountOnExit
+                      >
+                        <Grid item xs={12}>
+                          <Box
+                            className={classes.title}
+                            color="textPrimary"
+                            gutterBottom
+                            align="left"
+                          >
+                            {orderData.delivery.delivery_address.address}
+                          </Box>
+                        </Grid>
+                      </Collapse>
                       <Grid item xs={12}>
                         <Box
                           className={classes.title}
@@ -507,7 +796,7 @@ export default function orderCard({
                           align="left"
                           pt={2}
                         >
-                          Mark Trockiy
+                          {orderData.delivery.delivery_address.contact_name}
                         </Box>
                       </Grid>
                       <Grid item xs={12}>
@@ -516,7 +805,7 @@ export default function orderCard({
                           color="textPrimary"
                           align="left"
                         >
-                          P: +7 7727898565
+                          P: {orderData.delivery.delivery_address.phone}
                         </Box>
                       </Grid>
                     </Box>
@@ -541,7 +830,7 @@ export default function orderCard({
                           align="left"
                           fontWeight="fontWeightMedium"
                         >
-                          Business Name
+                          {orderData.shipper.business_name}
                         </Box>
                       </Grid>
                       <Grid item xs={12}>
@@ -550,7 +839,7 @@ export default function orderCard({
                           color="textPrimary"
                           align="left"
                         >
-                          P: +7 7727898565
+                          P: {orderData.shipper.phone}
                         </Box>
                       </Grid>
                       <Grid item xs={12}>
@@ -563,9 +852,13 @@ export default function orderCard({
                             variant="outlined"
                             size="small"
                             className={classes.inColumnButton}
+                            onClick={() => {
+                              setIsInstructionsModalDialogOpen(true);
+                            }}
                           >
                             Open instructions
                           </Button>
+                          {instructionsDialog}
                         </Box>
                       </Grid>
                     </Box>
@@ -591,6 +884,9 @@ export default function orderCard({
           </Box>
         </Card>
       </Grid>
+      {photoInspectionDialog}
+      {pickupEditDialog}
+      {deliveryEditDialog}
     </Grid>
   );
 }

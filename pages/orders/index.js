@@ -1,18 +1,24 @@
 import React, { useState, useEffect } from "react";
-import { makeStyles } from "@material-ui/core/styles";
+import { fade, makeStyles } from "@material-ui/core/styles";
 import AppBar from "@material-ui/core/AppBar";
 import Toolbar from "@material-ui/core/Toolbar";
 import Typography from "@material-ui/core/Typography";
 import Grid from "@material-ui/core/Grid";
-import Button from "@material-ui/core/Button";
 import Chip from "@material-ui/core/Chip";
 import Avatar from "@material-ui/core/Avatar";
+import TextField from "@material-ui/core/TextField";
+import IconButton from "@material-ui/core/IconButton";
+import Button from "@material-ui/core/Button";
+import InputAdornment from "@material-ui/core/InputAdornment";
+import SearchIcon from "@material-ui/icons/Search";
+import FormControl from "@material-ui/core/FormControl";
+import Select from "@material-ui/core/Select";
+import MenuItem from "@material-ui/core/MenuItem";
+import InputLabel from "@material-ui/core/InputLabel";
 import axios from "axios";
 import { useRouter } from "next/router";
-import useSWR from "swr";
 
 import OrderCard from "../../components/order/orderCard";
-
 const drawerWidth = 120;
 
 const useStyles = makeStyles((theme) => ({
@@ -46,13 +52,27 @@ const useStyles = makeStyles((theme) => ({
     backgroundColor: theme.palette.background.default,
     padding: theme.spacing(0),
   },
+  inputText: {
+    fontSize: 12,
+  },
+  formControl: {
+    margin: theme.spacing(1),
+    minWidth: 120,
+  },
+  selectLabel: {
+    marginBottom: 5,
+    paddingBottom: 5,
+  },
 }));
 
 export default function orders(props) {
   const classes = useStyles();
   const router = useRouter();
   const [orders, setOrders] = useState([]);
+  const [ordersForSearch, setOrdersForSearch] = useState([]);
   const [drivers, setDrivers] = useState([]);
+  const [searchWord, setSearchWord] = useState("");
+  const [selectedDriver, setSelectedDriver] = useState(false);
 
   const [statusAll, setStatusAll] = useState(true);
   const [statusNew, setStatusNew] = useState(false);
@@ -61,32 +81,42 @@ export default function orders(props) {
   const [statusDelivered, setStatusDelivered] = useState(false);
   const [statusPaid, setStatusPaid] = useState(false);
   const [readyToUpdateOrders, setReadyToUpdateOrders] = useState(false);
-  const [readyToReload, setReadyToReload] = useState(false)
+  const [readyToReload, setReadyToReload] = useState(false);
 
   useEffect(() => {
+    console.log("reloading");
     const request = async () => {
       const resultOrders = await axios.get("/api/orders");
       const resultDrivers = await axios.get("/api/drivers");
       setOrders(resultOrders.data);
+      setOrdersForSearch(resultOrders.data);
       setDrivers(resultDrivers.data);
     };
     request();
   }, [readyToReload]);
 
   useEffect(() => {
-    if (
-      !statusNew &&
-      !statusAssigned &&
-      !statusPicked &&
-      !statusDelivered &&
-      !statusPaid
-    ) {
-      setStatusAll(true);
-    }
-  }, [statusNew, statusAssigned, statusPicked, statusDelivered, statusPaid]);
-
-  useEffect(() => {
     if (readyToUpdateOrders) {
+      if (
+        !statusNew &&
+        !statusAssigned &&
+        !statusPicked &&
+        !statusDelivered &&
+        !statusPaid
+      ) {
+        setStatusAll(true);
+        const request = async () => {
+          const resultOrders = await axios.post("/api/orders", {
+            statusAll: true,
+            selectedDriver,
+          });
+          setReadyToUpdateOrders(false);
+          setOrders(resultOrders.data);
+        };
+        request();
+        return;
+      }
+
       const request = async () => {
         const resultOrders = await axios.post("/api/orders", {
           statusAll,
@@ -95,13 +125,47 @@ export default function orders(props) {
           statusPicked,
           statusDelivered,
           statusPaid,
+          selectedDriver,
         });
-        setReadyToUpdateOrders(false)
-        setOrders(resultOrders.data)
+
+        setReadyToUpdateOrders(false);
+        setOrders(resultOrders.data);
       };
       request();
     }
   }, [readyToUpdateOrders]);
+
+  //search engine
+
+  const searchHandler = () => {
+    let searchToLower = searchWord.toLowerCase();
+    const filteredResults = ordersForSearch.filter(
+      (order) =>
+        order.data.order_shipper_inner_id
+          .toLowerCase()
+          .includes(searchToLower) ||
+        order.data.shipper.business_name
+          .toLowerCase()
+          .includes(searchToLower) ||
+        order.data.vehiclesArray.some(
+          (vehicle) => vehicle.make.toLowerCase() === searchToLower
+        ) ||
+        order.data.vehiclesArray.some(
+          (vehicle) => vehicle.model.toLowerCase() === searchToLower
+        )
+    );
+    setOrders(filteredResults);
+  };
+  const clearSearchHandler = () => {
+    setSearchWord("");
+    setSelectedDriver("");
+    setOrders(ordersForSearch);
+  };
+
+  const selectedDriverHandler = (e) => {
+    setSelectedDriver(e.target.value);
+    setReadyToUpdateOrders(true);
+  };
 
   // handler to select status of the load to show
   const statusSelectHandler = (status) => {
@@ -146,9 +210,9 @@ export default function orders(props) {
   };
 
   //reloadHandler
-  const reloadHandler = () =>{
-    setReadyToReload(!readyToReload)
-  }
+  const reloadHandler = () => {
+    setReadyToReload(!readyToReload);
+  };
 
   return (
     <div>
@@ -161,10 +225,69 @@ export default function orders(props) {
           </Grid>
         </Toolbar>
         <Toolbar className={classes.middleToolBar}>
-          <Grid>
-            <Typography variant="h6" noWrap>
-              TOOL BAR
-            </Typography>
+          <Grid container alignItems="center" spacing={2}>
+            <Grid item={4}>
+              {" "}
+              <TextField
+                id="shipper_id"
+                required
+                placeholder="Vehicle, Order, Shipper"
+                margin="dense"
+                value={searchWord}
+                onChange={(e) => {
+                  setSearchWord(e.target.value);
+                }}
+                name="shipper_id"
+                variant="outlined"
+                InputProps={{
+                  classes: { input: classes.inputText },
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton
+                        onClick={() => {
+                          searchHandler();
+                        }}
+                      >
+                        <SearchIcon />
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                }}
+              />
+            </Grid>
+
+            <Grid item xs={3}>
+              <FormControl variant="outlined" className={classes.formControl}>
+                <InputLabel
+                  shrink
+                  margin="dense"
+                  className={classes.selectLabel}
+                >
+                  Filter by drivers
+                </InputLabel>
+                <Select
+                  id="type"
+                  margin="dense"
+                  placeholder="Filter by drivers"
+                  name="type"
+                  value={selectedDriver}
+                  onChange={(e) => {
+                    selectedDriverHandler(e);
+                  }}
+                  style={{ fontSize: 12, width: "200%" }}
+                >
+                  {drivers.map((driver) => (
+                    <MenuItem value={driver.id}>
+                      {driver.data.firstName + " " + driver.data.lastName}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>{" "}
+            </Grid>
+            <Grid item xs={1}>
+              <Button onClick={clearSearchHandler}>CLEAR</Button>
+            </Grid>
+            <Grid item={3}></Grid>
           </Grid>
         </Toolbar>
         <Toolbar className={classes.lowerToolBar}>
@@ -251,9 +374,11 @@ export default function orders(props) {
           <div className={classes.scrollable}>
             {orders.map((order) => (
               <OrderCard
+                key={order.id}
                 orderData={order.data}
                 orderId={order.id}
                 drivers={drivers}
+                carrierId={"1840b8a5-3381-41f7-9838-8ad23a7b50bd"}
                 reloadHandler={reloadHandler}
               />
             ))}

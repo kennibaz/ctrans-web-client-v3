@@ -173,7 +173,7 @@ export default function AssignDriverDialog(props) {
                   onChange={driverSelectHandler}
                 >
                   {props.drivers.map((driver) => (
-                    <MenuItem value={driver.id}>
+                    <MenuItem value={driver.id} key={driver.id}>
                       {driver.data.lastName}
                     </MenuItem>
                   ))}

@@ -2,10 +2,12 @@ import firebase from "../../../firebase/firebase-adm";
 
 export default async (req, res) => {
   if (req.method === "GET") {
-    var orderRef = firebase.firestore()
+    var orderRef = firebase
+      .firestore()
       .collection("carriers-records")
       .doc("1840b8a5-3381-41f7-9838-8ad23a7b50bd")
-      .collection("orders");
+      .collection("orders")
+      .where("order_status", "!=", "Archived");
     let new_array = [];
     orderRef
       .get()
@@ -31,6 +33,7 @@ export default async (req, res) => {
       statusPicked,
       statusDelivered,
       statusPaid,
+      selectedDriver,
     } = req.body;
 
     let requestArray = [];
@@ -40,13 +43,15 @@ export default async (req, res) => {
     statusPicked && requestArray.push("Picked");
     statusDelivered && requestArray.push("Delivered");
     statusPaid && requestArray.push("Paid");
-    statusAll && requestArray.push("New","Assigned", "Picked","Delivered", "Paid" );
+    statusAll &&
+      requestArray.push("New", "Assigned", "Picked", "Delivered", "Paid");
 
-
-    var orderRef = firebase.firestore()
+    var orderRef = firebase
+      .firestore()
       .collection("carriers-records")
       .doc("1840b8a5-3381-41f7-9838-8ad23a7b50bd")
-      .collection("orders");
+      .collection("orders")
+      .where("order_status", "!=", "Archived");
     let new_array = [];
     let filtered_array = [];
     orderRef
@@ -66,6 +71,14 @@ export default async (req, res) => {
             }
           });
         });
+
+        if (selectedDriver) {
+          const filteredArrayByDriver = filtered_array.filter((order) => {
+            return order.data.roles.driver_system_id === selectedDriver;
+          });
+          res.json(filteredArrayByDriver);
+          return;
+        }
         res.json(filtered_array);
       })
       .catch(function (error) {
