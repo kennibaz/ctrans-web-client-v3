@@ -84,7 +84,6 @@ export default function orders(props) {
   const [readyToReload, setReadyToReload] = useState(false);
 
   useEffect(() => {
-    console.log("reloading");
     const request = async () => {
       const resultOrders = await axios.get("/api/orders");
       const resultDrivers = await axios.get("/api/drivers");
@@ -256,7 +255,7 @@ export default function orders(props) {
               />
             </Grid>
 
-            <Grid item xs={3}>
+            <Grid item xs={2}>
               <FormControl variant="outlined" className={classes.formControl}>
                 <InputLabel
                   shrink

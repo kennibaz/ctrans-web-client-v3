@@ -6,7 +6,7 @@ import List from "@material-ui/core/List";
 import Divider from "@material-ui/core/Divider";
 import ListItem from "@material-ui/core/ListItem";
 import ListItemText from "@material-ui/core/ListItemText";
-
+import Link from "next/link";
 
 const drawerWidth = 120;
 
@@ -17,12 +17,11 @@ const useStyles = makeStyles((theme) => ({
   drawer: {
     width: drawerWidth,
     flexShrink: 0,
-
   },
   drawerPaper: {
     width: drawerWidth,
-    background:'#432c7d',
-    color: "#d7d5da"
+    background: "#432c7d",
+    color: "#d7d5da",
   },
   // necessary for content to be below app bar
   toolbar: theme.mixins.toolbar,
@@ -39,7 +38,7 @@ export default function PermanentDrawerLeft(props) {
   return (
     <div className={classes.root}>
       <CssBaseline />
-    
+
       <Drawer
         className={classes.drawer}
         variant="permanent"
@@ -52,7 +51,9 @@ export default function PermanentDrawerLeft(props) {
         <Divider />
         <List>
           <ListItem button>
-            <ListItemText primary={"ORDERS"} />
+            <Link href={`/orders/`} >
+              <ListItemText primary={"ORDERS"} />
+            </Link>
           </ListItem>
           <ListItem button>
             <ListItemText primary={"USERS"} />
@@ -63,16 +64,16 @@ export default function PermanentDrawerLeft(props) {
         </List>
         <Divider />
         <List>
-          <ListItem button >
+          <ListItem button>
             <ListItemText primary={"ROUTES"} />
           </ListItem>
-          <ListItem button >
+          <ListItem button>
             <ListItemText primary={"TRIPS"} />
           </ListItem>
-          <ListItem button >
+          <ListItem button>
             <ListItemText primary={"SETTINGS"} />
           </ListItem>
-          <ListItem button >
+          <ListItem button>
             <ListItemText primary={"Sign out"} />
           </ListItem>
         </List>

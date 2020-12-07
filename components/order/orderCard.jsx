@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import axios from "axios";
+import Link from 'next/link'
 
 import {
   Grid,
@@ -431,6 +432,7 @@ export default function orderCard({
               <Grid id="container-1" container spacing={1}>
                 <Grid id="first_row" container item xs={8}>
                   <Grid item xs={2}>
+                  <Link href={`/orders/details/${orderId}`} passHref>
                     <Button
                       variant="outlined"
                       onClick={()=>{console.log("hi")}}
@@ -439,7 +441,7 @@ export default function orderCard({
                     >
                       {orderData.order_shipper_inner_id}
                     </Button>
-                    
+                    </Link>
                   </Grid>
                   <Grid item xs={1}>
                     <Box
