@@ -32,6 +32,10 @@ import axios from "axios";
 import Dialog from "@material-ui/core/Dialog";
 import Slide from "@material-ui/core/Slide";
 import TextField from "@material-ui/core/TextField";
+import List from "@material-ui/core/List";
+import ListItem from "@material-ui/core/ListItem";
+import ListItemIcon from "@material-ui/core/ListItemIcon";
+import ListItemText from "@material-ui/core/ListItemText";
 
 import CloseIcon from "@material-ui/icons/Close";
 import IconButton from "@material-ui/core/IconButton";
@@ -126,6 +130,7 @@ export default function orderDetails() {
   const [orderData, setOrderData] = useState("");
   const [drivers, setDrivers] = useState("");
   const [messageContent, setMessageContent] = useState("");
+  const [emailForBol, setEmailForBol] = useState("info@azbsupply.com");
   const [readyToReload, setReadyToReload] = useState("");
   const [openEditDialog, setOpenEditDialog] = React.useState(false);
 
@@ -178,6 +183,31 @@ export default function orderDetails() {
 
   const reloadHandler = () => {
     setReadyToReload(!readyToReload);
+  };
+  // send bol button handler
+  const sendBolHandler = async () => {
+    if(orderData.data.order_status === "New" || orderData.data.order_status === "Assigned"  ){
+      return
+    }
+    await axios.post("/api/bol/send-bol", {
+      orderId,
+      email: emailForBol,
+      carrierId: "1840b8a5-3381-41f7-9838-8ad23a7b50bd",
+      orderShipperInnerId: orderData.data.order_shipper_inner_id,
+    });
+  };
+
+  // send invoice button handler
+  const sendInvoiceHandler = async () => {
+    if(orderData.data.order_status === "New" || orderData.data.order_status === "Assigned"  ){
+      return
+    }
+    await axios.post("/api/bol/send-invoice", {
+      orderId,
+      email: emailForBol,
+      carrierId: "1840b8a5-3381-41f7-9838-8ad23a7b50bd",
+      orderShipperInnerId: orderData.data.order_shipper_inner_id,
+    });
   };
 
   //mark order as paid
@@ -252,6 +282,84 @@ export default function orderDetails() {
 
   //page content
 
+  const photoPickupContent = (
+    <Card className={classes.root}>
+      <CardActionArea>
+        <CardMedia
+          className={classes.media}
+          image={"https://via.placeholder.com/150"}
+          title="Load photo"
+        />
+        <CardContent>
+          <Typography variant="body2" color="textSecondary" component="p">
+            Photos are unavailable yet
+          </Typography>
+        </CardContent>
+      </CardActionArea>
+    </Card>
+  );
+  const photoDeliveryContent = (
+    <Card className={classes.root}>
+      <CardActionArea>
+        <CardMedia
+          className={classes.media}
+          image={"https://via.placeholder.com/150"}
+          title="Load photo"
+        />
+        <CardContent>
+          <Typography variant="body2" color="textSecondary" component="p">
+            Photos are unavailable yet
+          </Typography>
+        </CardContent>
+      </CardActionArea>
+    </Card>
+  );
+
+  if (orderData.data.pickup.pickup_conditions?.pickup_inspection_images_links) {
+    const photoPickupContent = orderData.data.pickup.pickup_conditions?.pickup_inspection_images_links.map(
+      (photo, index) => (
+        <Card className={classes.root} key={index}>
+          <CardActionArea>
+            <CardMedia
+              className={classes.media}
+              image={photo}
+              title="Load photo"
+            />
+            <CardContent>
+              <Typography variant="body2" color="textSecondary" component="p">
+                1972 Ford Mustang
+              </Typography>
+            </CardContent>
+          </CardActionArea>
+        </Card>
+      )
+    );
+  }
+
+  if (
+    orderData.data.delivery.delivery_conditions
+      ?.delivery_inspection_images_links
+  ) {
+    const photoDeliveryContent = orderData.data.delivery.delivery_conditions?.delivery_inspection_images_links.map(
+      (photo, index) => (
+        <Card className={classes.root} key={index}>
+          <CardActionArea>
+            <CardMedia
+              className={classes.media}
+              image={photo}
+              title="Load photo"
+            />
+            <CardContent>
+              <Typography variant="body2" color="textSecondary" component="p">
+                1972 Ford Mustang
+              </Typography>
+            </CardContent>
+          </CardActionArea>
+        </Card>
+      )
+    );
+  }
+
   const appBarContent = (
     <AppBar position="fixed" className={classes.appBar} elevation={0}>
       <Toolbar className={classes.upperToolBar}>
@@ -297,11 +405,21 @@ export default function orderDetails() {
             </ButtonGroup>
           </Grid>
           <Grid item xs={2}>
+            
             <ButtonGroup size="small" aria-label="small outlined button group">
-              <Button size="small" className={classes.button}>
+              <Button
+                size="small"
+                className={classes.button}
+                onClick={sendBolHandler}
+                
+              >
                 Send BOL
               </Button>
-              <Button size="small" className={classes.button}>
+              <Button
+                size="small"
+                className={classes.button}
+                onClick={sendInvoiceHandler}
+              >
                 Send invoice
               </Button>
             </ButtonGroup>
@@ -552,7 +670,7 @@ export default function orderDetails() {
                             Contact
                           </TableCell>
                           <TableCell className={classes.tableCell}>
-                            Phone
+                            Phones
                           </TableCell>
                         </TableRow>
                       </TableHead>
@@ -582,8 +700,17 @@ export default function orderDetails() {
                           <TableCell className={classes.tableCell}>
                             {orderData.data.pickup.pickup_address.contact_name}
                           </TableCell>
+
                           <TableCell className={classes.tableCell}>
-                            {orderData.data.pickup.pickup_address.phone}
+                            <Grid container spacing={1}>
+                              {orderData.data.pickup.pickup_address.phones.map(
+                                (phone, index) => (
+                                  <Grid item xs={12} key={index}>
+                                    {phone}
+                                  </Grid>
+                                )
+                              )}
+                            </Grid>
                           </TableCell>
                         </TableRow>
                         <TableRow>
@@ -621,7 +748,15 @@ export default function orderDetails() {
                             }
                           </TableCell>
                           <TableCell className={classes.tableCell}>
-                            {orderData.data.delivery.delivery_address.phone}
+                            <Grid container spacing={1}>
+                              {orderData.data.delivery.delivery_address.phones.map(
+                                (phone, index) => (
+                                  <Grid item xs={12} key={index}>
+                                    {phone}
+                                  </Grid>
+                                )
+                              )}
+                            </Grid>
                           </TableCell>
                         </TableRow>
                       </TableBody>
@@ -738,98 +873,9 @@ export default function orderDetails() {
                   <Grid item xs={12}>
                     <Typography>
                       <Box fontSize="body2.fontSize" m={2}>
-                        DISPATCH INSTRUCTIONS Call or Text Cody for Dispatch @
-                        608-370-3583 This must be picked up exactly on
-                        12/06/2020. This should be delivered within 2 days of
-                        12/16/2020. CONTRACT TERMS ***PLEASE READ CAREFULLY***
-                        ** YOU MUST READ BEFORE YOU ACCEPT. WE TAKE OUR
-                        DISCOUNTING SERIOUSLY FOR LATENESS AND WILL NOTIFY
-                        CUSTOMER FOR DISCOUNTED RATE IF YOU ARE LATE. THIS
-                        CONTRACT SUPERSEDES ANY AND ALL PREVIOUS AGREEMENTS OR
-                        REPRESENTATIONS MADE BY ANY OF BROKER'S
-                        REPRESENTATIVES.** BY ACCEPTING THIS ORDER YOU AGREE TO
-                        ALL OF THE TERMS LISTED BELOW. IT IS UNDERSTOOD THAT
-                        ACCEPTING OF THIS PARTICULAR ORDER, YOU ARE MANIFESTING
-                        ASSENT TO ALL TERMS OF THIS AGREEMENT. THE EFFECTIVE
-                        DATE OF THIS AGREEMENT SHALL BE THE DATE ON WHICH THE
-                        ORDER IS ACCEPTED. This agreement is between Maresca's
-                        Auto Transport hereinafter referred to as "broker") MC
-                        #1095343 and ______________________________ located at
-                        _______________________________________ , (hereinafter
-                        referred to as "transporter"). This agreement beginning
-                        and effective this _day of ____, 20__. This agreement is
-                        valid for one year to this date and automatically renews
-                        each year on the anniversary date of this agreement.
-                        Either party may cancel this agreement via written
-                        notice once no shipment is in transporter's possession.
-                        Terms 1. No re-brokering of any vehicle. 2. Any load
-                        dispatched to Transporter must be picked up and
-                        delivered by Transporter. If Transporter is unable to
-                        complete a load due to breakdown, out of service, etc,
-                        Transporter must immediately notify Broker. Leaving a
-                        message is not acceptable notification. Once notified of
-                        delays, Broker has sole discretion to dispatch load to
-                        another Transporter for completion. If load is
-                        dispatched to another Transporter, original Transporter
-                        will be paid only for the portion of the trip completed.
-                        3. Transporter agrees to be responsible for all damages
-                        during loading, unloading and transporting. This
-                        includes, but is not limited to: glass, antennas,
-                        radios, interiors, rims, convertible tops, and truck
-                        caps. Damages caused by truck equipment failure,
-                        including chain and tie-down failure, are the
-                        Transporter's responsibility. 4. Vehicles picked up at
-                        an auction must have damages noted on the GATE PASS. A
-                        guard's signature, pictures, and/or damages noted on
-                        Transporter's condition report are NOT a substitute for
-                        this requirement. In case of a discrepancy concerning
-                        damages, ONLY what is noted on the gate pass will be
-                        deemed not the Transporter's responsibility. Weather,
-                        lack of light, dirt on the vehicle, and/or lack of a pen
-                        are not acceptable reasons for not writing damages on
-                        the gate pass. 5. Vehicles picked up at a customer's
-                        location must have a condition report completed and
-                        signed by customer before vehicles are loaded. A copy of
-                        the condition report must be left with the customer. If
-                        there is a discrepancy, the customer's copy will be used
-                        to determine pre-existing damage. 6. A customer's
-                        signature on a delivery receipt indicates ONLY that
-                        customer has received the shipment. That is why we ask
-                        you deliver during daylight hours or in a well lit area.
-                        7. Carrier agrees to abide by pick-up and delivery dates
-                        as specified on dispatch sheet. If Transporter is unable
-                        to meet pick-up and delivery dates, Broker must be
-                        notified immediately. Transporter must contact Broker by
-                        phone and either communicate the reason for
-                        Transporter's inability to meet their obligation; or if
-                        Broker is unavailable, leave a detailed message with the
-                        Transporter's name, telephone number, the order number
-                        for the load, the estimated time of arrival and a
-                        detailed summary regarding Transporter's inability to
-                        meet their obligation. Broker has sole discretion after
-                        notification of late pick-up or delivery to re-assign
-                        load. If Broker is not notified of late
-                        pick-up/delivery, Transporter agrees to have $50/day per
-                        vehicle penalty deducted from shipment price. 8. Any
-                        vehicle cannot be transferred to another transporter
-                        without express permission by Broker. Transporter agrees
-                        to notify Broker BEFORE LEAVING point of origin if
-                        Transporter is unable to load all vehicles together.
-                        Failure to load dispatched vehicle will result in a rate
-                        reduction or a $100 penalty payable to Broker. Broker
-                        has sole discretion to re- assign the entire load if
-                        Transporter is unable to take all vehicles dispatched.
-                        9. The Transporter agrees not to directly solicit
-                        freight or any transport-related business from Broker's
-                        customers that it hauled for Broker for a period of one
-                        year after termination of this agreement. Should the
-                        Transporter solicit the Broker's customers and obtain
-                        freight or any transport-related business from the
-                        Broker's customer, the Transporter agrees to pay Broker,
-                        for a period of 15 months after obtaining business from
-                        Broker's customer, a commission totaling 20% of the
-                        gross monies received from said customers, payable by
-                        Transporter immediately upon receipt. 10.
+                        {orderData.data.order_instructions
+                          ? orderData.data.order_instructions
+                          : "No instructions were received"}
                       </Box>
                     </Typography>
                   </Grid>
@@ -838,34 +884,7 @@ export default function orderDetails() {
             </Paper>
           </Grid>
         </Grid>
-        <Grid id="row_7" item container xs={12} direction="row">
-          <Grid item xs={12}>
-            <Paper elevation={0} variant="outlined">
-              <Grid id="subrow_0" item container xs={12}>
-                <Grid id="column_1" item container xs={2}>
-                  <Grid item xs={12}>
-                    <Typography>
-                      <Box fontSize="h6.fontSize" m={2} color="primary.main">
-                        Notes
-                      </Box>
-                    </Typography>
-                  </Grid>
-                </Grid>
-              </Grid>
-              <Grid id="subrow_1" item container xs={12}>
-                <Grid id="column_2" item container xs={12}>
-                  <Grid item xs={12}>
-                    <Typography>
-                      <Box fontSize="body2.fontSize" m={2}>
-                        Some notes
-                      </Box>
-                    </Typography>
-                  </Grid>
-                </Grid>
-              </Grid>
-            </Paper>
-          </Grid>
-        </Grid>
+
         <Grid id="row_8" item container xs={12} direction="row">
           <Grid item xs={12}>
             <Paper elevation={0} variant="outlined">
@@ -885,96 +904,8 @@ export default function orderDetails() {
                   <Grid item xs={3}>
                     <Typography>
                       <Box fontSize="body2.fontSize" m={2}>
-                        <Card className={classes.root}>
-                          <CardActionArea>
-                            <CardMedia
-                              className={classes.media}
-                              image="https://i.pinimg.com/originals/9e/3a/1c/9e3a1cfb7a471a1ad5904e93ebe8e260.jpg"
-                              title="Contemplative Reptile"
-                            />
-                            <CardContent>
-                              <Typography
-                                variant="body2"
-                                color="textSecondary"
-                                component="p"
-                              >
-                                1972 Ford Mustang
-                              </Typography>
-                            </CardContent>
-                          </CardActionArea>
-                        </Card>
-                      </Box>
-                    </Typography>
-                  </Grid>
-                  <Grid item xs={3}>
-                    <Typography>
-                      <Box fontSize="body2.fontSize" m={2}>
-                        <Card className={classes.root}>
-                          <CardActionArea>
-                            <CardMedia
-                              className={classes.media}
-                              image="https://i.pinimg.com/originals/9e/3a/1c/9e3a1cfb7a471a1ad5904e93ebe8e260.jpg"
-                              title="Contemplative Reptile"
-                            />
-                            <CardContent>
-                              <Typography
-                                variant="body2"
-                                color="textSecondary"
-                                component="p"
-                              >
-                                1972 Ford Mustang
-                              </Typography>
-                            </CardContent>
-                          </CardActionArea>
-                        </Card>
-                      </Box>
-                    </Typography>
-                  </Grid>
-                  <Grid item xs={3}>
-                    <Typography>
-                      <Box fontSize="body2.fontSize" m={2}>
-                        <Card className={classes.root}>
-                          <CardActionArea>
-                            <CardMedia
-                              className={classes.media}
-                              image="https://i.pinimg.com/originals/9e/3a/1c/9e3a1cfb7a471a1ad5904e93ebe8e260.jpg"
-                              title="Contemplative Reptile"
-                            />
-                            <CardContent>
-                              <Typography
-                                variant="body2"
-                                color="textSecondary"
-                                component="p"
-                              >
-                                1972 Ford Mustang
-                              </Typography>
-                            </CardContent>
-                          </CardActionArea>
-                        </Card>
-                      </Box>
-                    </Typography>
-                  </Grid>
-                  <Grid item xs={3}>
-                    <Typography>
-                      <Box fontSize="body2.fontSize" m={2}>
-                        <Card className={classes.root}>
-                          <CardActionArea>
-                            <CardMedia
-                              className={classes.media}
-                              image="https://i.pinimg.com/originals/9e/3a/1c/9e3a1cfb7a471a1ad5904e93ebe8e260.jpg"
-                              title="Contemplative Reptile"
-                            />
-                            <CardContent>
-                              <Typography
-                                variant="body2"
-                                color="textSecondary"
-                                component="p"
-                              >
-                                1972 Ford Mustang
-                              </Typography>
-                            </CardContent>
-                          </CardActionArea>
-                        </Card>
+                        {photoPickupContent}
+                        {photoDeliveryContent}
                       </Box>
                     </Typography>
                   </Grid>
@@ -1006,7 +937,12 @@ export default function orderDetails() {
                 <Grid id="column_1" item container xs={6}>
                   <Grid item xs={12}>
                     <Box fontSize="h6.fontSize" m={2} color="primary.main">
-                      <Button size="small" className={classes.button} variant="outlined" color="primary">
+                      <Button
+                        size="small"
+                        className={classes.button}
+                        variant="outlined"
+                        color="primary"
+                      >
                         Send
                       </Button>
                     </Box>
@@ -1056,57 +992,54 @@ export default function orderDetails() {
                 </Grid>
                 <Grid id="column_1" item container xs={12}>
                   <Grid item xs={12}>
-                    <Box fontSize="body2.fontSize" m={2}>
-                      <Card>
-                        <CardContent>
-                          <TableContainer>
-                            <Table
-                              className={classes.table}
-                              aria-label="simple table"
-                              dense
-                              table
-                              size="small"
+                    {orderData.data.order_activity.map((activity, index) => (
+                      <Box fontSize="body2.fontSize" m={2} key={index}>
+                        <Card>
+                          <CardContent>
+                            <List
+                              component="nav"
+                              aria-label="main mailbox folders"
                             >
-                              <TableBody>
-                                <TableRow>
-                                  <TableCellActivity>
-                                    <BookmarkBorderIcon />
-                                  </TableCellActivity>
-                                  <TableCellActivity>
-                                    Delivered
-                                  </TableCellActivity>
-                                </TableRow>
-                                <TableRow>
-                                  <TableCellActivity>
-                                    <DateRangeIcon />
-                                  </TableCellActivity>
-                                  <TableCellActivity>
-                                    12/12/2020
-                                  </TableCellActivity>
-                                </TableRow>
-                                <TableRow>
-                                  <TableCellActivity>
+                              <ListItem>
+                                <ListItemIcon>
+                                  <BookmarkBorderIcon />
+                                </ListItemIcon>
+                                <ListItemText
+                                  primary={`${activity.activity_status}`}
+                                />
+                              </ListItem>
+                              <ListItem>
+                                <ListItemIcon>
+                                  <DateRangeIcon />
+                                </ListItemIcon>
+                                <ListItemText
+                                  primary={`${activity.activity_date}`}
+                                />
+                              </ListItem>
+                              {activity.activity_location && (
+                                <ListItem>
+                                  <ListItemIcon>
                                     <RoomIcon />
-                                  </TableCellActivity>
-                                  <TableCellActivity>
-                                    4662 67th Av N, Pinellas Park
-                                  </TableCellActivity>
-                                </TableRow>
+                                  </ListItemIcon>
+                                  <ListItemText
+                                    primary={`${activity.activity_location}`}
+                                  />
+                                </ListItem>
+                              )}
 
-                                <TableRow>
-                                  <TableCellActivity>
-                                    <PersonIcon />
-                                  </TableCellActivity>
-                                  <TableCellActivity>
-                                    By Bazyl Zholymbet
-                                  </TableCellActivity>
-                                </TableRow>
-                              </TableBody>
-                            </Table>
-                          </TableContainer>
-                        </CardContent>
-                      </Card>
-                    </Box>
+                              <ListItem>
+                                <ListItemIcon>
+                                  <PersonIcon />
+                                </ListItemIcon>
+                                <ListItemText
+                                  primary={`${activity.activity_user}`}
+                                />
+                              </ListItem>
+                            </List>
+                          </CardContent>
+                        </Card>
+                      </Box>
+                    ))}
                   </Grid>
                 </Grid>
               </Grid>
@@ -1121,7 +1054,7 @@ export default function orderDetails() {
     <div>
       {appBarContent}
 
-      <Grid container spacing>
+      <Grid container spacing={2}>
         <Grid item container md={9} xs={12}>
           {leftSideContent}
         </Grid>

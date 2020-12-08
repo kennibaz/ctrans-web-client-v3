@@ -16,13 +16,12 @@ export default async (req, res) => {
     fax,
   } = req.body;
 
-  const created_at = new Date();
+  const created_at = firebase.firestore.Timestamp.now();
 
   const new_activity = {
     activity_date: created_at,
-    activity_type: "Location was changed",
+    activity_status: "Order changed",
     activity_user: "dispatcher",
-    activity_log: `Location was chenged at ${created_at}`,
   };
 
   firebase

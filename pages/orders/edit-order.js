@@ -98,7 +98,7 @@ const StyledBadge = withStyles((theme) => ({
   },
 }))(Badge);
 
-export default function createOrder(props) {
+export default function EditOrder(props) {
   const classes = useStyles();
   const [isEditPhonesOnPickupOpen, setIsEditPhonesOnPickupOpen] = useState("");
   const [isEditPhonesOnDeliveryOpen, setIsEditPhonesOnDeliveryOpen] = useState(
@@ -141,7 +141,7 @@ export default function createOrder(props) {
   const [phoneOnPickup, setPhoneOnPickup] = useState(
     props.orderData.data.pickup.pickup_address.phone
   );
-  const [phonesOnPickup, setPhonesOnPickup] = useState([]);
+  const [phonesOnPickup, setPhonesOnPickup] = useState(props.orderData.data.pickup.pickup_address.phones);
   const [faxOnPickup, setFaxOnPickup] = useState("");
   //Destination
   const [businessNameOnDelivery, setBusinessNameOnDelivery] = useState(
@@ -175,7 +175,7 @@ export default function createOrder(props) {
   const [phoneOnDelivery, setPhoneOnDelivery] = useState(
     props.orderData.data.delivery.delivery_address.phone
   );
-  const [phonesOnDelivery, setPhonesOnDelivery] = useState([]);
+  const [phonesOnDelivery, setPhonesOnDelivery] = useState(props.orderData.data.delivery.delivery_address.phones);
   const [faxOnDelivery, setFaxOnDelivery] = useState("");
   //Vehicles
   const [vin, setVin] = useState("");
@@ -1858,6 +1858,18 @@ export default function createOrder(props) {
                 onClick={saveOrderHandler}
               >
                 Save
+              </Button>
+            </Grid>
+            <Grid item xs={2}>
+              <Button
+                variant="outlined"
+                color="inherit"
+                classes={{
+                  root: classes.saveButton,
+                }}
+                onClick={props.closeDialogHandler}
+              >
+                Close
               </Button>
             </Grid>
           </Grid>

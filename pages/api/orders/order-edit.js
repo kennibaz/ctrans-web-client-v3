@@ -119,6 +119,7 @@ export default async (req, res) => {
       'pickup.pickup_address.contact_name': contactNameOnPickup,
       'pickup.pickup_address.email': emailOnPickup,
       'pickup.pickup_address.phone': phoneOnPickup,
+      'pickup.pickup_address.phones': phonesOnPickup,
       'pickup.pickup_address.fax': faxOnPickup,
 
       'delivery.delivery_scheduled_first_date': scheduledDeliveryDate,
@@ -131,6 +132,7 @@ export default async (req, res) => {
       'delivery.delivery_address.contact_name': contactNameOnDelivery,
       'delivery.delivery_address.email': emailOnDelivery,
       'delivery.delivery_address.phone': phoneOnDelivery,
+      'delivery.delivery_address.phones': phonesOnDelivery,
       'delivery.delivery_address.fax': faxOnDelivery,
 
       'shipper.business_name': businessNameOfShipper,

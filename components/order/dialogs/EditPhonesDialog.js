@@ -93,7 +93,7 @@ export default function EditPhoneDialog(props) {
         <DialogContent dividers>
           {props.phones &&
             props.phones.map((phone, index) => (
-              <Grid container>
+              <Grid container key={index}>
                 <Grid item xs={10}>
                   <Button disabled>{phone}</Button>
                 </Grid>

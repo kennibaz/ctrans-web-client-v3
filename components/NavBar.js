@@ -6,6 +6,8 @@ import List from "@material-ui/core/List";
 import Divider from "@material-ui/core/Divider";
 import ListItem from "@material-ui/core/ListItem";
 import ListItemText from "@material-ui/core/ListItemText";
+import ListItemIcon from "@material-ui/core/ListItemIcon";
+import AddIcon from "@material-ui/icons/Add";
 import Link from "next/link";
 
 const drawerWidth = 120;
@@ -51,7 +53,14 @@ export default function PermanentDrawerLeft(props) {
         <Divider />
         <List>
           <ListItem button>
-            <Link href={`/orders/`} >
+          <Link href={`/orders/create-order`}>
+            <ListItemIcon>
+              <AddIcon style={{ color: "#d7d5da" }} />
+            </ListItemIcon>
+            </Link>
+          </ListItem>
+          <ListItem button>
+            <Link href={`/orders/`}>
               <ListItemText primary={"ORDERS"} />
             </Link>
           </ListItem>

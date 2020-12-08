@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import axios from "axios";
-import Link from 'next/link'
+import Link from "next/link";
 
 import {
   Grid,
@@ -79,6 +79,8 @@ export default function orderCard({
   const [openVehicles, setOpenVehicles] = useState(false);
   const [openPickupAddress, setOpenPickupAddress] = useState(false);
   const [openDeliveryAddress, setOpenDeliveryAddress] = useState(false);
+  const [openPickupPhones, setOpenPickupPhones] = useState(false);
+  const [openDeliveryPhones, setOpenDeliveryPhones] = useState(false);
 
   //USEEFFECTS
 
@@ -432,15 +434,17 @@ export default function orderCard({
               <Grid id="container-1" container spacing={1}>
                 <Grid id="first_row" container item xs={8}>
                   <Grid item xs={2}>
-                  <Link href={`/orders/details/${orderId}`} passHref>
-                    <Button
-                      variant="outlined"
-                      onClick={()=>{console.log("hi")}}
-                      size="small"
-                      className={classes.button}
-                    >
-                      {orderData.order_shipper_inner_id}
-                    </Button>
+                    <Link href={`/orders/details/${orderId}`} passHref>
+                      <Button
+                        variant="outlined"
+                        onClick={() => {
+                          console.log("hi");
+                        }}
+                        size="small"
+                        className={classes.button}
+                      >
+                        {orderData.order_shipper_inner_id}
+                      </Button>
                     </Link>
                   </Grid>
                   <Grid item xs={1}>
@@ -709,9 +713,46 @@ export default function orderCard({
                           color="textPrimary"
                           align="left"
                         >
-                          P: {orderData.pickup.pickup_address.phone}
+                          P: {orderData.pickup.pickup_address.phones[0]}
+                          {orderData.pickup.pickup_address.phones?.length >
+                          1 ? (
+                            <IconButton
+                              aria-label="expand row"
+                              size="small"
+                              onClick={() =>
+                                setOpenPickupPhones(!openPickupPhones)
+                              }
+                            >
+                              {openPickupPhones ? (
+                                <KeyboardArrowUpIcon />
+                              ) : (
+                                <KeyboardArrowDownIcon />
+                              )}
+                            </IconButton>
+                          ) : null}
                         </Box>
                       </Grid>
+                      <Collapse
+                        in={openPickupPhones}
+                        timeout="auto"
+                        unmountOnExit
+                      >
+                        <Grid item xs={12}>
+                          {orderData.pickup.pickup_address.phones.slice(1).map(
+                            (phone, index) => (
+                              <Box
+                                className={classes.title}
+                                color="textPrimary"
+                                gutterBottom
+                                align="left"
+                                key={index}
+                              >
+                                P: {phone}
+                              </Box>
+                            )
+                          )}
+                        </Grid>
+                      </Collapse>
                     </Box>
                   </Grid>
                   <Grid id="third_column" container item xs={2}>
@@ -807,9 +848,46 @@ export default function orderCard({
                           color="textPrimary"
                           align="left"
                         >
-                          P: {orderData.delivery.delivery_address.phone}
+                          P: {orderData.delivery.delivery_address.phones[0]}
+                          {orderData.delivery.delivery_address.phones?.length >
+                          0 ? (
+                            <IconButton
+                              aria-label="expand row"
+                              size="small"
+                              onClick={() =>
+                                setOpenDeliveryPhones(!openDeliveryPhones)
+                              }
+                            >
+                              {openDeliveryPhones ? (
+                                <KeyboardArrowUpIcon />
+                              ) : (
+                                <KeyboardArrowDownIcon />
+                              )}
+                            </IconButton>
+                          ) : null}
                         </Box>
                       </Grid>
+                      <Collapse
+                        in={openDeliveryPhones}
+                        timeout="auto"
+                        unmountOnExit
+                      >
+                        <Grid item xs={12}>
+                          {orderData.delivery.delivery_address.phones.slice(1).map(
+                            (phone, index) => (
+                              <Box
+                                className={classes.title}
+                                color="textPrimary"
+                                gutterBottom
+                                align="left"
+                                key={index}
+                              >
+                                P: {phone}
+                              </Box>
+                            )
+                          )}
+                        </Grid>
+                      </Collapse>
                     </Box>
                   </Grid>
                   <Grid id="fourth_column" container item xs={2}>

@@ -4,6 +4,7 @@ import AppBar from "@material-ui/core/AppBar";
 import Toolbar from "@material-ui/core/Toolbar";
 import Typography from "@material-ui/core/Typography";
 import Grid from "@material-ui/core/Grid";
+import Box from "@material-ui/core/Box";
 import Chip from "@material-ui/core/Chip";
 import Avatar from "@material-ui/core/Avatar";
 import TextField from "@material-ui/core/TextField";
@@ -213,6 +214,43 @@ export default function orders(props) {
     setReadyToReload(!readyToReload);
   };
 
+  let orderContent;
+
+  orderContent = (
+    <Grid container spacing={2} className={classes.container}>
+      <Grid item xs={12}>
+        <div className={classes.scrollable}>
+          {orders.map((order) => (
+            <OrderCard
+              key={order.id}
+              orderData={order.data}
+              orderId={order.id}
+              drivers={drivers}
+              carrierId={"1840b8a5-3381-41f7-9838-8ad23a7b50bd"}
+              reloadHandler={reloadHandler}
+            />
+          ))}
+        </div>
+      </Grid>
+    </Grid>
+  );
+
+  if (orders.length === 0) {
+    orderContent = (
+      <Grid container spacing={2} className={classes.container}>
+        <Grid item container xs={12} justify="center" alignItems="center">
+          <Grid item xs={2}>
+            <Box pt={5}>
+              <Typography variant="h4" noWrap>
+                No Loads yet
+              </Typography>
+            </Box>
+          </Grid>
+        </Grid>
+      </Grid>
+    );
+  }
+
   return (
     <div>
       <AppBar position="fixed" className={classes.appBar} elevation={0}>
@@ -276,7 +314,7 @@ export default function orders(props) {
                   style={{ fontSize: 12, width: "200%" }}
                 >
                   {drivers.map((driver) => (
-                    <MenuItem value={driver.id}>
+                    <MenuItem value={driver.id} key={driver.id}>
                       {driver.data.firstName + " " + driver.data.lastName}
                     </MenuItem>
                   ))}
@@ -367,23 +405,9 @@ export default function orders(props) {
           </Grid>
         </Toolbar>
       </AppBar>
+      {orderContent}
 
-      <Grid container spacing={2} className={classes.container}>
-        <Grid item xs={12}>
-          <div className={classes.scrollable}>
-            {orders.map((order) => (
-              <OrderCard
-                key={order.id}
-                orderData={order.data}
-                orderId={order.id}
-                drivers={drivers}
-                carrierId={"1840b8a5-3381-41f7-9838-8ad23a7b50bd"}
-                reloadHandler={reloadHandler}
-              />
-            ))}
-          </div>
-        </Grid>
-      </Grid>
+ 
     </div>
   );
 }

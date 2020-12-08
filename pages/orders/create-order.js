@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import { withStyles } from "@material-ui/core/styles";
+import { useRouter } from "next/router";
 import AppBar from "@material-ui/core/AppBar";
 import Toolbar from "@material-ui/core/Toolbar";
 import Paper from "@material-ui/core/Paper";
@@ -98,9 +99,13 @@ const StyledBadge = withStyles((theme) => ({
 
 export default function createOrder() {
   const classes = useStyles();
-  const [isEditPhonesOnPickupOpen, setIsEditPhonesOnPickupOpen] = useState("");
+  const router = useRouter();
+
+  const [isEditPhonesOnPickupOpen, setIsEditPhonesOnPickupOpen] = useState(
+    false
+  );
   const [isEditPhonesOnDeliveryOpen, setIsEditPhonesOnDeliveryOpen] = useState(
-    ""
+    false
   );
   const [shipperOrderId, setShipperOrderId] = useState("");
   const [carrierOrderId, setCarrierOrderId] = useState("");
@@ -142,7 +147,7 @@ export default function createOrder() {
   const [lotNumber, setLotNumber] = useState("");
   const [price, setPrice] = useState("");
   const [type, setType] = useState("");
-  const [inoperable, setInoperable] = useState("");
+  const [inoperable, setInoperable] = useState(false);
   const [totalVehicles, setTotalVehicles] = useState([]);
   const [isEditVehicleMode, setIsEditVehicleMode] = useState(false);
   const [updateButtonShow, setUpdateButtonShow] = useState(false); //state for update button
@@ -159,7 +164,6 @@ export default function createOrder() {
   const [invoiceId, setInvoiceId] = useState("");
   const [invoiceEmail, setInvoiceEmail] = useState("");
   const [invoiceNotes, setInvoiceNotes] = useState("");
- 
 
   //shipper
   const [businessNameOfShipper, setBusinessNameOfShipper] = useState("");
@@ -380,8 +384,8 @@ export default function createOrder() {
     }
   };
 
-  //save handler 
-  const saveOrderHandler = async () =>{
+  //save handler
+  const saveOrderHandler = async () => {
     await axios.post("/api/orders/order-create", {
       carrierId: "1840b8a5-3381-41f7-9838-8ad23a7b50bd",
       shipperOrderId,
@@ -442,8 +446,9 @@ export default function createOrder() {
       emailOfShipper,
       phoneOfShipper,
       faxOfShipper,
-    })
-  }
+    });
+    router.push("/orders/");
+  };
 
   //Dialogs
 
@@ -475,7 +480,7 @@ export default function createOrder() {
             <Grid item xs={12}>
               <Typography>
                 <Box fontSize="h6.fontSize" m={2}>
-                  Order details
+                  Shipper and Order
                 </Box>
               </Typography>
             </Grid>
@@ -486,7 +491,7 @@ export default function createOrder() {
             <Grid item xs={12}>
               <Box m={2}>
                 <FormControl className={classes.inputField}>
-                  <label for="shipper_id">Shipper ID</label>
+                  <label htmlFor="shipper_id">Load ID</label>
                   <TextField
                     id="shipper_id"
                     required
@@ -505,7 +510,7 @@ export default function createOrder() {
             <Grid item xs={12}>
               <Box m={2}>
                 <FormControl className={classes.inputField}>
-                  <label for="shipper_business_name">Shipper name</label>
+                  <label htmlFor="shipper_business_name">Shipper name</label>
                   <TextField
                     id="shipper_business_name"
                     required
@@ -527,7 +532,7 @@ export default function createOrder() {
             <Grid item xs={12}>
               <Box m={2} pb={1}>
                 <FormControl className={classes.inputField}>
-                  <label for="shipper_address">Address</label>
+                  <label htmlFor="shipper_address">Shipper Address</label>
                   <AutoCompleteAddress
                     autoCompleteHandlerShipper={autoCompleteHandlerShipper}
                     shipper
@@ -540,7 +545,7 @@ export default function createOrder() {
               <Grid item xs={4}>
                 <Box ml={2}>
                   <FormControl className={classes.inputField}>
-                    <label for="shipper_city">City</label>
+                    <label htmlFor="shipper_city">City</label>
                     <TextField
                       id="shipper_city"
                       required
@@ -560,7 +565,7 @@ export default function createOrder() {
               <Grid item xs={3}>
                 <Box ml={2}>
                   <FormControl className={classes.inputField}>
-                    <label for="shipper_state">State</label>
+                    <label htmlFor="shipper_state">State</label>
                     <TextField
                       id="shipper_state"
                       required
@@ -581,7 +586,7 @@ export default function createOrder() {
               <Grid item xs={3}>
                 <Box ml={2}>
                   <FormControl className={classes.inputField}>
-                    <label for="shipper_zip">ZIP</label>
+                    <label htmlFor="shipper_zip">ZIP</label>
                     <TextField
                       id="shipper_zip"
                       required
@@ -606,7 +611,7 @@ export default function createOrder() {
             <Grid item xs={12}>
               <Box m={2}>
                 <FormControl className={classes.inputField}>
-                  <label for="shipper_contact_name">Contact name</label>
+                  <label htmlFor="shipper_contact_name">Contact name</label>
                   <TextField
                     id="shipper_contact_name"
                     required
@@ -625,7 +630,7 @@ export default function createOrder() {
             <Grid item xs={12}>
               <Box m={2}>
                 <FormControl className={classes.inputField}>
-                  <label for="shipper_email">Email</label>
+                  <label htmlFor="shipper_email">Email</label>
                   <TextField
                     id="shipper_email"
                     required
@@ -647,7 +652,7 @@ export default function createOrder() {
             <Grid item xs={12}>
               <Box m={2}>
                 <FormControl className={classes.inputField}>
-                  <label for="shipper_phone">Phone</label>
+                  <label htmlFor="shipper_phone">Phone</label>
                   <TextField
                     id="shipper_phone"
                     required
@@ -667,7 +672,7 @@ export default function createOrder() {
             <Grid item xs={12}>
               <Box m={2}>
                 <FormControl className={classes.inputField}>
-                  <label for="shipper_fax">Fax</label>
+                  <label htmlFor="shipper_fax">Fax</label>
                   <TextField
                     id="shipper_fax"
                     required
@@ -708,7 +713,7 @@ export default function createOrder() {
             <Grid item xs={12}>
               <Box m={2}>
                 <FormControl className={classes.inputField}>
-                  <label for="business_name">Business name</label>
+                  <label htmlFor="business_name">Business name</label>
                   <TextField
                     id="business_name"
                     required
@@ -727,7 +732,7 @@ export default function createOrder() {
             <Grid item xs={12}>
               <Box m={2}>
                 <FormControl className={classes.inputField}>
-                  <label for="pickup_scheduled_first_date">
+                  <label htmlFor="pickup_scheduled_first_date">
                     Scheduled pickup date
                   </label>
                   <TextField
@@ -754,7 +759,7 @@ export default function createOrder() {
             <Grid item xs={12}>
               <Box m={2} pb={1}>
                 <FormControl className={classes.inputField}>
-                  <label for="business_name">Address</label>
+                  <label htmlFor="business_name">Address</label>
                   <AutoCompleteAddress
                     autoCompleteHandlerPickup={autoCompleteHandlerPickup}
                     pickup
@@ -767,7 +772,7 @@ export default function createOrder() {
               <Grid item xs={5}>
                 <Box ml={2}>
                   <FormControl className={classes.inputField}>
-                    <label for="pickup_city">City</label>
+                    <label htmlFor="pickup_city">City</label>
                     <TextField
                       id="pickup_city"
                       required
@@ -787,7 +792,7 @@ export default function createOrder() {
               <Grid item xs={4}>
                 <Box ml={2}>
                   <FormControl className={classes.inputField}>
-                    <label for="pickup_state">State</label>
+                    <label htmlFor="pickup_state">State</label>
                     <TextField
                       id="pickup_state"
                       required
@@ -808,7 +813,7 @@ export default function createOrder() {
               <Grid item xs={3}>
                 <Box ml={1}>
                   <FormControl className={classes.inputField}>
-                    <label for="zip">ZIP</label>
+                    <label htmlFor="zip">ZIP</label>
                     <TextField
                       id="zip"
                       required
@@ -833,7 +838,7 @@ export default function createOrder() {
             <Grid item xs={12}>
               <Box m={2}>
                 <FormControl className={classes.inputField}>
-                  <label for="contact_name">Contact name</label>
+                  <label htmlFor="contact_name">Contact name</label>
                   <TextField
                     id="contact_name"
                     required
@@ -852,7 +857,7 @@ export default function createOrder() {
             <Grid item xs={12}>
               <Box m={2}>
                 <FormControl className={classes.inputField}>
-                  <label for="email">Email</label>
+                  <label htmlFor="email">Email</label>
                   <TextField
                     id="email"
                     required
@@ -875,7 +880,7 @@ export default function createOrder() {
               <Box m={2}>
                 <FormControl className={classes.inputField}>
                   <label
-                    for="phone"
+                    htmlFor="phone"
                     onClick={() => {
                       setIsEditPhonesOnPickupOpen(true);
                     }}
@@ -930,10 +935,9 @@ export default function createOrder() {
             <Grid item xs={12}>
               <Box m={2}>
                 <FormControl className={classes.inputField}>
-                  <label for="pickup_notes">Pickup Notes</label>
+                  <label htmlFor="pickup_notes">Pickup Notes</label>
                   <TextField
                     id="pickup_notes"
-                    defaultValue=""
                     required
                     fullWidth
                     multiline
@@ -972,7 +976,7 @@ export default function createOrder() {
             <Grid item xs={12}>
               <Box m={2}>
                 <FormControl className={classes.inputField}>
-                  <label for="business_name">Business name</label>
+                  <label htmlFor="business_name">Business name</label>
                   <TextField
                     id="business_name"
                     required
@@ -991,7 +995,7 @@ export default function createOrder() {
             <Grid item xs={12}>
               <Box m={2}>
                 <FormControl className={classes.inputField}>
-                  <label for="delivery_scheduled_first_date">
+                  <label htmlFor="delivery_scheduled_first_date">
                     Scheduled delivery date
                   </label>
                   <TextField
@@ -1018,7 +1022,7 @@ export default function createOrder() {
             <Grid item xs={12}>
               <Box m={2} pb={1}>
                 <FormControl className={classes.inputField}>
-                  <label for="business_name">Address</label>
+                  <label htmlFor="business_name">Address</label>
                   <AutoCompleteAddress
                     autoCompleteHandlerDelivery={autoCompleteHandlerDelivery}
                     delivery
@@ -1031,7 +1035,7 @@ export default function createOrder() {
               <Grid item xs={5}>
                 <Box ml={2}>
                   <FormControl className={classes.inputField}>
-                    <label for="delivery_city">City</label>
+                    <label htmlFor="delivery_city">City</label>
                     <TextField
                       id="delivery_city"
                       required
@@ -1051,7 +1055,7 @@ export default function createOrder() {
               <Grid item xs={4}>
                 <Box ml={2}>
                   <FormControl className={classes.inputField}>
-                    <label for="delivery_state">State</label>
+                    <label htmlFor="delivery_state">State</label>
                     <TextField
                       id="delivery_state"
                       required
@@ -1072,7 +1076,7 @@ export default function createOrder() {
               <Grid item xs={3}>
                 <Box ml={1}>
                   <FormControl className={classes.inputField}>
-                    <label for="delivery_zip">ZIP</label>
+                    <label htmlFor="delivery_zip">ZIP</label>
                     <TextField
                       id="delivery_zip"
                       required
@@ -1097,7 +1101,7 @@ export default function createOrder() {
             <Grid item xs={12}>
               <Box m={2}>
                 <FormControl className={classes.inputField}>
-                  <label for="contact_name">Contact name</label>
+                  <label htmlFor="contact_name">Contact name</label>
                   <TextField
                     id="contact_name"
                     required
@@ -1116,7 +1120,7 @@ export default function createOrder() {
             <Grid item xs={12}>
               <Box m={2}>
                 <FormControl className={classes.inputField}>
-                  <label for="email">Email</label>
+                  <label htmlFor="email">Email</label>
                   <TextField
                     id="email"
                     required
@@ -1139,7 +1143,7 @@ export default function createOrder() {
               <Box m={2}>
                 <FormControl className={classes.inputField}>
                   <label
-                    for="phone"
+                    htmlFor="phone"
                     onClick={() => {
                       setIsEditPhonesOnDeliveryOpen(true);
                     }}
@@ -1194,10 +1198,9 @@ export default function createOrder() {
             <Grid item xs={12}>
               <Box m={2}>
                 <FormControl className={classes.inputField}>
-                  <label for="delivery_notes">Delivery Notes</label>
+                  <label htmlFor="delivery_notes">Delivery Notes</label>
                   <TextField
                     id="delivery_notes"
-                    defaultValue=""
                     required
                     fullWidth
                     multiline
@@ -1340,7 +1343,6 @@ export default function createOrder() {
                     <FormControl>
                       <TextField
                         id="vin"
-                        defaultValue=""
                         required
                         value={vin}
                         onChange={orderVehiclesVinAutoFillHandler}
@@ -1356,7 +1358,6 @@ export default function createOrder() {
                     <FormControl>
                       <TextField
                         id="year"
-                        defaultValue=""
                         required
                         value={year}
                         onChange={(e) => setYear(e.target.value)}
@@ -1387,7 +1388,6 @@ export default function createOrder() {
                             <TextField
                               {...params}
                               id="make"
-                              defaultValue=""
                               required
                               value={make}
                               margin="dense"
@@ -1405,6 +1405,8 @@ export default function createOrder() {
                       <Autocomplete
                         id="model-autocomplete"
                         name="model"
+                        freeSolo
+                        autoSelect
                         style={{ width: "160%" }}
                         classes={{
                           input: classes.vehicleInput,
@@ -1424,7 +1426,6 @@ export default function createOrder() {
                             <TextField
                               {...params}
                               id="model"
-                              defaultValue=""
                               required
                               margin="dense"
                               name="model"
@@ -1440,7 +1441,6 @@ export default function createOrder() {
                     <FormControl>
                       <TextField
                         id="lot_number"
-                        defaultValue=""
                         required
                         value={lotNumber}
                         onChange={(e) => setLotNumber(e.target.value)}
@@ -1519,6 +1519,48 @@ export default function createOrder() {
     </Grid>
   );
 
+  let InstructionsContent = (
+    <Grid item xs={12}>
+      <Paper elevation={0} variant="outlined">
+        <Grid id="subrow_1" item container xs={12}>
+          <Grid id="column_1" item xs={12}>
+            <Grid item xs={12}>
+              <Typography>
+                <Box fontSize="h6.fontSize" m={2}>
+                  Order instructions
+                </Box>
+              </Typography>
+            </Grid>
+          </Grid>
+        </Grid>
+        <Grid id="subrow_2" item container xs={12}>
+          <Grid id="column_1" item xs={12}>
+            <Grid item xs={12}>
+              <Box m={2}>
+                <TextField
+                  id="instructions"
+                  required
+                  fullWidth={true}
+                  multiline
+                  rows={4}
+                  // style={{ width: "500px" }}
+                  value={orderInstructions}
+                  onChange={(e) => setOrderInstructions(e.target.value)}
+                  margin="dense"
+                  name="instructions"
+                  variant="outlined"
+                  InputProps={{
+                    classes: { input: classes.inputText },
+                  }}
+                />
+              </Box>
+            </Grid>
+          </Grid>
+        </Grid>
+      </Paper>
+    </Grid>
+  );
+
   let PaymentContent = (
     <Grid item xs={12}>
       <Paper elevation={0} variant="outlined">
@@ -1547,7 +1589,7 @@ export default function createOrder() {
             <Grid item xs={12}>
               <Box m={2} pb={0.5}>
                 <FormControl className={classes.inputField}>
-                  <label for="order_total_amount">Order Amount</label>
+                  <label htmlFor="order_total_amount">Order Amount</label>
                   <TextField
                     id="order_total_amount"
                     required
@@ -1568,37 +1610,7 @@ export default function createOrder() {
             <Grid item xs={12}>
               <Box m={2} pb={1}>
                 <FormControl variant="outlined" className={classes.inputField}>
-                  <label for="payment_method" style={{ paddingBottom: 8 }}>
-                    Method
-                  </label>
-                  <Select
-                    id="payment_method"
-                    margin="dense"
-                    style={{ fontSize: 12, width: "190%" }}
-                    name="payment_method"
-                    value={paymentMethod}
-                    onChange={(e) => setPaymentMethod(e.target.value)}
-                    InputProps={{ classes: { input: classes.inputText } }}
-                  >
-                    <MenuItem value={"cash"}>Cash</MenuItem>
-                    <MenuItem value={"certified_finds"}>
-                      Certified funds
-                    </MenuItem>
-                    <MenuItem value={"comchek"}>Comchek</MenuItem>
-                    <MenuItem value={"ach"}>ACH</MenuItem>
-                    <MenuItem value={"company_check"}>Company check</MenuItem>
-                    <MenuItem value={"mobile_payment"}>Mobile payment</MenuItem>
-                  </Select>
-                </FormControl>{" "}
-              </Box>
-            </Grid>
-          </Grid>
-
-          <Grid id="column_2" item xs={2}>
-            <Grid item xs={12}>
-              <Box m={2} pb={1}>
-                <FormControl variant="outlined" className={classes.inputField}>
-                  <label for="payment_terms" style={{ paddingBottom: 8 }}>
+                  <label htmlFor="payment_terms" style={{ paddingBottom: 8 }}>
                     Terms
                   </label>
                   <Select
@@ -1622,10 +1634,40 @@ export default function createOrder() {
                 </FormControl>{" "}
               </Box>
             </Grid>
+          </Grid>
+
+          <Grid id="column_2" item xs={2}>
             <Grid item xs={12}>
               <Box m={2} pb={1}>
                 <FormControl variant="outlined" className={classes.inputField}>
-                  <label for="payment_upon" style={{ paddingBottom: 8 }}>
+                  <label htmlFor="payment_method" style={{ paddingBottom: 8 }}>
+                    Method
+                  </label>
+                  <Select
+                    id="payment_method"
+                    margin="dense"
+                    style={{ fontSize: 12, width: "190%" }}
+                    name="payment_method"
+                    value={paymentMethod}
+                    onChange={(e) => setPaymentMethod(e.target.value)}
+                    InputProps={{ classes: { input: classes.inputText } }}
+                  >
+                    <MenuItem value={"cash"}>Cash</MenuItem>
+                    <MenuItem value={"certified_finds"}>
+                      Certified funds
+                    </MenuItem>
+                    <MenuItem value={"comchek"}>Comchek</MenuItem>
+                    <MenuItem value={"ach"}>ACH</MenuItem>
+                    <MenuItem value={"company_check"}>Company check</MenuItem>
+                    <MenuItem value={"mobile_payment"}>Mobile payment</MenuItem>
+                  </Select>
+                </FormControl>{" "}
+              </Box>
+            </Grid>
+            <Grid item xs={12}>
+              <Box m={2} pb={1}>
+                <FormControl variant="outlined" className={classes.inputField}>
+                  <label htmlFor="payment_upon" style={{ paddingBottom: 8 }}>
                     Payment start upon
                   </label>
                   <Select
@@ -1649,10 +1691,9 @@ export default function createOrder() {
             <Grid item xs={12}>
               <Box m={2} pb={0.5}>
                 <FormControl className={classes.inputField}>
-                  <label for="driver_pay">Driver pay</label>
+                  <label htmlFor="driver_pay">Driver pay</label>
                   <TextField
                     id="driver_pay"
-                    defaultValue=""
                     required
                     style={{ width: "70%" }}
                     placeholder={"$"}
@@ -1669,10 +1710,9 @@ export default function createOrder() {
             <Grid item xs={12}>
               <Box m={2} pb={1}>
                 <FormControl className={classes.inputField}>
-                  <label for="broker_fee">Broker Fee</label>
+                  <label htmlFor="broker_fee">Broker Fee</label>
                   <TextField
                     id="broker_fee"
-                    defaultValue=""
                     required
                     style={{ width: "70%" }}
                     placeholder={"$"}
@@ -1692,10 +1732,9 @@ export default function createOrder() {
             <Grid item xs={12}>
               <Box m={2}>
                 <FormControl className={classes.inputField}>
-                  <label for="invoice_carrier_id">Invoice ID</label>
+                  <label htmlFor="invoice_carrier_id">Invoice ID</label>
                   <TextField
                     id="invoice_carrier_id"
-                    defaultValue=""
                     required
                     value={invoiceId}
                     onChange={(e) => setInvoiceId(e.target.value)}
@@ -1710,10 +1749,11 @@ export default function createOrder() {
             <Grid item xs={12}>
               <Box m={2}>
                 <FormControl className={classes.inputField}>
-                  <label for="invoice_recipient_email">Recipient email</label>
+                  <label htmlFor="invoice_recipient_email">
+                    Recipient email
+                  </label>
                   <TextField
                     id="invoice_recipient_email"
-                    defaultValue=""
                     required
                     value={invoiceEmail}
                     onChange={(e) => setInvoiceEmail(e.target.value)}
@@ -1731,10 +1771,9 @@ export default function createOrder() {
             <Grid item xs={12}>
               <Box m={2}>
                 <FormControl className={classes.inputField}>
-                  <label for="invoice_notes">Notes</label>
+                  <label htmlFor="invoice_notes">Notes</label>
                   <TextField
                     id="invoice_notes"
-                    defaultValue=""
                     required
                     fullWidth
                     multiline
@@ -1766,10 +1805,15 @@ export default function createOrder() {
               </Typography>
             </Grid>
             <Grid item xs={2}>
-              <Button variant="contained" color="primary" onClick={saveOrderHandler}>Save</Button>
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={saveOrderHandler}
+              >
+                Save
+              </Button>
             </Grid>
           </Grid>
-          
         </Toolbar>
       </AppBar>
       <Container maxWidth="lg" fixed>
@@ -1798,6 +1842,10 @@ export default function createOrder() {
           <Grid id="row_5" item container xs={12}>
             {VehicleContent}
           </Grid>
+          <Grid id="row_5.1" item container xs={12}>
+            {InstructionsContent}
+          </Grid>
+
           <Grid id="row_6" item container xs={12}>
             {PaymentContent}
           </Grid>

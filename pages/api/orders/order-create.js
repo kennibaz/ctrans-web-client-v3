@@ -63,7 +63,9 @@ export default async (req, res) => {
     faxOfShipper,
   } = req.body;
 
-  const created_at = new Date();
+
+
+  const created_at = firebase.firestore.Timestamp.now();
 
   if (totalVehicles.length === 0) {
     const vehicle = {
@@ -95,6 +97,14 @@ export default async (req, res) => {
     totalVehicles.push(vehicle);
   }
 
+  if(phoneOnPickup) {
+    phonesOnPickup.push(phoneOnPickup)
+  }
+
+  if (phoneOnDelivery){
+    phonesOnDelivery.push(phoneOnDelivery)
+  }
+
   firebase
     .firestore()
     .collection("carriers-records")
@@ -108,7 +118,7 @@ export default async (req, res) => {
     //   order_price_per_mile: distanceData.data.pricePerMile || "",
       order_carrier_inner_id: carrierOrderId,
       order_shipper_inner_id: shipperOrderId,
-      // order_instructions: generalData.orderInstructions,
+      order_instructions: orderInstructions,
       roles: {
         driver_system_id: "",
         dispatcher_system_id: "",
@@ -133,6 +143,7 @@ export default async (req, res) => {
           email: emailOnPickup,
           phone: phoneOnPickup,
           fax: faxOnPickup,
+          phones: phonesOnPickup
         },
         //   pickup_coordinates: {
         //     lat: distanceData.data.pickup_coordinates.lat,
@@ -153,6 +164,7 @@ export default async (req, res) => {
           email: emailOnDelivery,
           phone: phoneOnDelivery,
           fax: faxOnDelivery,
+          phones: phonesOnDelivery
         },
         //   delivery_coordinates: {
         //     lat: distanceData.data.delivery_coordinates.lat,
@@ -191,9 +203,8 @@ export default async (req, res) => {
       order_activity: [
         {
           activity_date: created_at,
-          activity_type: "order_created",
+          activity_status: "Created",
           activity_user: "dispatcher",
-          activity_log: `Order "${shipperOrderId}" created at ${created_at}`,
         },
       ],
       tripId: "",

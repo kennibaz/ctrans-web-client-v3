@@ -11,9 +11,8 @@ export default async (req, res) => {
   const created_at = new Date();
   const new_activity = {
     activity_date: created_at,
-    activity_type: "order_unassigned_from_driver",
+    activity_status: `${driverName} unassigned`,
     activity_user: "dispatcher",
-    activity_log: `Order "${order_shipper_inner_id}" was unassigned from driver "${driverName}" at ${created_at}`,
   };
   firebase
     .firestore()

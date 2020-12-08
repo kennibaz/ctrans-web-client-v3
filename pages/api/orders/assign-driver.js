@@ -5,7 +5,7 @@ export default async (req, res) => {
 const {carrierId, orderId,driverId, order_shipper_inner_id, driverName } = req.body 
 
 
-    const created_at = new Date();
+const created_at = firebase.firestore.Timestamp.now();
     const orderRef = firebase.firestore()
       .collection("carriers-records")
       .doc(carrierId)
@@ -19,9 +19,8 @@ const {carrierId, orderId,driverId, order_shipper_inner_id, driverName } = req.b
 
     const new_activity = {
       activity_date: created_at,
-      activity_type: "order_assigned_to_driver",
-      activity_user: "dispatcher",
-      activity_log: `Order "${order_shipper_inner_id}" assigned to driver "${driverName}" at ${created_at}`,
+      activity_status: `${driverName} assigned`,
+      activity_user: "Dispatcher",
     };
 
     if (currentOrderStatus === "New") {
