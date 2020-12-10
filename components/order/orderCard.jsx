@@ -131,7 +131,7 @@ export default function orderCard({
   //cancel handler
   const cancelOrderHandler = async () => {
     await axios.post("/api/orders/order-cancel", {
-      carrierId: "1840b8a5-3381-41f7-9838-8ad23a7b50bd",
+      carrierId: carrierId,
       orderId,
     });
     reloadHandler();
@@ -140,7 +140,7 @@ export default function orderCard({
   // archive order
   const archiveOrderHandler = async () => {
     await axios.post("/api/orders/order-archive", {
-      carrierId: "1840b8a5-3381-41f7-9838-8ad23a7b50bd",
+      carrierId: carrierId,
       orderId,
     });
     reloadHandler();
@@ -150,7 +150,7 @@ export default function orderCard({
   const paidOrderHandler = async () => {
     if (orderData.order_status === "Delivered") {
       await axios.post("/api/orders/order-paid", {
-        carrierId: "1840b8a5-3381-41f7-9838-8ad23a7b50bd",
+        carrierId: carrierId,
         orderId,
       });
       menuHandleClose();
@@ -224,7 +224,7 @@ export default function orderCard({
   const assignButtonAndDialog = (
     <div>
       <AssignDriverDialog
-        carrier_id={"1840b8a5-3381-41f7-9838-8ad23a7b50bd"}
+        carrierId={carrierId}
         drivers={drivers}
         order_status={orderData.order_status}
         order_id={orderId}
@@ -437,9 +437,6 @@ export default function orderCard({
                     <Link href={`/orders/details/${orderId}`} passHref>
                       <Button
                         variant="outlined"
-                        onClick={() => {
-                          console.log("hi");
-                        }}
                         size="small"
                         className={classes.button}
                       >

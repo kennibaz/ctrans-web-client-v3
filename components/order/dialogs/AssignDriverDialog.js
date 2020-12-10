@@ -106,7 +106,7 @@ export default function AssignDriverDialog(props) {
   //assign driver to order
   const assignDriverihandleClose = async () => {
     const respond = await axios.post("/api/orders/assign-driver", {
-      carrierId: "1840b8a5-3381-41f7-9838-8ad23a7b50bd",
+      carrierId: props.carrierId,
       orderId: props.order_id,
       driverId: selectedDriver,
       order_shipper_inner_id: props.order_shipper_inner_id,
@@ -122,7 +122,7 @@ export default function AssignDriverDialog(props) {
   //unnassign driver
   const unAssignDriverFromOrderHandler = async () => {
     const respond = await axios.post("/api/orders/unassign-driver", {
-      carrierId: "1840b8a5-3381-41f7-9838-8ad23a7b50bd",
+      carrierId: props.carrierId,
       orderId: props.order_id,
       order_shipper_inner_id: props.order_shipper_inner_id,
       driverName: props.order_assigned_driver,

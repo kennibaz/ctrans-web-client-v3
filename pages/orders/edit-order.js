@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import { withStyles } from "@material-ui/core/styles";
+import NavBar from "../../components/NavBar"
 import AppBar from "@material-ui/core/AppBar";
 import Toolbar from "@material-ui/core/Toolbar";
 import Paper from "@material-ui/core/Paper";
@@ -29,7 +30,7 @@ import CheckIcon from "@material-ui/icons/Check";
 import Collapse from "@material-ui/core/Collapse";
 import ButtonGroup from "@material-ui/core/ButtonGroup";
 import { Container } from "@material-ui/core";
-import { DropzoneArea } from "material-ui-dropzone";
+import {withAuth} from "../../utils/withAuth"
 
 import EditPhoneDialog from "../../components/order/dialogs/EditPhonesDialog";
 import EditPhoneDialogDelivery from "../../components/order/dialogs/EditPhonesDialogDelivery";
@@ -98,7 +99,7 @@ const StyledBadge = withStyles((theme) => ({
   },
 }))(Badge);
 
-export default function EditOrder(props) {
+function EditOrder(props) {
   const classes = useStyles();
   const [isEditPhonesOnPickupOpen, setIsEditPhonesOnPickupOpen] = useState("");
   const [isEditPhonesOnDeliveryOpen, setIsEditPhonesOnDeliveryOpen] = useState(
@@ -464,7 +465,7 @@ export default function EditOrder(props) {
   //save handler
   const saveOrderHandler = async () => {
     await axios.post("/api/orders/order-edit", {
-      carrierId: "1840b8a5-3381-41f7-9838-8ad23a7b50bd",
+      carrierId: props.carrierId,
       orderId: props.orderId,
       shipperOrderId,
       carrierOrderId,
@@ -1840,6 +1841,7 @@ export default function EditOrder(props) {
 
   return (
     <div>
+      
       <AppBar position="fixed" className={classes.appBar} elevation={0}>
         <Toolbar className={classes.upperToolBar}>
           <Grid container>
@@ -1898,6 +1900,9 @@ export default function EditOrder(props) {
         {editPhoneOnPickupDialog}
         {editPhoneOnDeliveryDialog}
       </Container>
+    
     </div>
   );
 }
+
+export default withAuth(EditOrder)

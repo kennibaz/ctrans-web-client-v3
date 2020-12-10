@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import { withStyles } from "@material-ui/core/styles";
 import { useRouter } from "next/router";
+import NavBar from "../../components/NavBar"
 import AppBar from "@material-ui/core/AppBar";
 import Toolbar from "@material-ui/core/Toolbar";
 import Paper from "@material-ui/core/Paper";
@@ -31,6 +32,7 @@ import Collapse from "@material-ui/core/Collapse";
 import ButtonGroup from "@material-ui/core/ButtonGroup";
 import { Container } from "@material-ui/core";
 import { DropzoneArea } from "material-ui-dropzone";
+import {withAuth} from "../../utils/withAuth"
 
 import EditPhoneDialog from "../../components/order/dialogs/EditPhonesDialog";
 import EditPhoneDialogDelivery from "../../components/order/dialogs/EditPhonesDialogDelivery";
@@ -97,7 +99,7 @@ const StyledBadge = withStyles((theme) => ({
   },
 }))(Badge);
 
-export default function createOrder() {
+ function createOrder(props) {
   const classes = useStyles();
   const router = useRouter();
 
@@ -387,7 +389,7 @@ export default function createOrder() {
   //save handler
   const saveOrderHandler = async () => {
     await axios.post("/api/orders/order-create", {
-      carrierId: "1840b8a5-3381-41f7-9838-8ad23a7b50bd",
+      carrierId: props.carrierId,
       shipperOrderId,
       carrierOrderId,
       orderInstructions,
@@ -1796,6 +1798,7 @@ export default function createOrder() {
 
   return (
     <div>
+      <NavBar>
       <AppBar position="fixed" className={classes.appBar} elevation={0}>
         <Toolbar className={classes.upperToolBar}>
           <Grid container>
@@ -1816,7 +1819,7 @@ export default function createOrder() {
           </Grid>
         </Toolbar>
       </AppBar>
-      <Container maxWidth="lg" fixed>
+      <Container   maxWidth="lg" fixed>
         <Grid container spacing={2} className={classes.container}>
           <Grid id="row_1" item container xs={12}>
             <Grid item xs={12}>
@@ -1853,6 +1856,9 @@ export default function createOrder() {
         {editPhoneOnPickupDialog}
         {editPhoneOnDeliveryDialog}
       </Container>
+      </NavBar>
     </div>
   );
 }
+
+export default withAuth(createOrder)   

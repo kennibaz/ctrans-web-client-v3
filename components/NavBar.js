@@ -10,6 +10,8 @@ import ListItemIcon from "@material-ui/core/ListItemIcon";
 import AddIcon from "@material-ui/icons/Add";
 import Link from "next/link";
 
+import firebaseWeb from "../firebase/firebase-web"
+
 const drawerWidth = 120;
 
 const useStyles = makeStyles((theme) => ({
@@ -36,6 +38,16 @@ const useStyles = makeStyles((theme) => ({
 
 export default function PermanentDrawerLeft(props) {
   const classes = useStyles();
+
+  const signOutHandler = () => {
+    firebaseWeb
+      .auth()
+      .signOut()
+      .catch(function (error) {
+        console.log(error);
+      });
+      
+  };
 
   return (
     <div className={classes.root}>
@@ -82,7 +94,7 @@ export default function PermanentDrawerLeft(props) {
           <ListItem button>
             <ListItemText primary={"SETTINGS"} />
           </ListItem>
-          <ListItem button>
+          <ListItem button onClick={signOutHandler}>
             <ListItemText primary={"Sign out"} />
           </ListItem>
         </List>

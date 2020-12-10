@@ -3,6 +3,7 @@ import { useRouter } from "next/router";
 import { makeStyles, withStyles } from "@material-ui/core/styles";
 import Grid from "@material-ui/core/Grid";
 import Container from "@material-ui/core/Container";
+import NavBar from "../../../components/NavBar"
 import AppBar from "@material-ui/core/AppBar";
 import Toolbar from "@material-ui/core/Toolbar";
 import Typography from "@material-ui/core/Typography";
@@ -18,7 +19,6 @@ import TableRow from "@material-ui/core/TableRow";
 import TableCell from "@material-ui/core/TableCell";
 import Card from "@material-ui/core/Card";
 import CardActionArea from "@material-ui/core/CardActionArea";
-import CardActions from "@material-ui/core/CardActions";
 import CardContent from "@material-ui/core/CardContent";
 import CardMedia from "@material-ui/core/CardMedia";
 import CheckIcon from "@material-ui/icons/Check";
@@ -37,8 +37,7 @@ import ListItem from "@material-ui/core/ListItem";
 import ListItemIcon from "@material-ui/core/ListItemIcon";
 import ListItemText from "@material-ui/core/ListItemText";
 
-import CloseIcon from "@material-ui/icons/Close";
-import IconButton from "@material-ui/core/IconButton";
+import {withAuth} from "../../../utils/withAuth"
 
 //dialogs
 import AssignDriverDialog from "../../../components/order/dialogs/AssignDriverDialog";
@@ -122,17 +121,18 @@ const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
 });
 
-export default function orderDetails() {
+ function orderDetails(props) {
   const classes = useStyles();
   const router = useRouter();
 
   const [orderId, setOrderId] = useState("");
+  const [carrierId, setCarrierId] = useState("");
   const [orderData, setOrderData] = useState("");
   const [drivers, setDrivers] = useState("");
   const [messageContent, setMessageContent] = useState("");
   const [emailForBol, setEmailForBol] = useState("info@azbsupply.com");
   const [readyToReload, setReadyToReload] = useState("");
-  const [openEditDialog, setOpenEditDialog] = React.useState(false);
+  const [openEditDialog, setOpenEditDialog] = useState(false);
 
   const openEditOrderDialogHandler = () => {
     setOpenEditDialog(true);
@@ -145,34 +145,34 @@ export default function orderDetails() {
 
   useEffect(() => {
     setOrderId(router.query.id);
-  });
-
-  useEffect(() => {
+    setCarrierId(props.carrierId)
     const result = async () => {
-      const resultDrivers = await axios.get("/api/drivers");
+      const resultDrivers = await axios.post("/api/drivers", {carrierId: props.carrierId});
       setDrivers(resultDrivers.data);
     };
     result();
-  }, []);
+  },[]);
+
 
   useEffect(() => {
-    if (orderId) {
-      let orderId = router.query.id;
+    if (orderId && carrierId) {
       const result = async () => {
         const respond = await axios.post("/api/orders/order-details", {
           orderId,
+          carrierId
         });
         setOrderData(respond.data);
       };
       result();
     }
-  }, [orderId]);
+  }, [orderId, carrierId]);
 
   useEffect(() => {
-    let orderId = router.query.id;
+
     const result = async () => {
       const respond = await axios.post("/api/orders/order-details", {
         orderId,
+        carrierId
       });
       setOrderData(respond.data);
     };
@@ -192,7 +192,7 @@ export default function orderDetails() {
     await axios.post("/api/bol/send-bol", {
       orderId,
       email: emailForBol,
-      carrierId: "1840b8a5-3381-41f7-9838-8ad23a7b50bd",
+      carrierId: props.carrierId,
       orderShipperInnerId: orderData.data.order_shipper_inner_id,
     });
   };
@@ -205,7 +205,7 @@ export default function orderDetails() {
     await axios.post("/api/bol/send-invoice", {
       orderId,
       email: emailForBol,
-      carrierId: "1840b8a5-3381-41f7-9838-8ad23a7b50bd",
+      carrierId: props.carrierId,
       orderShipperInnerId: orderData.data.order_shipper_inner_id,
     });
   };
@@ -214,7 +214,7 @@ export default function orderDetails() {
   const paidOrderHandler = async () => {
     if (orderData.data.order_status === "Delivered") {
       await axios.post("/api/orders/order-paid", {
-        carrierId: "1840b8a5-3381-41f7-9838-8ad23a7b50bd",
+        carrierId: props.carrierId,
         orderId,
       });
       reloadHandler();
@@ -225,7 +225,7 @@ export default function orderDetails() {
   //cancel order
   const cancelOrderHandler = async () => {
     await axios.post("/api/orders/order-cancel", {
-      carrierId: "1840b8a5-3381-41f7-9838-8ad23a7b50bd",
+      carrierId: props.carrierId,
       orderId,
     });
     reloadHandler();
@@ -234,7 +234,7 @@ export default function orderDetails() {
   // archive order
   const archiveOrderHandler = async () => {
     await axios.post("/api/orders/order-archive", {
-      carrierId: "1840b8a5-3381-41f7-9838-8ad23a7b50bd",
+      carrierId: props.carrierId,
       orderId,
     });
     reloadHandler();
@@ -243,7 +243,7 @@ export default function orderDetails() {
   //Assign Driver Dialog
   const assignButtonAndDialog = (
     <AssignDriverDialog
-      carrier_id={"1840b8a5-3381-41f7-9838-8ad23a7b50bd"}
+      carrierId={props.carrierId}
       drivers={drivers}
       order_status={orderData.data?.order_status}
       order_id={orderId}
@@ -1052,6 +1052,7 @@ export default function orderDetails() {
 
   return (
     <div>
+      <NavBar>
       {appBarContent}
 
       <Grid container spacing={2}>
@@ -1063,6 +1064,9 @@ export default function orderDetails() {
         </Grid>
       </Grid>
       {editOrderDialog}
+      </NavBar>
     </div>
   );
 }
+
+export default withAuth(orderDetails)

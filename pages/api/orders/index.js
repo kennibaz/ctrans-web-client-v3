@@ -1,38 +1,39 @@
 import firebase from "../../../firebase/firebase-adm";
 
 export default async (req, res) => {
-  if (req.method === "GET") {
-    return new Promise(async (resolve) => {
-      var orderRef = firebase
-        .firestore()
-        .collection("carriers-records")
-        .doc("1840b8a5-3381-41f7-9838-8ad23a7b50bd")
-        .collection("orders")
-        .where("order_status", "!=", "Archived");
-      let new_array = [];
+  // if (req.method === "GET") {
+  //   return new Promise(async (resolve) => {
+  //     var orderRef = firebase
+  //       .firestore()
+  //       .collection("carriers-records")
+  //       .doc("1840b8a5-3381-41f7-9838-8ad23a7b50bd")
+  //       .collection("orders")
+  //       .where("order_status", "!=", "Archived");
+  //     let new_array = [];
 
-      try {
-        const orderData = await orderRef.get();
-        orderData.forEach(function (doc) {
-          let new_obj = {
-            id: doc.id,
-            data: doc.data(),
-          };
-          new_array.push(new_obj);
-        });
-      } catch (error) {
-        console.log(error); // Can be a simple console.error too
-        res.status(500).end();
-        return resolve();
-      }
-      res.status(200).send(new_array);
-      return resolve();
-    });
-  }
+  //     try {
+  //       const orderData = await orderRef.get();
+  //       orderData.forEach(function (doc) {
+  //         let new_obj = {
+  //           id: doc.id,
+  //           data: doc.data(),
+  //         };
+  //         new_array.push(new_obj);
+  //       });
+  //     } catch (error) {
+  //       console.log(error); // Can be a simple console.error too
+  //       res.status(500).end();
+  //       return resolve();
+  //     }
+  //     res.status(200).send(new_array);
+  //     return resolve();
+  //   });
+  // }
 
   if (req.method === "POST") {
     return new Promise(async (resolve) => {
       const {
+        carrierId,
         statusAll,
         statusNew,
         statusAssigned,
@@ -41,6 +42,7 @@ export default async (req, res) => {
         statusPaid,
         selectedDriver,
       } = req.body;
+
 
       let requestArray = [];
 
@@ -55,7 +57,7 @@ export default async (req, res) => {
       var orderRef = firebase
         .firestore()
         .collection("carriers-records")
-        .doc("1840b8a5-3381-41f7-9838-8ad23a7b50bd")
+        .doc(carrierId)
         .collection("orders")
         .where("order_status", "!=", "Archived");
       let new_array = [];

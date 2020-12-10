@@ -2,10 +2,11 @@ import firebase from "../../../firebase/firebase-adm";
 
 export default async (req, res) => {
   return new Promise( async(resolve) => {
+    const {carrierId} = req.body
     var driverRef = firebase
       .firestore()
       .collection("users")
-      .where("carrierId", "==", "1840b8a5-3381-41f7-9838-8ad23a7b50bd")
+      .where("carrierId", "==", carrierId)
       .where("role", "==", "driver")
       .where("active", "==", true);
     let new_array = [];

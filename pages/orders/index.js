@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { fade, makeStyles } from "@material-ui/core/styles";
+import NavBar from "../../components/NavBar";
 import AppBar from "@material-ui/core/AppBar";
 import Toolbar from "@material-ui/core/Toolbar";
 import Typography from "@material-ui/core/Typography";
@@ -18,6 +19,7 @@ import MenuItem from "@material-ui/core/MenuItem";
 import InputLabel from "@material-ui/core/InputLabel";
 import axios from "axios";
 import { useRouter } from "next/router";
+import { withAuth } from "../../utils/withAuth";
 
 import OrderCard from "../../components/order/orderCard";
 const drawerWidth = 120;
@@ -66,7 +68,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function orders(props) {
+function orders(props) {
   const classes = useStyles();
   const router = useRouter();
   const [orders, setOrders] = useState([]);
@@ -83,20 +85,32 @@ export default function orders(props) {
   const [statusPaid, setStatusPaid] = useState(false);
   const [readyToUpdateOrders, setReadyToUpdateOrders] = useState(false);
   const [readyToReload, setReadyToReload] = useState(false);
+  const [carrierId, setCarrierId] = useState("");
 
   useEffect(() => {
     const request = async () => {
-      const resultOrders = await axios.get("/api/orders");
-      const resultDrivers = await axios.get("/api/drivers");
-      setOrders(resultOrders.data);
-      setOrdersForSearch(resultOrders.data);
-      setDrivers(resultDrivers.data);
+      if (props.carrierId) {
+
+        const resultOrders = await axios.post("/api/orders", {
+          carrierId: props.carrierId,
+          statusAll: true,
+        });
+        const resultDrivers = await axios.post("/api/drivers", {
+          carrierId: props.carrierId,
+        });
+        setOrders(resultOrders.data);
+        setOrdersForSearch(resultOrders.data);
+        setDrivers(resultDrivers.data);
+      }
     };
     request();
-  }, [readyToReload]);
+  }, [readyToReload, props.carrierId]);
+
+
 
   useEffect(() => {
     if (readyToUpdateOrders) {
+      console.log("work")
       if (
         !statusNew &&
         !statusAssigned &&
@@ -109,6 +123,7 @@ export default function orders(props) {
           const resultOrders = await axios.post("/api/orders", {
             statusAll: true,
             selectedDriver,
+            carrierId: props.carrierId,
           });
           setReadyToUpdateOrders(false);
           setOrders(resultOrders.data);
@@ -126,6 +141,7 @@ export default function orders(props) {
           statusDelivered,
           statusPaid,
           selectedDriver,
+          carrierId: props.carrierId
         });
 
         setReadyToUpdateOrders(false);
@@ -226,7 +242,7 @@ export default function orders(props) {
               orderData={order.data}
               orderId={order.id}
               drivers={drivers}
-              carrierId={"1840b8a5-3381-41f7-9838-8ad23a7b50bd"}
+              carrierId={props.carrierId}
               reloadHandler={reloadHandler}
             />
           ))}
@@ -253,161 +269,163 @@ export default function orders(props) {
 
   return (
     <div>
-      <AppBar position="fixed" className={classes.appBar} elevation={0}>
-        <Toolbar className={classes.upperToolBar}>
-          <Grid>
-            <Typography variant="h6" noWrap>
-              LOADS
-            </Typography>
-          </Grid>
-        </Toolbar>
-        <Toolbar className={classes.middleToolBar}>
-          <Grid container alignItems="center" spacing={2}>
-            <Grid item={4}>
-              {" "}
-              <TextField
-                id="shipper_id"
-                required
-                placeholder="Vehicle, Order, Shipper"
-                margin="dense"
-                value={searchWord}
-                onChange={(e) => {
-                  setSearchWord(e.target.value);
-                }}
-                name="shipper_id"
-                variant="outlined"
-                InputProps={{
-                  classes: { input: classes.inputText },
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      <IconButton
-                        onClick={() => {
-                          searchHandler();
-                        }}
-                      >
-                        <SearchIcon />
-                      </IconButton>
-                    </InputAdornment>
-                  ),
-                }}
-              />
+      <NavBar>
+        <AppBar position="fixed" className={classes.appBar} elevation={0}>
+          <Toolbar className={classes.upperToolBar}>
+            <Grid>
+              <Typography variant="h6" noWrap>
+                LOADS
+              </Typography>
             </Grid>
-
-            <Grid item xs={2}>
-              <FormControl variant="outlined" className={classes.formControl}>
-                <InputLabel
-                  shrink
+          </Toolbar>
+          <Toolbar className={classes.middleToolBar}>
+            <Grid container alignItems="center" spacing={2}>
+              <Grid item={4}>
+                {" "}
+                <TextField
+                  id="shipper_id"
+                  required
+                  placeholder="Vehicle, Order, Shipper"
                   margin="dense"
-                  className={classes.selectLabel}
-                >
-                  Filter by drivers
-                </InputLabel>
-                <Select
-                  id="type"
-                  margin="dense"
-                  placeholder="Filter by drivers"
-                  name="type"
-                  value={selectedDriver}
+                  value={searchWord}
                   onChange={(e) => {
-                    selectedDriverHandler(e);
+                    setSearchWord(e.target.value);
                   }}
-                  style={{ fontSize: 12, width: "200%" }}
-                >
-                  {drivers.map((driver) => (
-                    <MenuItem value={driver.id} key={driver.id}>
-                      {driver.data.firstName + " " + driver.data.lastName}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>{" "}
-            </Grid>
-            <Grid item xs={1}>
-              <Button onClick={clearSearchHandler}>CLEAR</Button>
-            </Grid>
-            <Grid item={3}></Grid>
-          </Grid>
-        </Toolbar>
-        <Toolbar className={classes.lowerToolBar}>
-          <Grid container direction="row" spacing={2}>
-            <Grid item xs={1}>
-              <Chip
-                avatar={<Avatar>A</Avatar>}
-                label="All"
-                clickable
-                color="primary"
-                onClick={() => {
-                  statusSelectAllHandler();
-                }}
-                variant="outlined"
-                variant={statusAll ? "default" : "outlined"}
-              />
-            </Grid>
-            <Grid item>
-              <Chip
-                avatar={<Avatar>N</Avatar>}
-                label="New"
-                clickable
-                color="primary"
-                onClick={() => {
-                  statusSelectHandler("New");
-                }}
-                variant={statusNew ? "default" : "outlined"}
-              />
-            </Grid>
-            <Grid item>
-              <Chip
-                avatar={<Avatar>A</Avatar>}
-                label="Assigned"
-                clickable
-                color="primary"
-                onClick={() => {
-                  statusSelectHandler("Assigned");
-                }}
-                variant={statusAssigned ? "default" : "outlined"}
-              />
-            </Grid>
-            <Grid item>
-              <Chip
-                avatar={<Avatar>PU</Avatar>}
-                label="Picked up"
-                clickable
-                color="primary"
-                onClick={() => {
-                  statusSelectHandler("Picked");
-                }}
-                variant={statusPicked ? "default" : "outlined"}
-              />
-            </Grid>
-            <Grid item>
-              <Chip
-                avatar={<Avatar>DL</Avatar>}
-                label="Delivered"
-                clickable
-                color="primary"
-                onClick={() => {
-                  statusSelectHandler("Delivered");
-                }}
-                variant={statusDelivered ? "default" : "outlined"}
-              />
-            </Grid>
-            <Grid item>
-              <Chip
-                avatar={<Avatar>P</Avatar>}
-                label="Paid"
-                clickable
-                color="primary"
-                onClick={() => {
-                  statusSelectHandler("Paid");
-                }}
-                variant={statusPaid ? "default" : "outlined"}
-              />
-            </Grid>
-          </Grid>
-        </Toolbar>
-      </AppBar>
-      {orderContent}
+                  name="shipper_id"
+                  variant="outlined"
+                  InputProps={{
+                    classes: { input: classes.inputText },
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton
+                          onClick={() => {
+                            searchHandler();
+                          }}
+                        >
+                          <SearchIcon />
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+              </Grid>
 
- 
+              <Grid item xs={2}>
+                <FormControl variant="outlined" className={classes.formControl}>
+                  <InputLabel
+                    shrink
+                    margin="dense"
+                    className={classes.selectLabel}
+                  >
+                    Filter by drivers
+                  </InputLabel>
+                  <Select
+                    id="type"
+                    margin="dense"
+                    placeholder="Filter by drivers"
+                    name="type"
+                    value={selectedDriver}
+                    onChange={(e) => {
+                      selectedDriverHandler(e);
+                    }}
+                    style={{ fontSize: 12, width: "200%" }}
+                  >
+                    {drivers.map((driver) => (
+                      <MenuItem value={driver.id} key={driver.id}>
+                        {driver.data.firstName + " " + driver.data.lastName}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>{" "}
+              </Grid>
+              <Grid item xs={1}>
+                <Button onClick={clearSearchHandler}>CLEAR</Button>
+              </Grid>
+              <Grid item={3}></Grid>
+            </Grid>
+          </Toolbar>
+          <Toolbar className={classes.lowerToolBar}>
+            <Grid container direction="row" spacing={2}>
+              <Grid item xs={1}>
+                <Chip
+                  avatar={<Avatar>A</Avatar>}
+                  label="All"
+                  clickable
+                  color="primary"
+                  onClick={() => {
+                    statusSelectAllHandler();
+                  }}
+                  variant="outlined"
+                  variant={statusAll ? "default" : "outlined"}
+                />
+              </Grid>
+              <Grid item>
+                <Chip
+                  avatar={<Avatar>N</Avatar>}
+                  label="New"
+                  clickable
+                  color="primary"
+                  onClick={() => {
+                    statusSelectHandler("New");
+                  }}
+                  variant={statusNew ? "default" : "outlined"}
+                />
+              </Grid>
+              <Grid item>
+                <Chip
+                  avatar={<Avatar>A</Avatar>}
+                  label="Assigned"
+                  clickable
+                  color="primary"
+                  onClick={() => {
+                    statusSelectHandler("Assigned");
+                  }}
+                  variant={statusAssigned ? "default" : "outlined"}
+                />
+              </Grid>
+              <Grid item>
+                <Chip
+                  avatar={<Avatar>PU</Avatar>}
+                  label="Picked up"
+                  clickable
+                  color="primary"
+                  onClick={() => {
+                    statusSelectHandler("Picked");
+                  }}
+                  variant={statusPicked ? "default" : "outlined"}
+                />
+              </Grid>
+              <Grid item>
+                <Chip
+                  avatar={<Avatar>DL</Avatar>}
+                  label="Delivered"
+                  clickable
+                  color="primary"
+                  onClick={() => {
+                    statusSelectHandler("Delivered");
+                  }}
+                  variant={statusDelivered ? "default" : "outlined"}
+                />
+              </Grid>
+              <Grid item>
+                <Chip
+                  avatar={<Avatar>P</Avatar>}
+                  label="Paid"
+                  clickable
+                  color="primary"
+                  onClick={() => {
+                    statusSelectHandler("Paid");
+                  }}
+                  variant={statusPaid ? "default" : "outlined"}
+                />
+              </Grid>
+            </Grid>
+          </Toolbar>
+        </AppBar>
+        {orderContent}
+      </NavBar>
     </div>
   );
 }
+
+export default withAuth(orders);
