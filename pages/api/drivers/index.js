@@ -3,6 +3,10 @@ import firebase from "../../../firebase/firebase-adm";
 export default async (req, res) => {
   return new Promise( async(resolve) => {
     const {carrierId} = req.body
+    if(!carrierId){
+      res.status(500).end()
+      return
+    }
     var driverRef = firebase
       .firestore()
       .collection("users")

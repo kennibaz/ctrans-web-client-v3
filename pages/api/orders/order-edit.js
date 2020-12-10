@@ -3,6 +3,8 @@ import firebase from "../../../firebase/firebase-adm";
 export default async (req, res) => {
   const {
     orderId,
+    userId,
+    token,
     shipperOrderId,
     carrierId,
     carrierOrderId,
@@ -63,7 +65,26 @@ export default async (req, res) => {
     phoneOfShipper,
     faxOfShipper,
   } = req.body;
-  console.log(req.body)
+
+  if (!carrierId || !userId || !token) {
+    res.status(405).end();
+    return;
+  }
+
+  let decodedToken;
+
+  try {
+    decodedToken = await firebase.auth().verifyIdToken(token);
+  } catch (err) {
+    console.log(err);
+    res.status(500).end();
+    return;
+  }
+
+  if (token && decodedToken.uid !== userId) {
+    res.status(500).end();
+    return;
+  }
 
 
   const created_at = new Date();

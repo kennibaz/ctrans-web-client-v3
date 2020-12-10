@@ -22,38 +22,56 @@ function withAuth(WrappedComponent) {
   return class extends Component {
     constructor(props) {
       super(props);
-     
+
       this.state = {
         user: null,
         checking: true,
         carrierId: "",
-        userId: ""
+        userId: "",
+        token: "",
       };
     }
     componentDidMount() {
       firebaseWeb.auth().onAuthStateChanged((user) => {
         if (user) {
-            firebaseWeb
-          .auth()
-          .currentUser.getIdTokenResult()
-          .then((idTokenResult) => {
-              this.setState({carrierId:idTokenResult.claims.carrier_id, userId:idTokenResult.claims.user_id, })
-          })
-          .catch((error) => {
-          
-          });
-          this.setState({user: user});
-          this.setState({checking: false})
+          firebaseWeb
+            .auth()
+            .currentUser.getIdToken(/* forceRefresh */ true)
+            .then(function (idToken) {
+              this.setState({ token: idToken });
+            })
+            .catch(function (error) {});
+
+          firebaseWeb
+            .auth()
+            .currentUser.getIdTokenResult()
+            .then((idTokenResult) => {
+              this.setState({
+                carrierId: idTokenResult.claims.carrier_id,
+                userId: idTokenResult.claims.user_id,
+                token: idTokenResult.token
+              });
+            })
+            .catch((error) => {});
+          this.setState({ user: user });
+          this.setState({ checking: false });
         } else {
-            Router.push("/signin")
+          Router.push("/signin");
         }
       });
     }
     render() {
-        if(this.state.checking || !this.state.carrierId){
-            return null
-        }
-      return <WrappedComponent {...this.props } carrierId ={this.state.carrierId}/>;
+      if (this.state.checking || !this.state.carrierId) {
+        return null;
+      }
+      return (
+        <WrappedComponent
+          {...this.props}
+          carrierId={this.state.carrierId}
+          token={this.state.token}
+          userId={this.state.userId}
+        />
+      );
     }
   };
 }

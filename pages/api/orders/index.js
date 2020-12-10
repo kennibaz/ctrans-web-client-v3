@@ -41,10 +41,17 @@ export default async (req, res) => {
         statusDelivered,
         statusPaid,
         selectedDriver,
+        token,
+        userId,
       } = req.body;
 
+      if(!token || !userId || !carrierId){
+        res.status(405).end()
+        return
+      }
 
       let requestArray = [];
+      let decodedToken;
 
       statusNew && requestArray.push("New");
       statusAssigned && requestArray.push("Assigned");
@@ -53,6 +60,18 @@ export default async (req, res) => {
       statusPaid && requestArray.push("Paid");
       statusAll &&
         requestArray.push("New", "Assigned", "Picked", "Delivered", "Paid");
+      try {
+        decodedToken = await firebase.auth().verifyIdToken(token);
+      } catch (err) {
+        console.log(err);
+        res.status(500).end()
+        return
+      }
+
+      if (token && decodedToken.uid !== userId) {
+        res.status(500).end()
+        return;
+      }
 
       var orderRef = firebase
         .firestore()

@@ -4,6 +4,8 @@ export default async (req, res) => {
   const {
     shipperOrderId,
     carrierId,
+    token,
+    userId,
     carrierOrderId,
     orderInstructions,
     businessNameOnPickup,
@@ -63,9 +65,49 @@ export default async (req, res) => {
     faxOfShipper,
   } = req.body;
 
+  console.log(req.body)
+
+  if (!carrierId || !userId || !token) {
+    res.status(405).end()
+    return;
+  }
+
+  let decodedToken;
+
+  try {
+    decodedToken = await firebase.auth().verifyIdToken(token);
+  } catch (err) {
+    console.log(err);
+    res.status(500).end()
+    return
+  }
+
+
+  if (token && decodedToken.uid !== userId) {
+    res.status(500).end()
+    return;
+  }
 
 
   const created_at = firebase.firestore.Timestamp.now();
+
+  if (
+    (totalVehicles.length !== 0 && year) ||
+    (totalVehicles.length !== 0 && make)
+  ) {
+    const vehicle = {
+      vin,
+      year,
+      make,
+      model,
+      color,
+      lotNumber,
+      price,
+      type,
+      inoperable,
+    };
+    totalVehicles.push(vehicle);
+  }
 
   if (totalVehicles.length === 0) {
     const vehicle = {
@@ -82,27 +124,14 @@ export default async (req, res) => {
     totalVehicles.push(vehicle);
   }
 
-  if ((totalVehicles.length !== 0 && year) || (totalVehicles.length !== 0 && make )  ) {
-    const vehicle = {
-      vin,
-      year,
-      make,
-      model,
-      color,
-      lotNumber,
-      price,
-      type,
-      inoperable,
-    };
-    totalVehicles.push(vehicle);
+
+
+  if (phoneOnPickup) {
+    phonesOnPickup.push(phoneOnPickup);
   }
 
-  if(phoneOnPickup) {
-    phonesOnPickup.push(phoneOnPickup)
-  }
-
-  if (phoneOnDelivery){
-    phonesOnDelivery.push(phoneOnDelivery)
+  if (phoneOnDelivery) {
+    phonesOnDelivery.push(phoneOnDelivery);
   }
 
   firebase
@@ -114,8 +143,8 @@ export default async (req, res) => {
       created_at,
       order_status: "New",
       carrierId: carrierId,
-    //   order_mileage: distanceData.data.distance || "",
-    //   order_price_per_mile: distanceData.data.pricePerMile || "",
+      //   order_mileage: distanceData.data.distance || "",
+      //   order_price_per_mile: distanceData.data.pricePerMile || "",
       order_carrier_inner_id: carrierOrderId,
       order_shipper_inner_id: shipperOrderId,
       order_instructions: orderInstructions,
@@ -143,7 +172,7 @@ export default async (req, res) => {
           email: emailOnPickup,
           phone: phoneOnPickup,
           fax: faxOnPickup,
-          phones: phonesOnPickup
+          phones: phonesOnPickup,
         },
         //   pickup_coordinates: {
         //     lat: distanceData.data.pickup_coordinates.lat,
@@ -164,7 +193,7 @@ export default async (req, res) => {
           email: emailOnDelivery,
           phone: phoneOnDelivery,
           fax: faxOnDelivery,
-          phones: phonesOnDelivery
+          phones: phonesOnDelivery,
         },
         //   delivery_coordinates: {
         //     lat: distanceData.data.delivery_coordinates.lat,

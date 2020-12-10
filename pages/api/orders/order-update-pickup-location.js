@@ -16,6 +16,11 @@ export default async (req, res) => {
     fax,
   } = req.body;
 
+  if (!carrierId || !orderId) {
+    res.status(405).end();
+    return;
+  }
+
   const created_at = firebase.firestore.Timestamp.now();
 
   const new_activity = {

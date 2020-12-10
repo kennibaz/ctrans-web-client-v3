@@ -1,3 +1,4 @@
+import { isResSent } from "next/dist/next-server/lib/utils";
 import firebase from "../../../firebase/firebase-adm";
 
 export default async (req, res) => {
@@ -6,6 +7,11 @@ export default async (req, res) => {
     carrierId,
     orderId,
   } = req.body;
+
+  if(!carrierId|| !orderId){
+    res.status(405).end()
+    return;
+  }
   
 
   firebase.firestore().collection("carriers-records")

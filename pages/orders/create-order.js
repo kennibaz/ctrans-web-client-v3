@@ -448,6 +448,8 @@ const StyledBadge = withStyles((theme) => ({
       emailOfShipper,
       phoneOfShipper,
       faxOfShipper,
+      userId: props.userId,
+      token: props.token
     });
     router.push("/orders/");
   };

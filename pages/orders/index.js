@@ -94,6 +94,8 @@ function orders(props) {
         const resultOrders = await axios.post("/api/orders", {
           carrierId: props.carrierId,
           statusAll: true,
+          userId: props.userId,
+          token: props.token
         });
         const resultDrivers = await axios.post("/api/drivers", {
           carrierId: props.carrierId,
@@ -106,11 +108,31 @@ function orders(props) {
     request();
   }, [readyToReload, props.carrierId]);
 
+  useEffect(() => {
+    const request = async () => {
+      if (props.carrierId) {
+
+        const resultOrders = await axios.post("/api/orders", {
+          carrierId: props.carrierId,
+          statusAll: true,
+          userId: props.userId,
+          token: props.token
+        });
+        const resultDrivers = await axios.post("/api/drivers", {
+          carrierId: props.carrierId,
+        });
+        setOrders(resultOrders.data);
+        setOrdersForSearch(resultOrders.data);
+        setDrivers(resultDrivers.data);
+      }
+    };
+    request();
+  }, [props.carrierId]);
+
 
 
   useEffect(() => {
     if (readyToUpdateOrders) {
-      console.log("work")
       if (
         !statusNew &&
         !statusAssigned &&
@@ -124,6 +146,8 @@ function orders(props) {
             statusAll: true,
             selectedDriver,
             carrierId: props.carrierId,
+            userId: props.userId,
+            token: props.token
           });
           setReadyToUpdateOrders(false);
           setOrders(resultOrders.data);
@@ -141,7 +165,9 @@ function orders(props) {
           statusDelivered,
           statusPaid,
           selectedDriver,
-          carrierId: props.carrierId
+          carrierId: props.carrierId,
+          userId: props.userId,
+          token: props.token
         });
 
         setReadyToUpdateOrders(false);

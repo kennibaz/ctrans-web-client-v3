@@ -159,7 +159,9 @@ const Transition = React.forwardRef(function Transition(props, ref) {
       const result = async () => {
         const respond = await axios.post("/api/orders/order-details", {
           orderId,
-          carrierId
+          carrierId,
+          userId: props.userId,
+          token: props.token
         });
         setOrderData(respond.data);
       };
@@ -172,7 +174,9 @@ const Transition = React.forwardRef(function Transition(props, ref) {
     const result = async () => {
       const respond = await axios.post("/api/orders/order-details", {
         orderId,
-        carrierId
+        carrierId,
+        userId: props.userId,
+        token: props.token
       });
       setOrderData(respond.data);
     };
@@ -194,6 +198,8 @@ const Transition = React.forwardRef(function Transition(props, ref) {
       email: emailForBol,
       carrierId: props.carrierId,
       orderShipperInnerId: orderData.data.order_shipper_inner_id,
+      userId: props.userId,
+      token: props.token
     });
   };
 

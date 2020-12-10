@@ -1,12 +1,12 @@
 import firebase from "../../../firebase/firebase-adm";
 
 export default async (req, res) => {
-  const {
-    carrierId,
-    orderId,
-    order_shipper_inner_id,
-    driverName,
-  } = req.body;
+  const { carrierId, orderId, order_shipper_inner_id, driverName } = req.body;
+
+  if (!carrierId || !orderId) {
+    res.status(405).end();
+    return;
+  }
 
   const created_at = new Date();
   const new_activity = {

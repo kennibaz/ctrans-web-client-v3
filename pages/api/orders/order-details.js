@@ -3,7 +3,31 @@ import firebase from "../../../firebase/firebase-adm";
 export default async (req, res) => {
   return new Promise(async (resolve) => {
     if (req.method === "POST") {
-      const { orderId, carrierId } = req.body;
+      const { orderId, carrierId, token, userId } = req.body;
+      console.log(req.body)
+      if (  !userId || !token) {
+
+        res.status(405).end();
+        return;
+      }
+
+      let decodedToken;
+
+      try {
+        decodedToken = await firebase.auth().verifyIdToken(token);
+      } catch (err) {
+        console.log(err);
+
+        res.status(500).end();
+        return;
+      }
+
+      if (token && decodedToken.uid !== userId) {
+        res.status(500).end();
+
+        return;
+      }
+
       let id, data;
 
       if (orderId) {

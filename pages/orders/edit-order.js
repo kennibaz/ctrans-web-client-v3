@@ -467,6 +467,8 @@ function EditOrder(props) {
     await axios.post("/api/orders/order-edit", {
       carrierId: props.carrierId,
       orderId: props.orderId,
+      userId: props.userId,
+      token: props.token,
       shipperOrderId,
       carrierOrderId,
       orderInstructions,
