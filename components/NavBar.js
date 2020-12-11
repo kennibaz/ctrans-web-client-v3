@@ -10,7 +10,7 @@ import ListItemIcon from "@material-ui/core/ListItemIcon";
 import AddIcon from "@material-ui/icons/Add";
 import Link from "next/link";
 
-import firebaseWeb from "../firebase/firebase-web"
+import firebaseWeb from "../firebase/firebase-web";
 
 const drawerWidth = 120;
 
@@ -46,7 +46,6 @@ export default function PermanentDrawerLeft(props) {
       .catch(function (error) {
         console.log(error);
       });
-      
   };
 
   return (
@@ -65,10 +64,10 @@ export default function PermanentDrawerLeft(props) {
         <Divider />
         <List>
           <ListItem button>
-          <Link href={`/orders/create-order`}>
-            <ListItemIcon>
-              <AddIcon style={{ color: "#d7d5da" }} />
-            </ListItemIcon>
+            <Link href={`/orders/create-order`}>
+              <ListItemIcon>
+                <AddIcon style={{ color: "#d7d5da" }} />
+              </ListItemIcon>
             </Link>
           </ListItem>
           <ListItem button>
@@ -77,7 +76,9 @@ export default function PermanentDrawerLeft(props) {
             </Link>
           </ListItem>
           <ListItem button>
-            <ListItemText primary={"USERS"} />
+            <Link href={`/users/`}>
+              <ListItemText primary={"USERS"} />
+            </Link>
           </ListItem>
           <ListItem button>
             <ListItemText primary={"INVENTORY"} />

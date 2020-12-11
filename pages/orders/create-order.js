@@ -660,6 +660,7 @@ const StyledBadge = withStyles((theme) => ({
                   <TextField
                     id="shipper_phone"
                     required
+                   
                     value={phoneOfShipper}
                     onChange={(e) => setPhoneOfShipper(e.target.value)}
                     margin="dense"
