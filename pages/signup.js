@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useRouter } from 'next/router'
+import { useRouter } from "next/router";
 import Avatar from "@material-ui/core/Avatar";
 import Button from "@material-ui/core/Button";
 import CssBaseline from "@material-ui/core/CssBaseline";
@@ -51,7 +51,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function SignUp() {
-    const router = useRouter()
+  const router = useRouter();
   const classes = useStyles();
   //set states for input handlers
   const [email, setEmail] = useState("");
@@ -101,7 +101,7 @@ export default function SignUp() {
 
   const joinRequestUpHandler = async () => {
     //todo
-  }
+  };
 
   const signUpHandler = async () => {
     const respond = await axios.post(
@@ -127,12 +127,13 @@ export default function SignUp() {
     } else if (respond.data === "auth/phone-number-already-exists") {
       alert("This phone is already registered");
     } else {
-        router.push("/signin")
+      router.push("/signin");
     }
   };
 
   let content;
-  if (step === 1) {
+  let contentRight
+  
     content = (
       <Container component="main" maxWidth="xs">
         <CssBaseline />
@@ -187,20 +188,22 @@ export default function SignUp() {
         </div>
       </Container>
     );
-  }
+  
 
   if (step === 2) {
-    content = (
+    contentRight = (
       <Container component="main" maxWidth="xs">
         <CssBaseline />
         <div className={classes.paper}>
           <Avatar className={classes.avatar}>
             <LockOutlinedIcon />
           </Avatar>
+
           <Typography component="h1" variant="h5">
-            Sign up for 
+            Sign up for
           </Typography>
-          <Typography component="h1" variant="h5">
+
+          <Typography component="h1" variant="h6">
             {carrierUSDOTNumber} {carrierName}
           </Typography>
 
@@ -288,9 +291,7 @@ export default function SignUp() {
           </Button>
           <Grid container justify="flex-end">
             <Grid item>
-              <Link href={`/signin`} >
-                Already have an account? Sign in
-              </Link>
+              <Link href={`/signin`}>Already have an account? Sign in</Link>
             </Grid>
           </Grid>
         </div>
@@ -302,19 +303,22 @@ export default function SignUp() {
   }
 
   if (step === 3) {
-    content = (
+    contentRight = (
       <Container component="main" maxWidth="xs">
         <CssBaseline />
         <div className={classes.paper}>
           <Avatar className={classes.avatar}>
             <LockOutlinedIcon />
           </Avatar>
+       
           <Typography component="h1" variant="h5">
-           Join to 
+            Join to
           </Typography>
+          
           <Typography component="h1" variant="h5">
             {carrierUSDOTNumber} {carrierName}
           </Typography>
+          
 
           <Grid container spacing={2}>
             <Grid item xs={12} sm={6}>
@@ -400,9 +404,7 @@ export default function SignUp() {
           </Button>
           <Grid container justify="flex-end">
             <Grid item>
-              <Link href={`/signin`} >
-                Already have an account? Sign in
-              </Link>
+              <Link href={`/signin`}>Already have an account? Sign in</Link>
             </Grid>
           </Grid>
         </div>
@@ -413,5 +415,14 @@ export default function SignUp() {
     );
   }
 
-  return <div>{content}</div>;
+  return (
+    <Grid container spacing={2}>
+      <Grid item xs={6}>
+      <div>{content}</div>;
+      </Grid>
+      <Grid item xs={6}>
+      <div>{contentRight}</div>;
+      </Grid>
+    </Grid>
+  );
 }

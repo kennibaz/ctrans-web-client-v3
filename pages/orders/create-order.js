@@ -2,7 +2,8 @@ import React, { useState, useEffect } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import { withStyles } from "@material-ui/core/styles";
 import { useRouter } from "next/router";
-import NavBar from "../../components/NavBar"
+import uuid from 'react-uuid'
+import NavBar from "../../components/NavBar";
 import AppBar from "@material-ui/core/AppBar";
 import Toolbar from "@material-ui/core/Toolbar";
 import Paper from "@material-ui/core/Paper";
@@ -32,7 +33,7 @@ import Collapse from "@material-ui/core/Collapse";
 import ButtonGroup from "@material-ui/core/ButtonGroup";
 import { Container } from "@material-ui/core";
 import { DropzoneArea } from "material-ui-dropzone";
-import {withAuth} from "../../utils/withAuth"
+import { withAuth } from "../../utils/withAuth";
 
 import EditPhoneDialog from "../../components/order/dialogs/EditPhonesDialog";
 import EditPhoneDialogDelivery from "../../components/order/dialogs/EditPhonesDialogDelivery";
@@ -99,7 +100,8 @@ const StyledBadge = withStyles((theme) => ({
   },
 }))(Badge);
 
- function createOrder(props) {
+function createOrder(props) {
+  const vehicleId = uuid()
   const classes = useStyles();
   const router = useRouter();
 
@@ -182,39 +184,47 @@ const StyledBadge = withStyles((theme) => ({
   //USEEFFECTS
   //ZIP finder
   useEffect(() => {
-    const result = async () => {
-      const respond = await axios.post("/api/geo/get-zip-by-place-id", {
-        placeId: placeIdOnPickup,
-      });
-      setZipOnPickup(respond.data.zip);
-      setCityOnPickup(respond.data.city);
-      setStateOnPickup(respond.data.state);
-    };
-    result();
+    if (placeIdOnPickup) {
+      const result = async () => {
+        console.log("hio");
+        const respond = await axios.post("/api/geo/get-zip-by-place-id", {
+          placeId: placeIdOnPickup,
+        });
+        console.log(respond);
+        setZipOnPickup(respond.data.zip);
+        setCityOnPickup(respond.data.city);
+        setStateOnPickup(respond.data.state);
+      };
+      result();
+    }
   }, [placeIdOnPickup]);
   //ZIP finder
   useEffect(() => {
-    const result = async () => {
-      const respond = await axios.post("/api/geo/get-zip-by-place-id", {
-        placeId: placeIdOnDelivery,
-      });
-      setZipOnDelivery(respond.data.zip);
-      setCityOnDelivery(respond.data.city);
-      setStateOnDelivery(respond.data.state);
-    };
-    result();
+    if (placeIdOnDelivery) {
+      const result = async () => {
+        const respond = await axios.post("/api/geo/get-zip-by-place-id", {
+          placeId: placeIdOnDelivery,
+        });
+        setZipOnDelivery(respond.data.zip);
+        setCityOnDelivery(respond.data.city);
+        setStateOnDelivery(respond.data.state);
+      };
+      result();
+    }
   }, [placeIdOnDelivery]);
   //ZIP finder
   useEffect(() => {
-    const result = async () => {
-      const respond = await axios.post("/api/geo/get-zip-by-place-id", {
-        placeId: placeIdOfShipper,
-      });
-      setZipOfShipper(respond.data.zip);
-      setCityOfShipper(respond.data.city);
-      setStateOfShipper(respond.data.state);
-    };
-    result();
+    if (placeIdOfShipper) {
+      const result = async () => {
+        const respond = await axios.post("/api/geo/get-zip-by-place-id", {
+          placeId: placeIdOfShipper,
+        });
+        setZipOfShipper(respond.data.zip);
+        setCityOfShipper(respond.data.city);
+        setStateOfShipper(respond.data.state);
+      };
+      result();
+    }
   }, [placeIdOfShipper]);
 
   //Models array setter
@@ -232,6 +242,7 @@ const StyledBadge = withStyles((theme) => ({
   const addVehicleHandler = () => {
     let currentVehiclesArray = [...totalVehicles];
     let newVehicle = {
+      vehicleId: vehicleId,
       vin: vin,
       year: year,
       make: make,
@@ -376,18 +387,45 @@ const StyledBadge = withStyles((theme) => ({
   //Vin autocomplete handler
   const orderVehiclesVinAutoFillHandler = async (event) => {
     setVin(event.target.value);
+
     if (event.target.value.length === 17) {
-      const vinData = await axios.post("/api/vehicles/get-vin", {
-        vin: event.target.value,
-      });
-      setYear(vinData.data.ModelYear);
-      setMake(vinData.data.Make);
-      setModel(vinData.data.Model);
+      try {
+        const vinData = await axios.post("/api/vehicles/get-vin", {
+          vin: event.target.value,
+        });
+
+        setYear(vinData.data.ModelYear);
+        setMake(vinData.data.Make);
+        setModel(vinData.data.Model);
+      } catch (err) {
+        console.log(err);
+      }
     }
   };
 
   //save handler
   const saveOrderHandler = async () => {
+    if (
+      !shipperOrderId ||
+      !businessNameOfShipper ||
+      !phoneOfShipper ||
+      !addressOnPickup ||
+      !scheduledPickupDate ||
+      !phoneOnPickup ||
+      !phoneOnDelivery ||
+      !scheduledDeliveryDate ||
+      !addressOnDelivery ||
+      !year ||
+      !make ||
+      !model ||
+      !orderAmount ||
+      !paymentMethod ||
+      !paymentStartUpon ||
+      !paymentTerms
+    ) {
+      alert("NO Data");
+      return;
+    }
     await axios.post("/api/orders/order-create", {
       carrierId: props.carrierId,
       shipperOrderId,
@@ -449,7 +487,7 @@ const StyledBadge = withStyles((theme) => ({
       phoneOfShipper,
       faxOfShipper,
       userId: props.userId,
-      token: props.token
+      token: props.token,
     });
     router.push("/orders/");
   };
@@ -660,7 +698,6 @@ const StyledBadge = withStyles((theme) => ({
                   <TextField
                     id="shipper_phone"
                     required
-                   
                     value={phoneOfShipper}
                     onChange={(e) => setPhoneOfShipper(e.target.value)}
                     margin="dense"
@@ -1417,7 +1454,7 @@ const StyledBadge = withStyles((theme) => ({
                           input: classes.vehicleInput,
                         }}
                         clearOnBlur
-                        disabled={!make}
+                        disabled={!make && !modelsArray}
                         value={model}
                         onChange={(event, newValue) => {
                           setModel(newValue);
@@ -1802,66 +1839,66 @@ const StyledBadge = withStyles((theme) => ({
   return (
     <div>
       <NavBar>
-      <AppBar position="fixed" className={classes.appBar} elevation={0}>
-        <Toolbar className={classes.upperToolBar}>
-          <Grid container>
-            <Grid item xs={2}>
-              <Typography variant="h6" noWrap>
-                New Load
-              </Typography>
+        <AppBar position="fixed" className={classes.appBar} elevation={0}>
+          <Toolbar className={classes.upperToolBar}>
+            <Grid container>
+              <Grid item xs={2}>
+                <Typography variant="h6" noWrap>
+                  New Load
+                </Typography>
+              </Grid>
+              <Grid item xs={2}>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={saveOrderHandler}
+                >
+                  Save
+                </Button>
+              </Grid>
             </Grid>
-            <Grid item xs={2}>
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={saveOrderHandler}
-              >
-                Save
-              </Button>
+          </Toolbar>
+        </AppBar>
+        <Container maxWidth="lg" fixed>
+          <Grid container spacing={2} className={classes.container}>
+            <Grid id="row_1" item container xs={12}>
+              <Grid item xs={12}>
+                <Paper elevation={0} variant="outlined">
+                  <Box m={2}>
+                    <DropzoneArea />
+                  </Box>
+                </Paper>
+              </Grid>
+            </Grid>
+
+            <Grid id="row_2" item container xs={12}>
+              {GeneralTermsContent}
+            </Grid>
+
+            <Grid id="row_3" item container xs={12}>
+              {OriginContent}
+            </Grid>
+
+            <Grid id="row_4" item container xs={12}>
+              {DestinationContent}
+            </Grid>
+            <Grid id="row_5" item container xs={12}>
+              {VehicleContent}
+            </Grid>
+            <Grid id="row_5.1" item container xs={12}>
+              {InstructionsContent}
+            </Grid>
+
+            <Grid id="row_6" item container xs={12}>
+              {PaymentContent}
             </Grid>
           </Grid>
-        </Toolbar>
-      </AppBar>
-      <Container   maxWidth="lg" fixed>
-        <Grid container spacing={2} className={classes.container}>
-          <Grid id="row_1" item container xs={12}>
-            <Grid item xs={12}>
-              <Paper elevation={0} variant="outlined">
-                <Box m={2}>
-                  <DropzoneArea />
-                </Box>
-              </Paper>
-            </Grid>
-          </Grid>
-
-          <Grid id="row_2" item container xs={12}>
-            {GeneralTermsContent}
-          </Grid>
-
-          <Grid id="row_3" item container xs={12}>
-            {OriginContent}
-          </Grid>
-
-          <Grid id="row_4" item container xs={12}>
-            {DestinationContent}
-          </Grid>
-          <Grid id="row_5" item container xs={12}>
-            {VehicleContent}
-          </Grid>
-          <Grid id="row_5.1" item container xs={12}>
-            {InstructionsContent}
-          </Grid>
-
-          <Grid id="row_6" item container xs={12}>
-            {PaymentContent}
-          </Grid>
-        </Grid>
-        {editPhoneOnPickupDialog}
-        {editPhoneOnDeliveryDialog}
-      </Container>
+          {editPhoneOnPickupDialog}
+          {editPhoneOnDeliveryDialog}
+        </Container>
       </NavBar>
     </div>
   );
 }
 
-export default withAuth(createOrder)   
+export default withAuth(createOrder);

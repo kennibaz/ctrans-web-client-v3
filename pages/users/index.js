@@ -6,24 +6,19 @@ import Toolbar from "@material-ui/core/Toolbar";
 import Typography from "@material-ui/core/Typography";
 import Grid from "@material-ui/core/Grid";
 import Box from "@material-ui/core/Box";
+import Container from "@material-ui/core/Container";
+import Dialog from "@material-ui/core/Dialog";
+import Button from "@material-ui/core/Button";
 import Chip from "@material-ui/core/Chip";
 import Avatar from "@material-ui/core/Avatar";
-import Card from "@material-ui/core/Card";
-import TextField from "@material-ui/core/TextField";
-import IconButton from "@material-ui/core/IconButton";
-import Button from "@material-ui/core/Button";
-import InputAdornment from "@material-ui/core/InputAdornment";
-import SearchIcon from "@material-ui/icons/Search";
-import FormControl from "@material-ui/core/FormControl";
-import Select from "@material-ui/core/Select";
-import MenuItem from "@material-ui/core/MenuItem";
-import InputLabel from "@material-ui/core/InputLabel";
+import Slide from "@material-ui/core/Slide";
 import axios from "axios";
 
 import { withAuth } from "../../utils/withAuth";
 
 import UserCard from "../../components/users/userCard";
 import UserDetailsCard from "../../components/users/UserDetailsCard";
+import CreateUser from "./create-user"
 
 const drawerWidth = 120;
 
@@ -71,6 +66,10 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+const Transition = React.forwardRef(function Transition(props, ref) {
+  return <Slide direction="up" ref={ref} {...props} />;
+});
+
 function users(props) {
   const classes = useStyles();
 
@@ -81,6 +80,7 @@ function users(props) {
   const [readyToUpdateUsers, setReadyToUpdateUsers] = useState(false);
   const [readyToReload, setReadyToReload] = useState(false);
   const [userDetailsData, setUserDetailsData] = useState("");
+  const [openNewUserDialog, setOpenNewUserDialog] = useState(false);
 
   useEffect(() => {
     const request = async () => {
@@ -155,10 +155,10 @@ function users(props) {
     setUserDetailsData(users[index]);
   };
 
-  const reloadHandler = ()=>{
-    setReadyToReload(!readyToReload)
-    setReadyToUpdateUsers(true)
-  }
+  const reloadHandler = () => {
+    setReadyToReload(!readyToReload);
+    setReadyToUpdateUsers(true);
+  };
 
   // handler to select status of the type of user to show
   const statusSelectHandler = (status) => {
@@ -182,6 +182,11 @@ function users(props) {
     setShowDispatchers(false);
   };
 
+  const closeNewUserDialogHandler = () => {
+    setOpenNewUserDialog(false);
+    reloadHandler();
+  };
+
   let usersContent = (
     <Grid container spacing={2} className={classes.container}>
       <Grid item container xs={2}>
@@ -196,6 +201,22 @@ function users(props) {
         />
       </Grid>
     </Grid>
+  );
+
+  //Dialogs
+  const newUserDialog = (
+    <div>
+      <Dialog
+        fullScreen
+        open={openNewUserDialog}
+        onClose={closeNewUserDialogHandler}
+        TransitionComponent={Transition}
+      >
+        <Container>
+          <CreateUser closeNewUserDialogHandler={closeNewUserDialogHandler} userId={props.userId} />
+        </Container>
+      </Dialog>
+    </div>
   );
 
   if (!users) {
@@ -251,10 +272,23 @@ function users(props) {
                   variant={showDispatchers ? "default" : "outlined"}
                 />
               </Grid>
+              <Grid item>
+                <Button
+                  variant="outlined"
+                  color="primary"
+                  size="small"
+                  onClick={() => {
+                    setOpenNewUserDialog(true);
+                  }}
+                >
+                  Add User
+                </Button>
+              </Grid>
             </Grid>
           </Toolbar>
         </AppBar>
         {usersContent}
+        {newUserDialog}
       </NavBar>
     </div>
   );

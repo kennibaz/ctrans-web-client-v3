@@ -3,6 +3,7 @@ import axios from "axios";
 export default async (req, res) => {
   return new Promise(async (resolve) => {
     const { placeId } = req.body;
+    console.log(req.body)
     let  postal_code, city, state
     if (placeId) {
       try {
@@ -10,6 +11,7 @@ export default async (req, res) => {
           `https://maps.googleapis.com/maps/api/place/details/json?placeid=${placeId}&key=AIzaSyCYhmug_bUhafqhlnoM_8GIHRcFz_iel4c&libraries=places`,
           {}
         );
+        console.log(respond)
         let address_components = respond.data.result.address_components;
 
         postal_code = address_components.filter((component) => {

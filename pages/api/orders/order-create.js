@@ -1,4 +1,5 @@
 import firebase from "../../../firebase/firebase-adm";
+import uuid from 'react-uuid'
 
 export default async (req, res) => {
   const {
@@ -65,7 +66,8 @@ export default async (req, res) => {
     faxOfShipper,
   } = req.body;
 
-  console.log(req.body)
+  const vehicleId = uuid()
+  console.log(vehicleId)
 
   if (!carrierId || !userId || !token) {
     res.status(405).end()
@@ -96,6 +98,7 @@ export default async (req, res) => {
     (totalVehicles.length !== 0 && make)
   ) {
     const vehicle = {
+      vehicleId,
       vin,
       year,
       make,
@@ -111,6 +114,7 @@ export default async (req, res) => {
 
   if (totalVehicles.length === 0) {
     const vehicle = {
+      vehicleId,
       vin,
       year,
       make,
