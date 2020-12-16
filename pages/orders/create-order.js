@@ -251,6 +251,10 @@ function createOrder(props) {
       inoperable: inoperable,
       lot_number: lotNumber,
       type: type,
+      pickupConditionsPhotos: [],
+      pickupBol: "",
+      deliveryConditionsPhotos: [],
+      deliveryBol: "",
     };
     currentVehiclesArray.push(newVehicle);
     setTotalVehicles(currentVehiclesArray);

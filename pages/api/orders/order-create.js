@@ -1,5 +1,5 @@
 import firebase from "../../../firebase/firebase-adm";
-import uuid from 'react-uuid'
+import uuid from "react-uuid";
 
 export default async (req, res) => {
   const {
@@ -66,11 +66,11 @@ export default async (req, res) => {
     faxOfShipper,
   } = req.body;
 
-  const vehicleId = uuid()
-  console.log(vehicleId)
+  const vehicleId = uuid();
+  console.log(vehicleId);
 
   if (!carrierId || !userId || !token) {
-    res.status(405).end()
+    res.status(405).end();
     return;
   }
 
@@ -80,16 +80,14 @@ export default async (req, res) => {
     decodedToken = await firebase.auth().verifyIdToken(token);
   } catch (err) {
     console.log(err);
-    res.status(500).end()
-    return
-  }
-
-
-  if (token && decodedToken.uid !== userId) {
-    res.status(500).end()
+    res.status(500).end();
     return;
   }
 
+  if (token && decodedToken.uid !== userId) {
+    res.status(500).end();
+    return;
+  }
 
   const created_at = firebase.firestore.Timestamp.now();
 
@@ -108,6 +106,10 @@ export default async (req, res) => {
       price,
       type,
       inoperable,
+      pickupConditionsPhotos: [],
+      pickupBol,
+      deliveryConditionsPhotos: [],
+      deliveryBol,
     };
     totalVehicles.push(vehicle);
   }
@@ -124,11 +126,13 @@ export default async (req, res) => {
       price,
       type,
       inoperable,
+      pickupConditionsPhotos: [],
+      pickupBol,
+      deliveryConditionsPhotos: [],
+      deliveryBol,
     };
     totalVehicles.push(vehicle);
   }
-
-
 
   if (phoneOnPickup) {
     phonesOnPickup.push(phoneOnPickup);
