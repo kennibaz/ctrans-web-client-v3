@@ -108,7 +108,7 @@ export default async (req, res) => {
       pickupConditionsPhotos: [],
       // pickupBol,
       deliveryConditionsPhotos: [],
-      deliveryBol,
+      // deliveryBol,
     };
     totalVehicles.push(vehicle);
   }
@@ -128,7 +128,7 @@ export default async (req, res) => {
       pickupConditionsPhotos: [],
       // pickupBol,
       deliveryConditionsPhotos: [],
-      deliveryBol,
+      // deliveryBol,
     };
     totalVehicles.push(vehicle);
   }
