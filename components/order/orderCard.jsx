@@ -572,7 +572,7 @@ export default function orderCard({
                           align="left"
                           fontWeight="fontWeightMedium"
                         >
-                          Order amount: ${orderData.orderAmount}
+                          Order amount: ${orderData.orderPayment.orderAmount}
                         </Box>
                       </Grid>
                       <Grid item xs={12}>
