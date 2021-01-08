@@ -106,7 +106,7 @@ export default async (req, res) => {
       type,
       inoperable,
       pickupConditionsPhotos: [],
-      pickupBol,
+      // pickupBol,
       deliveryConditionsPhotos: [],
       deliveryBol,
     };
@@ -126,7 +126,7 @@ export default async (req, res) => {
       type,
       inoperable,
       pickupConditionsPhotos: [],
-      pickupBol,
+      // pickupBol,
       deliveryConditionsPhotos: [],
       deliveryBol,
     };
