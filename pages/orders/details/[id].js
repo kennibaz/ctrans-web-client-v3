@@ -190,14 +190,14 @@ const Transition = React.forwardRef(function Transition(props, ref) {
   };
   // send bol button handler
   const sendBolHandler = async () => {
-    if(orderData.data.order_status === "New" || orderData.data.order_status === "Assigned"  ){
+    if(orderData.data.orderStatus === "New" || orderData.data.orderStatus === "Assigned"  ){
       return
     }
     await axios.post("/api/bol/send-bol", {
       orderId,
       email: emailForBol,
       carrierId: props.carrierId,
-      orderShipperInnerId: orderData.data.order_shipper_inner_id,
+      orderShipperInnerId: orderData.data.shipperOrderId,
       userId: props.userId,
       token: props.token
     });
@@ -205,20 +205,20 @@ const Transition = React.forwardRef(function Transition(props, ref) {
 
   // send invoice button handler
   const sendInvoiceHandler = async () => {
-    if(orderData.data.order_status === "New" || orderData.data.order_status === "Assigned"  ){
+    if(orderData.data.orderStatus === "New" || orderData.data.orderStatus === "Assigned"  ){
       return
     }
     await axios.post("/api/bol/send-invoice", {
       orderId,
       email: emailForBol,
       carrierId: props.carrierId,
-      orderShipperInnerId: orderData.data.order_shipper_inner_id,
+      orderShipperInnerId: orderData.data.shipperOrderId,
     });
   };
 
   //mark order as paid
   const paidOrderHandler = async () => {
-    if (orderData.data.order_status === "Delivered") {
+    if (orderData.data.orderStatus === "Delivered") {
       await axios.post("/api/orders/order-paid", {
         carrierId: props.carrierId,
         orderId,
@@ -251,12 +251,12 @@ const Transition = React.forwardRef(function Transition(props, ref) {
     <AssignDriverDialog
       carrierId={props.carrierId}
       drivers={drivers}
-      order_status={orderData.data?.order_status}
+      orderStatus={orderData.data?.orderStatus}
       order_id={orderId}
-      order_shipper_inner_id={orderData.data?.order_shipper_inner_id}
+      shipperOrderId={orderData.data?.shipperOrderId}
       order_assigned_driver={
-        orderData.data?.roles?.driver_system_id !== ""
-          ? orderData.data?.users_names.driver_name
+        orderData.data?.roles?.driverId !== ""
+          ? orderData.data?.usersNames.driverName
           : "Not assigned"
       }
       reloadHandler={reloadHandler}
@@ -372,7 +372,7 @@ const Transition = React.forwardRef(function Transition(props, ref) {
         <Grid container>
           <Grid item xs={2}>
             <Typography variant="h6" noWrap>
-              Load # {orderData.data.order_shipper_inner_id}
+              Load # {orderData.data.shipperOrderId}
             </Typography>
           </Grid>
         </Grid>
@@ -381,8 +381,8 @@ const Transition = React.forwardRef(function Transition(props, ref) {
         <Grid container>
           <Grid item xs={2}>
             <ButtonGroup size="small" aria-label="small outlined button group">
-              {(orderData.data.order_status === "New" ||
-                orderData.data.order_status === "Assigned") && (
+              {(orderData.data.orderStatus === "New" ||
+                orderData.data.orderStatus === "Assigned") && (
                 <Button
                   onClick={cancelOrderHandler}
                   size="small"
@@ -399,7 +399,7 @@ const Transition = React.forwardRef(function Transition(props, ref) {
               >
                 Edit
               </Button>
-              {orderData.data.order_status === "Paid" && (
+              {orderData.data.orderStatus === "Paid" && (
                 <Button
                   onClick={archiveOrderHandler}
                   size="small"
@@ -432,7 +432,7 @@ const Transition = React.forwardRef(function Transition(props, ref) {
           </Grid>
           <Grid item xs={2}>
             <ButtonGroup size="small" aria-label="small outlined button group">
-              {orderData.data.order_status === "Delivered" && (
+              {orderData.data.orderStatus === "Delivered" && (
                 <Button onClick={paidOrderHandler} size="small">
                   Payment received
                 </Button>
@@ -469,7 +469,7 @@ const Transition = React.forwardRef(function Transition(props, ref) {
                   <Grid item xs={12}>
                     <Typography>
                       <Box fontSize="subtitle2.fontSize" m={2}>
-                        {orderData.data.order_status}
+                        {orderData.data.orderStatus}
                       </Box>
                     </Typography>
                   </Grid>
@@ -485,7 +485,7 @@ const Transition = React.forwardRef(function Transition(props, ref) {
                   <Grid item xs={10}>
                     <Typography>
                       <Box fontSize="h6.fontSize" m={2}>
-                        {orderData.data.shipper.business_name}
+                        {orderData.data.shipper.businessName}
                       </Box>
                     </Typography>
                   </Grid>
@@ -686,30 +686,30 @@ const Transition = React.forwardRef(function Transition(props, ref) {
                             <ArrowUpwardIcon />
                           </TableCell>
                           <TableCell className={classes.tableCell}>
-                            {orderData.data.pickup.pickup_scheduled_first_date}
+                            {orderData.data.pickup.pickupScheduledFirstDate}
                           </TableCell>
                           <TableCell className={classes.tableCell}>
-                            {orderData.data.pickup.pickup_address.business_name}
+                            {orderData.data.pickup.pickupAddress.businessName}
                           </TableCell>
                           <TableCell className={classes.tableCell}>
-                            {orderData.data.pickup.pickup_address.address}
+                            {orderData.data.pickup.pickupAddress.address}
                           </TableCell>
                           <TableCell className={classes.tableCell}>
-                            {orderData.data.pickup.pickup_address.city}
+                            {orderData.data.pickup.pickupAddress.city}
                           </TableCell>
                           <TableCell className={classes.tableCell}>
-                            {orderData.data.pickup.pickup_address.state}
+                            {orderData.data.pickup.pickupAddress.state}
                           </TableCell>
                           <TableCell className={classes.tableCell}>
-                            {orderData.data.pickup.pickup_address.zip}
+                            {orderData.data.pickup.pickupAddress.zip}
                           </TableCell>
                           <TableCell className={classes.tableCell}>
-                            {orderData.data.pickup.pickup_address.contact_name}
+                            {orderData.data.pickup.pickupAddress.contact_name}
                           </TableCell>
 
                           <TableCell className={classes.tableCell}>
                             <Grid container spacing={1}>
-                              {orderData.data.pickup.pickup_address.phones.map(
+                              {orderData.data.pickup.pickupAddress.phones.map(
                                 (phone, index) => (
                                   <Grid item xs={12} key={index}>
                                     {phone}
@@ -726,36 +726,36 @@ const Transition = React.forwardRef(function Transition(props, ref) {
                           <TableCell className={classes.tableCell}>
                             {
                               orderData.data.delivery
-                                .delivery_scheduled_first_date
+                                .deliveryScheduledFirstDate
                             }
                           </TableCell>
                           <TableCell className={classes.tableCell}>
                             {
-                              orderData.data.delivery.delivery_address
-                                .business_name
+                              orderData.data.delivery.deliveryAddress
+                                .businessName
                             }
                           </TableCell>
                           <TableCell className={classes.tableCell}>
-                            {orderData.data.delivery.delivery_address.address}
+                            {orderData.data.delivery.deliveryAddress.address}
                           </TableCell>
                           <TableCell className={classes.tableCell}>
-                            {orderData.data.delivery.delivery_address.city}
+                            {orderData.data.delivery.deliveryAddress.city}
                           </TableCell>
                           <TableCell className={classes.tableCell}>
-                            {orderData.data.delivery.delivery_address.state}
+                            {orderData.data.delivery.deliveryAddress.state}
                           </TableCell>
                           <TableCell className={classes.tableCell}>
-                            {orderData.data.delivery.delivery_address.zip}
+                            {orderData.data.delivery.deliveryAddress.zip}
                           </TableCell>
                           <TableCell className={classes.tableCell}>
                             {
-                              orderData.data.delivery.delivery_address
+                              orderData.data.delivery.deliveryAddress
                                 .contact_name
                             }
                           </TableCell>
                           <TableCell className={classes.tableCell}>
                             <Grid container spacing={1}>
-                              {orderData.data.delivery.delivery_address.phones.map(
+                              {orderData.data.delivery.deliveryAddress.phones.map(
                                 (phone, index) => (
                                   <Grid item xs={12} key={index}>
                                     {phone}
@@ -820,22 +820,22 @@ const Transition = React.forwardRef(function Transition(props, ref) {
                       <TableBody>
                         <TableRow>
                           <TableCell className={classes.tableCell}>
-                            ${orderData.data.order_payment.order_total_amount}
+                            ${orderData.data.orderPayment.orderAmount}
                           </TableCell>
                           <TableCell className={classes.tableCell}>
-                            {orderData.data.order_payment.payment_method}
+                            {orderData.data.orderPayment.paymentMethod}
                           </TableCell>
                           <TableCell className={classes.tableCell}>
-                            {orderData.data.order_payment.payment_terms}
+                            {orderData.data.orderPayment.paymentTerms}
                           </TableCell>
                           <TableCell className={classes.tableCell}>
-                            {orderData.data.order_payment.payment_upon}
+                            {orderData.data.orderPayment.paymentUpon}
                           </TableCell>
                           <TableCell className={classes.tableCell}>
-                            ${orderData.data.order_payment.driver_pay}
+                            ${orderData.data.orderPayment.driverPay}
                           </TableCell>
                           <TableCell className={classes.tableCell}>
-                            ${orderData.data.order_payment.broker_fee}
+                            ${orderData.data.orderPayment.brokerFee}
                           </TableCell>
                         </TableRow>
                       </TableBody>
@@ -879,8 +879,8 @@ const Transition = React.forwardRef(function Transition(props, ref) {
                   <Grid item xs={12}>
                     <Typography>
                       <Box fontSize="body2.fontSize" m={2}>
-                        {orderData.data.order_instructions
-                          ? orderData.data.order_instructions
+                        {orderData.data.orderInstructions
+                          ? orderData.data.orderInstructions
                           : "No instructions were received"}
                       </Box>
                     </Typography>
@@ -998,7 +998,7 @@ const Transition = React.forwardRef(function Transition(props, ref) {
                 </Grid>
                 <Grid id="column_1" item container xs={12}>
                   <Grid item xs={12}>
-                    {orderData.data.order_activity.map((activity, index) => (
+                    {orderData.data.orderActivity.map((activity, index) => (
                       <Box fontSize="body2.fontSize" m={2} key={index}>
                         <Card>
                           <CardContent>
@@ -1011,7 +1011,7 @@ const Transition = React.forwardRef(function Transition(props, ref) {
                                   <BookmarkBorderIcon />
                                 </ListItemIcon>
                                 <ListItemText
-                                  primary={`${activity.activity_status}`}
+                                  primary={`${activity.activityStatus}`}
                                 />
                               </ListItem>
                               <ListItem>
@@ -1019,7 +1019,7 @@ const Transition = React.forwardRef(function Transition(props, ref) {
                                   <DateRangeIcon />
                                 </ListItemIcon>
                                 <ListItemText
-                                  primary={`${activity.activity_date}`}
+                                  primary={`${activity.activityDate}`}
                                 />
                               </ListItem>
                               {activity.activity_location && (
@@ -1038,7 +1038,7 @@ const Transition = React.forwardRef(function Transition(props, ref) {
                                   <PersonIcon />
                                 </ListItemIcon>
                                 <ListItemText
-                                  primary={`${activity.activity_user}`}
+                                  primary={`${activity.activityUser}`}
                                 />
                               </ListItem>
                             </List>

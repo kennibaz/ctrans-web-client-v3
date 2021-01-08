@@ -87,7 +87,7 @@ export default async (req, res) => {
   }
 
 
-  const created_at = new Date();
+  const createdAt = new Date();
 
   if (totalVehicles.length === 0) {
     const vehicle = {
@@ -127,36 +127,36 @@ export default async (req, res) => {
     .doc(orderId)
     .update({
 
-      order_carrier_inner_id: carrierOrderId,
-      order_shipper_inner_id: shipperOrderId,
-      // order_instructions: generalData.orderInstructions,
-      'pickup.pickup_scheduled_first_date': scheduledPickupDate,
-      'pickup.pickup_additional_notes': pickupNotes,
-      'pickup.pickup_address.address': addressOnPickup,
-      'pickup.pickup_address.city': cityOnPickup,
-      'pickup.pickup_address.state': stateOnPickup,
-      'pickup.pickup_address.zip': zipOnPickup,
-      'pickup.pickup_address.business_name': businessNameOnPickup,
-      'pickup.pickup_address.contact_name': contactNameOnPickup,
-      'pickup.pickup_address.email': emailOnPickup,
-      'pickup.pickup_address.phone': phoneOnPickup,
-      'pickup.pickup_address.phones': phonesOnPickup,
-      'pickup.pickup_address.fax': faxOnPickup,
+      carrierOrderId: carrierOrderId,
+      shipperOrderId: shipperOrderId,
+      // orderInstructions: generalData.orderInstructions,
+      'pickup.pickupScheduledFirstDate': scheduledPickupDate,
+      'pickup.pickupNotes': pickupNotes,
+      'pickup.pickupAddress.address': addressOnPickup,
+      'pickup.pickupAddress.city': cityOnPickup,
+      'pickup.pickupAddress.state': stateOnPickup,
+      'pickup.pickupAddress.zip': zipOnPickup,
+      'pickup.pickupAddress.businessName': businessNameOnPickup,
+      'pickup.pickupAddress.contact_name': contactNameOnPickup,
+      'pickup.pickupAddress.email': emailOnPickup,
+      'pickup.pickupAddress.phone': phoneOnPickup,
+      'pickup.pickupAddress.phones': phonesOnPickup,
+      'pickup.pickupAddress.fax': faxOnPickup,
 
-      'delivery.delivery_scheduled_first_date': scheduledDeliveryDate,
-      'delivery.delivery_additional_notes': deliveryNotes,
-      'delivery.delivery_address.address': addressOnDelivery,
-      'delivery.delivery_address.city': cityOnDelivery,
-      'delivery.delivery_address.state': stateOnDelivery,
-      'delivery.delivery_address.zip': zipOnDelivery,
-      'delivery.delivery_address.business_name': businessNameOnDelivery,
-      'delivery.delivery_address.contact_name': contactNameOnDelivery,
-      'delivery.delivery_address.email': emailOnDelivery,
-      'delivery.delivery_address.phone': phoneOnDelivery,
-      'delivery.delivery_address.phones': phonesOnDelivery,
-      'delivery.delivery_address.fax': faxOnDelivery,
+      'delivery.deliveryScheduledFirstDate': scheduledDeliveryDate,
+      'delivery.deliveryNotes': deliveryNotes,
+      'delivery.deliveryAddress.address': addressOnDelivery,
+      'delivery.deliveryAddress.city': cityOnDelivery,
+      'delivery.deliveryAddress.state': stateOnDelivery,
+      'delivery.deliveryAddress.zip': zipOnDelivery,
+      'delivery.deliveryAddress.businessName': businessNameOnDelivery,
+      'delivery.deliveryAddress.contact_name': contactNameOnDelivery,
+      'delivery.deliveryAddress.email': emailOnDelivery,
+      'delivery.deliveryAddress.phone': phoneOnDelivery,
+      'delivery.deliveryAddress.phones': phonesOnDelivery,
+      'delivery.deliveryAddress.fax': faxOnDelivery,
 
-      'shipper.business_name': businessNameOfShipper,
+      'shipper.businessName': businessNameOfShipper,
       'shipper.address': addressOfShipper,
       'shipper.city': cityOfShipper,
       'shipper.state': stateOfShipper,
@@ -166,16 +166,16 @@ export default async (req, res) => {
       'shipper.phone': phoneOfShipper,
       'shipper.fax': faxOfShipper,
     
-      'order_payment.order_total_amount': orderAmount,
-      'order_payment.driver_pay': driverPay,
-      'order_payment.broker_fee': brokerFee,
-      'order_payment.payment_upon': paymentStartUpon,
-      'order_payment.payment_method': paymentMethod,
-      'order_payment.payment_terms': paymentTerms,
+      'orderPayment.orderAmount': orderAmount,
+      'orderPayment.driverPay': driverPay,
+      'orderPayment.brokerFee': brokerFee,
+      'orderPayment.paymentUpon': paymentStartUpon,
+      'orderPayment.paymentMethod': paymentMethod,
+      'orderPayment.paymentTerms': paymentTerms,
 
-      'order_invoice.invoice_carrier_id': invoiceId,
-      'order_invoice.invoice_recipient_email': invoiceEmail,
-      'order_invoice.invoice_notes': invoiceNotes,
+      'orderInvoice.carrierInvoiceId': invoiceId,
+      'orderInvoice.invoiceRecipientEmail': invoiceEmail,
+      'orderInvoice.invoiceNotes': invoiceNotes,
 
 
 

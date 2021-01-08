@@ -183,10 +183,10 @@ function orders(props) {
     let searchToLower = searchWord.toLowerCase();
     const filteredResults = ordersForSearch.filter(
       (order) =>
-        order.data.order_shipper_inner_id
+        order.data.shipperOrderId
           .toLowerCase()
           .includes(searchToLower) ||
-        order.data.shipper.business_name
+        order.data.shipper.businessName
           .toLowerCase()
           .includes(searchToLower) ||
         order.data.vehiclesArray.some(

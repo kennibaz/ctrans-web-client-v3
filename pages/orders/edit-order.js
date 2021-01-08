@@ -106,77 +106,77 @@ function EditOrder(props) {
     ""
   );
   const [shipperOrderId, setShipperOrderId] = useState(
-    props.orderData.data.order_shipper_inner_id
+    props.orderData.data.shipperOrderId
   );
   const [carrierOrderId, setCarrierOrderId] = useState("");
   const [orderInstructions, setOrderInstructions] = useState("");
   //Origin
   const [businessNameOnPickup, setBusinessNameOnPickup] = useState(
-    props.orderData.data.pickup.pickup_address.business_name
+    props.orderData.data.pickup.pickupAddress.businessName
   );
   const [addressOnPickup, setAddressOnPickup] = useState(
-    props.orderData.data.pickup.pickup_address.address
+    props.orderData.data.pickup.pickupAddress.address
   );
   const [placeIdOnPickup, setPlaceIdOnPickup] = useState("");
   const [zipOnPickup, setZipOnPickup] = useState(
-    props.orderData.data.pickup.pickup_address.zip
+    props.orderData.data.pickup.pickupAddress.zip
   );
   const [cityOnPickup, setCityOnPickup] = useState(
-    props.orderData.data.pickup.pickup_address.city
+    props.orderData.data.pickup.pickupAddress.city
   );
   const [stateOnPickup, setStateOnPickup] = useState(
-    props.orderData.data.pickup.pickup_address.state
+    props.orderData.data.pickup.pickupAddress.state
   );
   const [scheduledPickupDate, setScheduledPickupDate] = useState(
-    props.orderData.data.pickup.pickup_scheduled_first_date
+    props.orderData.data.pickup.pickupScheduledFirstDate
   );
   const [pickupNotes, setPickupNotes] = useState(
-    props.orderData.data.pickup.pickup_additional_notes
+    props.orderData.data.pickup.pickupNotes
   );
   const [contactNameOnPickup, setContactNameOnPickup] = useState(
-    props.orderData.data.pickup.pickup_address.contact_name
+    props.orderData.data.pickup.pickupAddress.contact_name
   );
   const [emailOnPickup, setEmailOnPickup] = useState(
-    props.orderData.data.pickup.pickup_address.email
+    props.orderData.data.pickup.pickupAddress.email
   );
   const [phoneOnPickup, setPhoneOnPickup] = useState(
-    props.orderData.data.pickup.pickup_address.phone
+    props.orderData.data.pickup.pickupAddress.phone
   );
-  const [phonesOnPickup, setPhonesOnPickup] = useState(props.orderData.data.pickup.pickup_address.phones);
+  const [phonesOnPickup, setPhonesOnPickup] = useState(props.orderData.data.pickup.pickupAddress.phones);
   const [faxOnPickup, setFaxOnPickup] = useState("");
   //Destination
   const [businessNameOnDelivery, setBusinessNameOnDelivery] = useState(
-    props.orderData.data.delivery.delivery_address.business_name
+    props.orderData.data.delivery.deliveryAddress.businessName
   );
   const [addressOnDelivery, setAddressOnDelivery] = useState(
-    props.orderData.data.delivery.delivery_address.address
+    props.orderData.data.delivery.deliveryAddress.address
   );
   const [placeIdOnDelivery, setPlaceIdOnDelivery] = useState("");
   const [zipOnDelivery, setZipOnDelivery] = useState(
-    props.orderData.data.delivery.delivery_address.zip
+    props.orderData.data.delivery.deliveryAddress.zip
   );
   const [cityOnDelivery, setCityOnDelivery] = useState(
-    props.orderData.data.delivery.delivery_address.city
+    props.orderData.data.delivery.deliveryAddress.city
   );
   const [stateOnDelivery, setStateOnDelivery] = useState(
-    props.orderData.data.delivery.delivery_address.state
+    props.orderData.data.delivery.deliveryAddress.state
   );
   const [scheduledDeliveryDate, setScheduledDeliveryDate] = useState(
-    props.orderData.data.delivery.delivery_scheduled_first_date
+    props.orderData.data.delivery.deliveryScheduledFirstDate
   );
   const [deliveryNotes, setDeliveryNotes] = useState(
-    props.orderData.data.delivery.delivery_additional_notes
+    props.orderData.data.delivery.deliveryNotes
   );
   const [contactNameOnDelivery, setContactNameOnDelivery] = useState(
-    props.orderData.data.delivery.delivery_address.contact_name
+    props.orderData.data.delivery.deliveryAddress.contact_name
   );
   const [emailOnDelivery, setEmailOnDelivery] = useState(
-    props.orderData.data.delivery.delivery_address.email
+    props.orderData.data.delivery.deliveryAddress.email
   );
   const [phoneOnDelivery, setPhoneOnDelivery] = useState(
-    props.orderData.data.delivery.delivery_address.phone
+    props.orderData.data.delivery.deliveryAddress.phone
   );
-  const [phonesOnDelivery, setPhonesOnDelivery] = useState(props.orderData.data.delivery.delivery_address.phones);
+  const [phonesOnDelivery, setPhonesOnDelivery] = useState(props.orderData.data.delivery.deliveryAddress.phones);
   const [faxOnDelivery, setFaxOnDelivery] = useState("");
   //Vehicles
   const [vin, setVin] = useState("");
@@ -198,36 +198,36 @@ function EditOrder(props) {
 
   //payment
   const [orderAmount, setOrderAmount] = useState(
-    props.orderData.data.order_payment.order_total_amount
+    props.orderData.data.orderPayment.orderAmount
   );
   const [driverPay, setDriverPay] = useState(
-    props.orderData.data.order_payment.driver_pay
+    props.orderData.data.orderPayment.driverPay
   );
   const [brokerFee, setBrokerFee] = useState(
-    props.orderData.data.order_payment.broker_fee
+    props.orderData.data.orderPayment.brokerFee
   );
   const [paymentMethod, setPaymentMethod] = useState(
-    props.orderData.data.order_payment.payment_method
+    props.orderData.data.orderPayment.paymentMethod
   );
   const [paymentTerms, setPaymentTerms] = useState(
-    props.orderData.data.order_payment.payment_terms
+    props.orderData.data.orderPayment.paymentTerms
   );
   const [paymentStartUpon, setPaymentStartUpon] = useState(
-    props.orderData.data.order_payment.payment_upon
+    props.orderData.data.orderPayment.paymentUpon
   );
   const [invoiceId, setInvoiceId] = useState(
-    props.orderData.data.order_invoice.invoice_carrier_id
+    props.orderData.data.orderInvoice.carrierInvoiceId
   );
   const [invoiceEmail, setInvoiceEmail] = useState(
-    props.orderData.data.order_invoice.invoice_recipient_email
+    props.orderData.data.orderInvoice.invoiceRecipientEmail
   );
   const [invoiceNotes, setInvoiceNotes] = useState(
-    props.orderData.data.order_invoice.invoice_notes
+    props.orderData.data.orderInvoice.invoiceNotes
   );
 
   //shipper
   const [businessNameOfShipper, setBusinessNameOfShipper] = useState(
-    props.orderData.data.shipper.business_name
+    props.orderData.data.shipper.businessName
   );
   const [addressOfShipper, setAddressOfShipper] = useState(
     props.orderData.data.shipper.address
@@ -591,14 +591,14 @@ function EditOrder(props) {
             <Grid item xs={12}>
               <Box m={2}>
                 <FormControl className={classes.inputField}>
-                  <label for="shipper_business_name">Shipper name</label>
+                  <label for="shipper_businessName">Shipper name</label>
                   <TextField
-                    id="shipper_business_name"
+                    id="shipper_businessName"
                     required
                     value={businessNameOfShipper}
                     onChange={(e) => setBusinessNameOfShipper(e.target.value)}
                     margin="dense"
-                    name="shipper_business_name"
+                    name="shipper_businessName"
                     variant="outlined"
                     InputProps={{
                       classes: { input: classes.inputText },
@@ -794,14 +794,14 @@ function EditOrder(props) {
             <Grid item xs={12}>
               <Box m={2}>
                 <FormControl className={classes.inputField}>
-                  <label for="business_name">Business name</label>
+                  <label for="businessName">Business name</label>
                   <TextField
-                    id="business_name"
+                    id="businessName"
                     required
                     value={businessNameOnPickup}
                     onChange={(e) => setBusinessNameOnPickup(e.target.value)}
                     margin="dense"
-                    name="business_name"
+                    name="businessName"
                     variant="outlined"
                     InputProps={{
                       classes: { input: classes.inputText },
@@ -813,17 +813,17 @@ function EditOrder(props) {
             <Grid item xs={12}>
               <Box m={2}>
                 <FormControl className={classes.inputField}>
-                  <label for="pickup_scheduled_first_date">
+                  <label for="pickupScheduledFirstDate">
                     Scheduled pickup date
                   </label>
                   <TextField
-                    id="pickup_scheduled_first_date"
+                    id="pickupScheduledFirstDate"
                     required
                     type="date"
                     value={scheduledPickupDate}
                     onChange={(e) => setScheduledPickupDate(e.target.value)}
                     margin="dense"
-                    name="pickup_scheduled_first_date"
+                    name="pickupScheduledFirstDate"
                     fullWidth={true}
                     style={{ width: "130%" }}
                     variant="outlined"
@@ -840,7 +840,7 @@ function EditOrder(props) {
             <Grid item xs={12}>
               <Box m={2} pb={1}>
                 <FormControl className={classes.inputField}>
-                  <label for="business_name">Address</label>
+                  <label for="businessName">Address</label>
                   <AutoCompleteAddress
                     autoCompleteHandlerPickup={autoCompleteHandlerPickup}
                     pickup
@@ -1058,14 +1058,14 @@ function EditOrder(props) {
             <Grid item xs={12}>
               <Box m={2}>
                 <FormControl className={classes.inputField}>
-                  <label for="business_name">Business name</label>
+                  <label for="businessName">Business name</label>
                   <TextField
-                    id="business_name"
+                    id="businessName"
                     required
                     value={businessNameOnDelivery}
                     onChange={(e) => setBusinessNameOnDelivery(e.target.value)}
                     margin="dense"
-                    name="business_name"
+                    name="businessName"
                     variant="outlined"
                     InputProps={{
                       classes: { input: classes.inputText },
@@ -1077,17 +1077,17 @@ function EditOrder(props) {
             <Grid item xs={12}>
               <Box m={2}>
                 <FormControl className={classes.inputField}>
-                  <label for="delivery_scheduled_first_date">
+                  <label for="deliveryScheduledFirstDate">
                     Scheduled delivery date
                   </label>
                   <TextField
-                    id="delivery_scheduled_first_date"
+                    id="deliveryScheduledFirstDate"
                     required
                     type="date"
                     value={scheduledDeliveryDate}
                     onChange={(e) => setScheduledDeliveryDate(e.target.value)}
                     margin="dense"
-                    name="delivery_scheduled_first_date"
+                    name="deliveryScheduledFirstDate"
                     fullWidth={true}
                     style={{ width: "130%" }}
                     variant="outlined"
@@ -1104,7 +1104,7 @@ function EditOrder(props) {
             <Grid item xs={12}>
               <Box m={2} pb={1}>
                 <FormControl className={classes.inputField}>
-                  <label for="business_name">Address</label>
+                  <label for="businessName">Address</label>
                   <AutoCompleteAddress
                     autoCompleteHandlerDelivery={autoCompleteHandlerDelivery}
                     delivery
@@ -1633,16 +1633,16 @@ function EditOrder(props) {
             <Grid item xs={12}>
               <Box m={2} pb={0.5}>
                 <FormControl className={classes.inputField}>
-                  <label for="order_total_amount">Order Amount</label>
+                  <label for="orderAmount">Order Amount</label>
                   <TextField
-                    id="order_total_amount"
+                    id="orderAmount"
                     required
                     value={orderAmount}
                     placeholder={"$"}
                     style={{ width: "70%" }}
                     onChange={(e) => setOrderAmount(e.target.value)}
                     margin="dense"
-                    name="order_total_amount"
+                    name="orderAmount"
                     variant="outlined"
                     InputProps={{
                       classes: { input: classes.inputText },
@@ -1654,14 +1654,14 @@ function EditOrder(props) {
             <Grid item xs={12}>
               <Box m={2} pb={1}>
                 <FormControl variant="outlined" className={classes.inputField}>
-                  <label for="payment_method" style={{ paddingBottom: 8 }}>
+                  <label for="paymentMethod" style={{ paddingBottom: 8 }}>
                     Method
                   </label>
                   <Select
-                    id="payment_method"
+                    id="paymentMethod"
                     margin="dense"
                     style={{ fontSize: 12, width: "190%" }}
-                    name="payment_method"
+                    name="paymentMethod"
                     value={paymentMethod}
                     onChange={(e) => setPaymentMethod(e.target.value)}
                     InputProps={{ classes: { input: classes.inputText } }}
@@ -1684,14 +1684,14 @@ function EditOrder(props) {
             <Grid item xs={12}>
               <Box m={2} pb={1}>
                 <FormControl variant="outlined" className={classes.inputField}>
-                  <label for="payment_terms" style={{ paddingBottom: 8 }}>
+                  <label for="paymentTerms" style={{ paddingBottom: 8 }}>
                     Terms
                   </label>
                   <Select
-                    id="payment_terms"
+                    id="paymentTerms"
                     margin="dense"
                     style={{ fontSize: 12, width: "170%" }}
-                    name="payment_terms"
+                    name="paymentTerms"
                     value={paymentTerms}
                     onChange={(e) => setPaymentTerms(e.target.value)}
                     InputProps={{ classes: { input: classes.inputText } }}
@@ -1711,14 +1711,14 @@ function EditOrder(props) {
             <Grid item xs={12}>
               <Box m={2} pb={1}>
                 <FormControl variant="outlined" className={classes.inputField}>
-                  <label for="payment_upon" style={{ paddingBottom: 8 }}>
+                  <label for="paymentUpon" style={{ paddingBottom: 8 }}>
                     Payment start upon
                   </label>
                   <Select
-                    id="payment_upon"
+                    id="paymentUpon"
                     margin="dense"
                     style={{ fontSize: 12, width: "100%" }}
-                    name="payment_upon"
+                    name="paymentUpon"
                     value={paymentStartUpon}
                     onChange={(e) => setPaymentStartUpon(e.target.value)}
                     InputProps={{ classes: { input: classes.inputText } }}
@@ -1735,9 +1735,9 @@ function EditOrder(props) {
             <Grid item xs={12}>
               <Box m={2} pb={0.5}>
                 <FormControl className={classes.inputField}>
-                  <label for="driver_pay">Driver pay</label>
+                  <label for="driverPay">Driver pay</label>
                   <TextField
-                    id="driver_pay"
+                    id="driverPay"
                     defaultValue=""
                     required
                     style={{ width: "70%" }}
@@ -1745,7 +1745,7 @@ function EditOrder(props) {
                     value={driverPay}
                     onChange={(e) => setDriverPay(e.target.value)}
                     margin="dense"
-                    name="driver_pay"
+                    name="driverPay"
                     variant="outlined"
                     InputProps={{ classes: { input: classes.inputText } }}
                   />
@@ -1755,9 +1755,9 @@ function EditOrder(props) {
             <Grid item xs={12}>
               <Box m={2} pb={1}>
                 <FormControl className={classes.inputField}>
-                  <label for="broker_fee">Broker Fee</label>
+                  <label for="brokerFee">Broker Fee</label>
                   <TextField
-                    id="broker_fee"
+                    id="brokerFee"
                     defaultValue=""
                     required
                     style={{ width: "70%" }}
@@ -1765,7 +1765,7 @@ function EditOrder(props) {
                     value={brokerFee}
                     onChange={(e) => setBrokerFee(e.target.value)}
                     margin="dense"
-                    name="broker_fee"
+                    name="brokerFee"
                     variant="outlined"
                     InputProps={{ classes: { input: classes.inputText } }}
                   />
@@ -1778,15 +1778,15 @@ function EditOrder(props) {
             <Grid item xs={12}>
               <Box m={2}>
                 <FormControl className={classes.inputField}>
-                  <label for="invoice_carrier_id">Invoice ID</label>
+                  <label for="carrierInvoiceId">Invoice ID</label>
                   <TextField
-                    id="invoice_carrier_id"
+                    id="carrierInvoiceId"
                     defaultValue=""
                     required
                     value={invoiceId}
                     onChange={(e) => setInvoiceId(e.target.value)}
                     margin="dense"
-                    name="invoice_carrier_id"
+                    name="carrierInvoiceId"
                     variant="outlined"
                     InputProps={{ classes: { input: classes.inputText } }}
                   />
@@ -1796,15 +1796,15 @@ function EditOrder(props) {
             <Grid item xs={12}>
               <Box m={2}>
                 <FormControl className={classes.inputField}>
-                  <label for="invoice_recipient_email">Recipient email</label>
+                  <label for="invoiceRecipientEmail">Recipient email</label>
                   <TextField
-                    id="invoice_recipient_email"
+                    id="invoiceRecipientEmail"
                     defaultValue=""
                     required
                     value={invoiceEmail}
                     onChange={(e) => setInvoiceEmail(e.target.value)}
                     margin="dense"
-                    name="invoice_recipient_email"
+                    name="invoiceRecipientEmail"
                     variant="outlined"
                     InputProps={{ classes: { input: classes.inputText } }}
                   />
@@ -1817,9 +1817,9 @@ function EditOrder(props) {
             <Grid item xs={12}>
               <Box m={2}>
                 <FormControl className={classes.inputField}>
-                  <label for="invoice_notes">Notes</label>
+                  <label for="invoiceNotes">Notes</label>
                   <TextField
-                    id="invoice_notes"
+                    id="invoiceNotes"
                     defaultValue=""
                     required
                     fullWidth
@@ -1828,7 +1828,7 @@ function EditOrder(props) {
                     value={invoiceNotes}
                     onChange={(e) => setInvoiceNotes(e.target.value)}
                     margin="dense"
-                    name="invoice_notes"
+                    name="invoiceNotes"
                     variant="outlined"
                     InputProps={{ classes: { input: classes.inputText } }}
                   />
@@ -1849,7 +1849,7 @@ function EditOrder(props) {
           <Grid container>
             <Grid item xs={2}>
               <Typography variant="h6" noWrap>
-                Update load # {props.orderData.data.order_shipper_inner_id}
+                Update load # {props.orderData.data.shipperOrderId}
               </Typography>
             </Grid>
             <Grid item xs={2}>

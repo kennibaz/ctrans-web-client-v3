@@ -14,7 +14,7 @@ export default async (req, res) => {
     .collection("orders")
     .doc(orderId)
     .update({
-      order_status: "Archived",
+      orderStatus: "Archived",
     });
 
   res.status(200).json({ status: "order archived" });

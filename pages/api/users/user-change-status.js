@@ -40,7 +40,7 @@ export default async (req, res) => {
         .collection("carriers-records")
         .doc(carrierId)
         .collection("orders")
-        .where("roles.driver_system_id", "==", userId);
+        .where("roles.driverId", "==", userId);
 
       const curretLoadstoUnassign = await curretLoadstoUnassignRef.get();
       if (curretLoadstoUnassign.empty) {
@@ -59,8 +59,8 @@ export default async (req, res) => {
           .collection("orders")
           .doc(order);
         const orderToUnassign = await orderToUnassignRef.update({
-          "roles.driver_system_id": "",
-          order_status: "New",
+          "roles.driverId": "",
+          orderStatus: "New",
         });
       });
     }

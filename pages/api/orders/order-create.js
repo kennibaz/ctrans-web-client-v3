@@ -67,7 +67,6 @@ export default async (req, res) => {
   } = req.body;
 
   const vehicleId = uuid();
-  console.log(vehicleId);
 
   if (!carrierId || !userId || !token) {
     res.status(405).end();
@@ -89,7 +88,7 @@ export default async (req, res) => {
     return;
   }
 
-  const created_at = firebase.firestore.Timestamp.now();
+  const createdAt = firebase.firestore.Timestamp.now();
 
   if (
     (totalVehicles.length !== 0 && year) ||
@@ -148,34 +147,34 @@ export default async (req, res) => {
     .doc(carrierId)
     .collection("orders")
     .add({
-      created_at,
-      order_status: "New",
+      createdAt,
+      orderStatus: "New",
       carrierId: carrierId,
       //   order_mileage: distanceData.data.distance || "",
       //   order_price_per_mile: distanceData.data.pricePerMile || "",
-      order_carrier_inner_id: carrierOrderId,
-      order_shipper_inner_id: shipperOrderId,
-      order_instructions: orderInstructions,
+      carrierOrderId: carrierOrderId,
+      shipperOrderId: shipperOrderId,
+      orderInstructions: orderInstructions,
       roles: {
-        driver_system_id: "",
-        dispatcher_system_id: "",
-        agent_system_id: "",
-        supervisor_system_id: "",
+        driverId: "",
+        dispatcherId: "",
+        agentId: "",
+        supervisorId: "",
       },
-      users_names: {
-        driver_name: "",
-        dispatcher_name: "",
+      usersNames: {
+        driverName: "",
+        dispatcherName: "",
       },
       pickup: {
-        pickup_scheduled_first_date: scheduledPickupDate,
-        pickup_additional_notes: pickupNotes,
-        pickup_address: {
+        pickupScheduledFirstDate: scheduledPickupDate,
+        pickupNotes: pickupNotes,
+        pickupAddress: {
           address: addressOnPickup,
           placeId: placeIdOnPickup,
           city: cityOnPickup,
           state: stateOnPickup,
           zip: zipOnPickup,
-          business_name: businessNameOnPickup,
+          businessName: businessNameOnPickup,
           contact_name: contactNameOnPickup,
           email: emailOnPickup,
           phone: phoneOnPickup,
@@ -188,15 +187,15 @@ export default async (req, res) => {
         //   },
       },
       delivery: {
-        delivery_scheduled_first_date: scheduledDeliveryDate,
-        delivery_additional_notes: deliveryNotes,
-        delivery_address: {
+        deliveryScheduledFirstDate: scheduledDeliveryDate,
+        deliveryNotes: deliveryNotes,
+        deliveryAddress: {
           address: addressOnDelivery,
           placeId: placeIdOnDelivery,
           city: cityOnDelivery,
           state: stateOnDelivery,
           zip: zipOnDelivery,
-          business_name: businessNameOnDelivery,
+          businessName: businessNameOnDelivery,
           contact_name: contactNameOnDelivery,
           email: emailOnDelivery,
           phone: phoneOnDelivery,
@@ -210,7 +209,7 @@ export default async (req, res) => {
       },
 
       shipper: {
-        business_name: businessNameOfShipper,
+        businessName: businessNameOfShipper,
         placeId: placeIdOfShipper,
         address: addressOfShipper,
         city: cityOfShipper,
@@ -222,26 +221,26 @@ export default async (req, res) => {
         fax: faxOfShipper,
       },
 
-      order_payment: {
-        order_total_amount: orderAmount,
-        driver_pay: driverPay,
-        broker_fee: brokerFee,
-        payment_upon: paymentStartUpon,
-        payment_method: paymentMethod,
-        payment_terms: paymentTerms,
+      orderPayment: {
+        orderAmount: orderAmount,
+        driverPay: driverPay,
+        brokerFee: brokerFee,
+        paymentUpon: paymentStartUpon,
+        paymentMethod: paymentMethod,
+        paymentTerms: paymentTerms,
       },
 
-      order_invoice: {
-        invoice_carrier_id: invoiceId,
-        invoice_recipient_email: invoiceEmail,
-        invoice_notes: invoiceNotes,
+      orderInvoice: {
+        carrierInvoiceId: invoiceId,
+        invoiceRecipientEmail: invoiceEmail,
+        invoiceNotes: invoiceNotes,
       },
 
-      order_activity: [
+      orderActivity: [
         {
-          activity_date: created_at,
-          activity_status: "Created",
-          activity_user: "dispatcher",
+          activityDate: createdAt,
+          activityStatus: "Created",
+          activityUser: "dispatcher",
         },
       ],
       tripId: "",

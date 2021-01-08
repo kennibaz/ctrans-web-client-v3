@@ -21,12 +21,12 @@ export default async (req, res) => {
     return;
   }
 
-  const created_at = firebase.firestore.Timestamp.now();
+  const createdAt = firebase.firestore.Timestamp.now();
 
   const new_activity = {
-    activity_date: created_at,
-    activity_status: "Order changed",
-    activity_user: "dispatcher",
+    activityDate: createdAt,
+    activityStatus: "Order changed",
+    activityUser: "dispatcher",
   };
 
   firebase
@@ -36,19 +36,19 @@ export default async (req, res) => {
     .collection("orders")
     .doc(orderId)
     .update({
-      "pickup.pickup_scheduled_first_date": scheduledPickupDate,
+      "pickup.pickupScheduledFirstDate": scheduledPickupDate,
 
-      "pickup.pickup_address.address": address,
-      "pickup.pickup_address.city": city,
-      "pickup.pickup_address.state": state,
-      "pickup.pickup_address.zip": zip,
-      "pickup.pickup_address.business_name": businessName,
-      "pickup.pickup_address.contact_name": contactName,
-      "pickup.pickup_address.email": email,
-      "pickup.pickup_address.phone": phone,
-      "pickup.pickup_address.fax": fax,
+      "pickup.pickupAddress.address": address,
+      "pickup.pickupAddress.city": city,
+      "pickup.pickupAddress.state": state,
+      "pickup.pickupAddress.zip": zip,
+      "pickup.pickupAddress.businessName": businessName,
+      "pickup.pickupAddress.contact_name": contactName,
+      "pickup.pickupAddress.email": email,
+      "pickup.pickupAddress.phone": phone,
+      "pickup.pickupAddress.fax": fax,
 
-      order_activity: firebase.firestore.FieldValue.arrayUnion(new_activity),
+      orderActivity: firebase.firestore.FieldValue.arrayUnion(new_activity),
     });
 
   res.status(200).json({ status: "order pickup location updated" });

@@ -109,7 +109,7 @@ export default function AssignDriverDialog(props) {
       carrierId: props.carrierId,
       orderId: props.order_id,
       driverId: selectedDriver,
-      order_shipper_inner_id: props.order_shipper_inner_id,
+      shipperOrderId: props.shipperOrderId,
       driverName:
         selectedDriverData.data.firstName +
         " " +
@@ -124,7 +124,7 @@ export default function AssignDriverDialog(props) {
     const respond = await axios.post("/api/orders/unassign-driver", {
       carrierId: props.carrierId,
       orderId: props.order_id,
-      order_shipper_inner_id: props.order_shipper_inner_id,
+      shipperOrderId: props.shipperOrderId,
       driverName: props.order_assigned_driver,
     });
     setOpenAssignDriverDialog(false);
@@ -144,10 +144,10 @@ export default function AssignDriverDialog(props) {
         onClick={assignDriverhandleClickOpen}
         size="small"
         disabled={
-          props.order_status === "Delivered" || props.order_status === "Paid"
+          props.orderStatus === "Delivered" || props.orderStatus === "Paid"
         }
       >
-        {props.order_status === "New"
+        {props.orderStatus === "New"
           ? "Assign"
           : "Driver: " + props.order_assigned_driver}
       </Button>
@@ -181,7 +181,7 @@ export default function AssignDriverDialog(props) {
               </FormControl>
             </Grid>
             <Grid item xs={12}>
-              {props.order_status === "Assigned" ? (
+              {props.orderStatus === "Assigned" ? (
                 <Button onClick={unAssignDriverFromOrderHandler}>
                   Unnassign driver
                 </Button>

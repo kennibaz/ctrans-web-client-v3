@@ -556,14 +556,14 @@ function createOrder(props) {
             <Grid item xs={12}>
               <Box m={2}>
                 <FormControl className={classes.inputField}>
-                  <label htmlFor="shipper_business_name">Shipper name</label>
+                  <label htmlFor="shipper_businessName">Shipper name</label>
                   <TextField
-                    id="shipper_business_name"
+                    id="shipper_businessName"
                     required
                     value={businessNameOfShipper}
                     onChange={(e) => setBusinessNameOfShipper(e.target.value)}
                     margin="dense"
-                    name="shipper_business_name"
+                    name="shipper_businessName"
                     variant="outlined"
                     InputProps={{
                       classes: { input: classes.inputText },
@@ -759,14 +759,14 @@ function createOrder(props) {
             <Grid item xs={12}>
               <Box m={2}>
                 <FormControl className={classes.inputField}>
-                  <label htmlFor="business_name">Business name</label>
+                  <label htmlFor="businessName">Business name</label>
                   <TextField
-                    id="business_name"
+                    id="businessName"
                     required
                     value={businessNameOnPickup}
                     onChange={(e) => setBusinessNameOnPickup(e.target.value)}
                     margin="dense"
-                    name="business_name"
+                    name="businessName"
                     variant="outlined"
                     InputProps={{
                       classes: { input: classes.inputText },
@@ -778,17 +778,17 @@ function createOrder(props) {
             <Grid item xs={12}>
               <Box m={2}>
                 <FormControl className={classes.inputField}>
-                  <label htmlFor="pickup_scheduled_first_date">
+                  <label htmlFor="pickupScheduledFirstDate">
                     Scheduled pickup date
                   </label>
                   <TextField
-                    id="pickup_scheduled_first_date"
+                    id="pickupScheduledFirstDate"
                     required
                     type="date"
                     value={scheduledPickupDate}
                     onChange={(e) => setScheduledPickupDate(e.target.value)}
                     margin="dense"
-                    name="pickup_scheduled_first_date"
+                    name="pickupScheduledFirstDate"
                     fullWidth={true}
                     style={{ width: "130%" }}
                     variant="outlined"
@@ -805,7 +805,7 @@ function createOrder(props) {
             <Grid item xs={12}>
               <Box m={2} pb={1}>
                 <FormControl className={classes.inputField}>
-                  <label htmlFor="business_name">Address</label>
+                  <label htmlFor="businessName">Address</label>
                   <AutoCompleteAddress
                     autoCompleteHandlerPickup={autoCompleteHandlerPickup}
                     pickup
@@ -1022,14 +1022,14 @@ function createOrder(props) {
             <Grid item xs={12}>
               <Box m={2}>
                 <FormControl className={classes.inputField}>
-                  <label htmlFor="business_name">Business name</label>
+                  <label htmlFor="businessName">Business name</label>
                   <TextField
-                    id="business_name"
+                    id="businessName"
                     required
                     value={businessNameOnDelivery}
                     onChange={(e) => setBusinessNameOnDelivery(e.target.value)}
                     margin="dense"
-                    name="business_name"
+                    name="businessName"
                     variant="outlined"
                     InputProps={{
                       classes: { input: classes.inputText },
@@ -1041,17 +1041,17 @@ function createOrder(props) {
             <Grid item xs={12}>
               <Box m={2}>
                 <FormControl className={classes.inputField}>
-                  <label htmlFor="delivery_scheduled_first_date">
+                  <label htmlFor="deliveryScheduledFirstDate">
                     Scheduled delivery date
                   </label>
                   <TextField
-                    id="delivery_scheduled_first_date"
+                    id="deliveryScheduledFirstDate"
                     required
                     type="date"
                     value={scheduledDeliveryDate}
                     onChange={(e) => setScheduledDeliveryDate(e.target.value)}
                     margin="dense"
-                    name="delivery_scheduled_first_date"
+                    name="deliveryScheduledFirstDate"
                     fullWidth={true}
                     style={{ width: "130%" }}
                     variant="outlined"
@@ -1068,7 +1068,7 @@ function createOrder(props) {
             <Grid item xs={12}>
               <Box m={2} pb={1}>
                 <FormControl className={classes.inputField}>
-                  <label htmlFor="business_name">Address</label>
+                  <label htmlFor="businessName">Address</label>
                   <AutoCompleteAddress
                     autoCompleteHandlerDelivery={autoCompleteHandlerDelivery}
                     delivery
@@ -1635,16 +1635,16 @@ function createOrder(props) {
             <Grid item xs={12}>
               <Box m={2} pb={0.5}>
                 <FormControl className={classes.inputField}>
-                  <label htmlFor="order_total_amount">Order Amount</label>
+                  <label htmlFor="orderAmount">Order Amount</label>
                   <TextField
-                    id="order_total_amount"
+                    id="orderAmount"
                     required
                     value={orderAmount}
                     placeholder={"$"}
                     style={{ width: "70%" }}
                     onChange={(e) => setOrderAmount(e.target.value)}
                     margin="dense"
-                    name="order_total_amount"
+                    name="orderAmount"
                     variant="outlined"
                     InputProps={{
                       classes: { input: classes.inputText },
@@ -1656,14 +1656,14 @@ function createOrder(props) {
             <Grid item xs={12}>
               <Box m={2} pb={1}>
                 <FormControl variant="outlined" className={classes.inputField}>
-                  <label htmlFor="payment_terms" style={{ paddingBottom: 8 }}>
+                  <label htmlFor="paymentTerms" style={{ paddingBottom: 8 }}>
                     Terms
                   </label>
                   <Select
-                    id="payment_terms"
+                    id="paymentTerms"
                     margin="dense"
                     style={{ fontSize: 12, width: "170%" }}
-                    name="payment_terms"
+                    name="paymentTerms"
                     value={paymentTerms}
                     onChange={(e) => setPaymentTerms(e.target.value)}
                     InputProps={{ classes: { input: classes.inputText } }}
@@ -1686,14 +1686,14 @@ function createOrder(props) {
             <Grid item xs={12}>
               <Box m={2} pb={1}>
                 <FormControl variant="outlined" className={classes.inputField}>
-                  <label htmlFor="payment_method" style={{ paddingBottom: 8 }}>
+                  <label htmlFor="paymentMethod" style={{ paddingBottom: 8 }}>
                     Method
                   </label>
                   <Select
-                    id="payment_method"
+                    id="paymentMethod"
                     margin="dense"
                     style={{ fontSize: 12, width: "190%" }}
-                    name="payment_method"
+                    name="paymentMethod"
                     value={paymentMethod}
                     onChange={(e) => setPaymentMethod(e.target.value)}
                     InputProps={{ classes: { input: classes.inputText } }}
@@ -1713,14 +1713,14 @@ function createOrder(props) {
             <Grid item xs={12}>
               <Box m={2} pb={1}>
                 <FormControl variant="outlined" className={classes.inputField}>
-                  <label htmlFor="payment_upon" style={{ paddingBottom: 8 }}>
+                  <label htmlFor="paymentUpon" style={{ paddingBottom: 8 }}>
                     Payment start upon
                   </label>
                   <Select
-                    id="payment_upon"
+                    id="paymentUpon"
                     margin="dense"
                     style={{ fontSize: 12, width: "100%" }}
-                    name="payment_upon"
+                    name="paymentUpon"
                     value={paymentStartUpon}
                     onChange={(e) => setPaymentStartUpon(e.target.value)}
                     InputProps={{ classes: { input: classes.inputText } }}
@@ -1737,16 +1737,16 @@ function createOrder(props) {
             <Grid item xs={12}>
               <Box m={2} pb={0.5}>
                 <FormControl className={classes.inputField}>
-                  <label htmlFor="driver_pay">Driver pay</label>
+                  <label htmlFor="driverPay">Driver pay</label>
                   <TextField
-                    id="driver_pay"
+                    id="driverPay"
                     required
                     style={{ width: "70%" }}
                     placeholder={"$"}
                     value={driverPay}
                     onChange={(e) => setDriverPay(e.target.value)}
                     margin="dense"
-                    name="driver_pay"
+                    name="driverPay"
                     variant="outlined"
                     InputProps={{ classes: { input: classes.inputText } }}
                   />
@@ -1756,16 +1756,16 @@ function createOrder(props) {
             <Grid item xs={12}>
               <Box m={2} pb={1}>
                 <FormControl className={classes.inputField}>
-                  <label htmlFor="broker_fee">Broker Fee</label>
+                  <label htmlFor="brokerFee">Broker Fee</label>
                   <TextField
-                    id="broker_fee"
+                    id="brokerFee"
                     required
                     style={{ width: "70%" }}
                     placeholder={"$"}
                     value={brokerFee}
                     onChange={(e) => setBrokerFee(e.target.value)}
                     margin="dense"
-                    name="broker_fee"
+                    name="brokerFee"
                     variant="outlined"
                     InputProps={{ classes: { input: classes.inputText } }}
                   />
@@ -1778,14 +1778,14 @@ function createOrder(props) {
             <Grid item xs={12}>
               <Box m={2}>
                 <FormControl className={classes.inputField}>
-                  <label htmlFor="invoice_carrier_id">Invoice ID</label>
+                  <label htmlFor="carrierInvoiceId">Invoice ID</label>
                   <TextField
-                    id="invoice_carrier_id"
+                    id="carrierInvoiceId"
                     required
                     value={invoiceId}
                     onChange={(e) => setInvoiceId(e.target.value)}
                     margin="dense"
-                    name="invoice_carrier_id"
+                    name="carrierInvoiceId"
                     variant="outlined"
                     InputProps={{ classes: { input: classes.inputText } }}
                   />
@@ -1795,16 +1795,16 @@ function createOrder(props) {
             <Grid item xs={12}>
               <Box m={2}>
                 <FormControl className={classes.inputField}>
-                  <label htmlFor="invoice_recipient_email">
+                  <label htmlFor="invoiceRecipientEmail">
                     Recipient email
                   </label>
                   <TextField
-                    id="invoice_recipient_email"
+                    id="invoiceRecipientEmail"
                     required
                     value={invoiceEmail}
                     onChange={(e) => setInvoiceEmail(e.target.value)}
                     margin="dense"
-                    name="invoice_recipient_email"
+                    name="invoiceRecipientEmail"
                     variant="outlined"
                     InputProps={{ classes: { input: classes.inputText } }}
                   />
@@ -1817,9 +1817,9 @@ function createOrder(props) {
             <Grid item xs={12}>
               <Box m={2}>
                 <FormControl className={classes.inputField}>
-                  <label htmlFor="invoice_notes">Notes</label>
+                  <label htmlFor="invoiceNotes">Notes</label>
                   <TextField
-                    id="invoice_notes"
+                    id="invoiceNotes"
                     required
                     fullWidth
                     multiline
@@ -1827,7 +1827,7 @@ function createOrder(props) {
                     value={invoiceNotes}
                     onChange={(e) => setInvoiceNotes(e.target.value)}
                     margin="dense"
-                    name="invoice_notes"
+                    name="invoiceNotes"
                     variant="outlined"
                     InputProps={{ classes: { input: classes.inputText } }}
                   />

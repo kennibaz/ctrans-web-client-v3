@@ -148,7 +148,7 @@ export default function orderCard({
 
   // paid order
   const paidOrderHandler = async () => {
-    if (orderData.order_status === "Delivered") {
+    if (orderData.orderStatus === "Delivered") {
       await axios.post("/api/orders/order-paid", {
         carrierId: carrierId,
         orderId,
@@ -226,12 +226,12 @@ export default function orderCard({
       <AssignDriverDialog
         carrierId={carrierId}
         drivers={drivers}
-        order_status={orderData.order_status}
+        orderStatus={orderData.orderStatus}
         order_id={orderId}
-        order_shipper_inner_id={orderData.order_shipper_inner_id}
+        shipperOrderId={orderData.shipperOrderId}
         order_assigned_driver={
-          orderData.roles.driver_system_id !== ""
-            ? orderData.users_names.driver_name
+          orderData.roles.driverId !== ""
+            ? orderData.usersNames.driverName
             : "Not assigned"
         }
         reloadHandler={reloadHandler}
@@ -266,7 +266,7 @@ export default function orderCard({
   // Instructions dialog
   let instructionsDialog = (
     <InstructionsModal
-      order_instructions={orderData.order_instructions}
+      orderInstructions={orderData.orderInstructions}
       isOpen={isInstructionsModalDialogOpen}
       closeInstructionsDialog={closeInstructionsDialog}
     />
@@ -286,8 +286,8 @@ export default function orderCard({
 
   let cancelButtonContent;
   if (
-    orderData.order_status === "Assigned" ||
-    orderData.order_status === "New"
+    orderData.orderStatus === "Assigned" ||
+    orderData.orderStatus === "New"
   ) {
     cancelButtonContent = (
       <Button
@@ -302,7 +302,7 @@ export default function orderCard({
   }
 
   let archiveButtonContent;
-  if (orderData.order_status === "Paid") {
+  if (orderData.orderStatus === "Paid") {
     archiveButtonContent = (
       <Button
         onClick={archiveOrderHandler}
@@ -440,7 +440,7 @@ export default function orderCard({
                         size="small"
                         className={classes.button}
                       >
-                        {orderData.order_shipper_inner_id}
+                        {orderData.shipperOrderId}
                       </Button>
                     </Link>
                   </Grid>
@@ -451,7 +451,7 @@ export default function orderCard({
                       fontWeight="fontWeightMedium"
                     >
                       <Button size="small" disabled className={classes.button}>
-                        {orderData.order_status}
+                        {orderData.orderStatus}
                       </Button>
                     </Box>
                   </Grid>
@@ -572,7 +572,7 @@ export default function orderCard({
                           align="left"
                           fontWeight="fontWeightMedium"
                         >
-                          Order amount: ${orderData.order_total_amount}
+                          Order amount: ${orderData.orderAmount}
                         </Box>
                       </Grid>
                       <Grid item xs={12}>
@@ -637,7 +637,7 @@ export default function orderCard({
                           align="left"
                           fontStyle="italic"
                         >
-                          @ {orderData.pickup.pickup_scheduled_first_date}
+                          @ {orderData.pickup.pickupScheduledFirstDate}
                         </Box>
                       </Grid>
                       <Grid item xs={12}>
@@ -647,7 +647,7 @@ export default function orderCard({
                           align="left"
                           fontWeight="fontWeightMedium"
                         >
-                          {orderData.pickup.pickup_address.business_name}
+                          {orderData.pickup.pickupAddress.businessName}
                         </Box>
                       </Grid>
                       <Grid item xs={12}>
@@ -656,12 +656,12 @@ export default function orderCard({
                           color="textPrimary"
                           align="left"
                         >
-                          {orderData.pickup.pickup_address.city +
+                          {orderData.pickup.pickupAddress.city +
                             "," +
                             " " +
-                            orderData.pickup.pickup_address.state +
+                            orderData.pickup.pickupAddress.state +
                             " " +
-                            orderData.pickup.pickup_address.zip}
+                            orderData.pickup.pickupAddress.zip}
                           <IconButton
                             aria-label="expand row"
                             size="small"
@@ -689,7 +689,7 @@ export default function orderCard({
                             gutterBottom
                             align="left"
                           >
-                            {orderData.pickup.pickup_address.address}
+                            {orderData.pickup.pickupAddress.address}
                           </Box>
                         </Grid>
                       </Collapse>
@@ -701,7 +701,7 @@ export default function orderCard({
                           align="left"
                           pt={2}
                         >
-                          {orderData.pickup.pickup_address.contact_name}
+                          {orderData.pickup.pickupAddress.contact_name}
                         </Box>
                       </Grid>
                       <Grid item xs={12}>
@@ -710,8 +710,8 @@ export default function orderCard({
                           color="textPrimary"
                           align="left"
                         >
-                          P: {orderData.pickup.pickup_address.phones[0]}
-                          {orderData.pickup.pickup_address.phones?.length >
+                          P: {orderData.pickup.pickupAddress.phones[0]}
+                          {orderData.pickup.pickupAddress.phones?.length >
                           1 ? (
                             <IconButton
                               aria-label="expand row"
@@ -735,7 +735,7 @@ export default function orderCard({
                         unmountOnExit
                       >
                         <Grid item xs={12}>
-                          {orderData.pickup.pickup_address.phones.slice(1).map(
+                          {orderData.pickup.pickupAddress.phones.slice(1).map(
                             (phone, index) => (
                               <Box
                                 className={classes.title}
@@ -773,7 +773,7 @@ export default function orderCard({
                           align="left"
                           fontStyle="italic"
                         >
-                          @ {orderData.delivery.delivery_scheduled_first_date}
+                          @ {orderData.delivery.deliveryScheduledFirstDate}
                         </Box>
                       </Grid>
                       <Grid item xs={12}>
@@ -783,7 +783,7 @@ export default function orderCard({
                           align="left"
                           fontWeight="fontWeightMedium"
                         >
-                          {orderData.delivery.delivery_address.business_name}
+                          {orderData.delivery.deliveryAddress.businessName}
                         </Box>
                       </Grid>
                       <Grid item xs={12}>
@@ -792,12 +792,12 @@ export default function orderCard({
                           color="textPrimary"
                           align="left"
                         >
-                          {orderData.delivery.delivery_address.city +
+                          {orderData.delivery.deliveryAddress.city +
                             "," +
                             " " +
-                            orderData.delivery.delivery_address.state +
+                            orderData.delivery.deliveryAddress.state +
                             " " +
-                            orderData.delivery.delivery_address.zip}
+                            orderData.delivery.deliveryAddress.zip}
                           <IconButton
                             aria-label="expand row"
                             size="small"
@@ -825,7 +825,7 @@ export default function orderCard({
                             gutterBottom
                             align="left"
                           >
-                            {orderData.delivery.delivery_address.address}
+                            {orderData.delivery.deliveryAddress.address}
                           </Box>
                         </Grid>
                       </Collapse>
@@ -836,7 +836,7 @@ export default function orderCard({
                           align="left"
                           pt={2}
                         >
-                          {orderData.delivery.delivery_address.contact_name}
+                          {orderData.delivery.deliveryAddress.contact_name}
                         </Box>
                       </Grid>
                       <Grid item xs={12}>
@@ -845,8 +845,8 @@ export default function orderCard({
                           color="textPrimary"
                           align="left"
                         >
-                          P: {orderData.delivery.delivery_address.phones[0]}
-                          {orderData.delivery.delivery_address.phones?.length >
+                          P: {orderData.delivery.deliveryAddress.phones[0]}
+                          {orderData.delivery.deliveryAddress.phones?.length >
                           0 ? (
                             <IconButton
                               aria-label="expand row"
@@ -870,7 +870,7 @@ export default function orderCard({
                         unmountOnExit
                       >
                         <Grid item xs={12}>
-                          {orderData.delivery.delivery_address.phones.slice(1).map(
+                          {orderData.delivery.deliveryAddress.phones.slice(1).map(
                             (phone, index) => (
                               <Box
                                 className={classes.title}
@@ -907,7 +907,7 @@ export default function orderCard({
                           align="left"
                           fontWeight="fontWeightMedium"
                         >
-                          {orderData.shipper.business_name}
+                          {orderData.shipper.businessName}
                         </Box>
                       </Grid>
                       <Grid item xs={12}>

@@ -62,12 +62,12 @@ export default async (req, res) => {
         .doc(orderId);
       const orderData = await orderRef.get();
       const orderDoc = orderData.data();
-      const invoice = orderDoc.order_payment.invoice_uri
+      const invoice = orderDoc.orderPayment.invoice_uri
       if (invoice) {
-        const fileName = `invoice_${order_shipper_inner_id}.pdf`;
+        const fileName = `invoice_${shipperOrderId}.pdf`;
         sendMail(
             email,
-            `Your invoice for order ${order_shipper_inner_id}` ,
+            `Your invoice for order ${shipperOrderId}` ,
             "Please find your invoice attached",
             fileName,
             invoice

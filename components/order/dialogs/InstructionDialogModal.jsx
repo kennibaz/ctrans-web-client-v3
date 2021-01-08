@@ -36,7 +36,7 @@ export default function InstructionsModal(props) {
       >
         {" "}
         <Box width="100%" p={1}>
-          <Typography>{props.order_instructions?props.order_instructions: "NO INSTRUCTIONS DEFINED" }</Typography>
+          <Typography>{props.orderInstructions?props.orderInstructions: "NO INSTRUCTIONS DEFINED" }</Typography>
         </Box>
       </Dialog>
     </div>

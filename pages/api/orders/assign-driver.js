@@ -5,7 +5,7 @@ export default async (req, res) => {
     carrierId,
     orderId,
     driverId,
-    order_shipper_inner_id,
+    shipperOrderId,
     driverName,
   } = req.body;
 
@@ -13,7 +13,7 @@ export default async (req, res) => {
     return;
   }
 
-  const created_at = firebase.firestore.Timestamp.now();
+  const createdAt = firebase.firestore.Timestamp.now();
   const orderRef = firebase
     .firestore()
     .collection("carriers-records")
@@ -22,30 +22,30 @@ export default async (req, res) => {
     .doc(orderId);
 
   const orderData = (await orderRef.get()).data();
-  const currentOrderStatus = orderData.order_status;
+  const currentOrderStatus = orderData.orderStatus;
 
   const new_activity = {
-    activity_date: created_at,
-    activity_status: `${driverName} assigned`,
-    activity_user: "Dispatcher",
+    activityDate: createdAt,
+    activityStatus: `${driverName} assigned`,
+    activityUser: "Dispatcher",
   };
 
   if (currentOrderStatus === "New") {
     orderRef.update({
-      "roles.driver_system_id": driverId,
-      "users_names.driver_name": driverName,
-      order_status: "Assigned",
-      order_activity: firebase.firestore.FieldValue.arrayUnion(new_activity),
+      "roles.driverId": driverId,
+      "usersNames.driverName": driverName,
+      orderStatus: "Assigned",
+      orderActivity: firebase.firestore.FieldValue.arrayUnion(new_activity),
     });
     res.status(200).json({ status: "driver assigned" });
     return;
   }
 
   orderRef.update({
-    "roles.driver_system_id": driverId,
-    "users_names.driver_name": driverName,
-    order_activity: firebase.firestore,
-    order_activity: firebase.firestore.FieldValue.arrayUnion(new_activity),
+    "roles.driverId": driverId,
+    "usersNames.driverName": driverName,
+    orderActivity: firebase.firestore,
+    orderActivity: firebase.firestore.FieldValue.arrayUnion(new_activity),
   });
   console.log("ok");
   res.status(200).json({ status: "driver assigned" });

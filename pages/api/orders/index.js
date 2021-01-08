@@ -50,7 +50,7 @@ export default async (req, res) => {
         .collection("carriers-records")
         .doc(carrierId)
         .collection("orders")
-        .where("order_status", "!=", "Archived");
+        .where("orderStatus", "!=", "Archived");
       let new_array = [];
       let filtered_array = [];
       let filteredArrayByDriver = [];
@@ -66,14 +66,14 @@ export default async (req, res) => {
         });
         requestArray.forEach((status) => {
           new_array.forEach((order) => {
-            if (order.data.order_status === status) {
+            if (order.data.orderStatus === status) {
               filtered_array.push(order);
             }
           });
         });
         if (selectedDriver) {
           filteredArrayByDriver = filtered_array.filter((order) => {
-            return order.data.roles.driver_system_id === selectedDriver;
+            return order.data.roles.driverId === selectedDriver;
           });
         }
       } catch (error) {

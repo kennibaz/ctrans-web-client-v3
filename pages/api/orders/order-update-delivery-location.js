@@ -21,12 +21,12 @@ export default async (req, res) => {
     return;
   }
 
-  const created_at = firebase.firestore.Timestamp.now();
+  const createdAt = firebase.firestore.Timestamp.now();
 
   const new_activity = {
-    activity_date: created_at,
-    activity_status: "Order changed",
-    activity_user: "dispatcher",
+    activityDate: createdAt,
+    activityStatus: "Order changed",
+    activityUser: "dispatcher",
   };
 
   firebase
@@ -36,19 +36,19 @@ export default async (req, res) => {
     .collection("orders")
     .doc(orderId)
     .update({
-      "delivery.delivery_scheduled_first_date": scheduledDeliveryDate,
+      "delivery.deliveryScheduledFirstDate": scheduledDeliveryDate,
 
-      "delivery.delivery_address.address": address,
-      "delivery.delivery_address.city": city,
-      "delivery.delivery_address.state": state,
-      "delivery.delivery_address.zip": zip,
-      "delivery.delivery_address.business_name": businessName,
-      "delivery.delivery_address.contact_name": contactName,
-      "delivery.delivery_address.email": email,
-      "delivery.delivery_address.phone": phone,
-      "delivery.delivery_address.fax": fax,
+      "delivery.deliveryAddress.address": address,
+      "delivery.deliveryAddress.city": city,
+      "delivery.deliveryAddress.state": state,
+      "delivery.deliveryAddress.zip": zip,
+      "delivery.deliveryAddress.businessName": businessName,
+      "delivery.deliveryAddress.contact_name": contactName,
+      "delivery.deliveryAddress.email": email,
+      "delivery.deliveryAddress.phone": phone,
+      "delivery.deliveryAddress.fax": fax,
 
-      order_activity: firebase.firestore.FieldValue.arrayUnion(new_activity),
+      orderActivity: firebase.firestore.FieldValue.arrayUnion(new_activity),
     });
 
   res.status(200).json({ status: "order delivery location updated" });

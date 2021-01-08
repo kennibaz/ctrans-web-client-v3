@@ -103,40 +103,40 @@ export default function LocationEditDialog(props) {
 
   useEffect(() => {
     if (props.pickup) {
-      setBusinessName(props.orderData.pickup.pickup_address.business_name);
-      setAddress(props.orderData.pickup.pickup_address.address);
-      setCity(props.orderData.pickup.pickup_address.city);
-      setState(props.orderData.pickup.pickup_address.state);
-      setZip(props.orderData.pickup.pickup_address.zip);
+      setBusinessName(props.orderData.pickup.pickupAddress.businessName);
+      setAddress(props.orderData.pickup.pickupAddress.address);
+      setCity(props.orderData.pickup.pickupAddress.city);
+      setState(props.orderData.pickup.pickupAddress.state);
+      setZip(props.orderData.pickup.pickupAddress.zip);
       setScheduledPickupDate(
-        props.orderData.pickup.pickup_scheduled_first_date
+        props.orderData.pickup.pickupScheduledFirstDate
       );
       setScheduledDeliveryDate(
-        props.orderData.delivery.delivery_scheduled_first_date
+        props.orderData.delivery.deliveryScheduledFirstDate
       );
-      setPickupNotes(props.orderData.pickup.pickup_additional_notes);
-      setContactName(props.orderData.pickup.pickup_address.contact_name);
-      setEmail(props.orderData.pickup.pickup_address.email);
-      setPhone(props.orderData.pickup.pickup_address.phone);
-      setFax(props.orderData.pickup.pickup_address.fax);
+      setPickupNotes(props.orderData.pickup.pickupNotes);
+      setContactName(props.orderData.pickup.pickupAddress.contact_name);
+      setEmail(props.orderData.pickup.pickupAddress.email);
+      setPhone(props.orderData.pickup.pickupAddress.phone);
+      setFax(props.orderData.pickup.pickupAddress.fax);
     }
     if (!props.pickup) {
-      setBusinessName(props.orderData.delivery.delivery_address.business_name);
-      setAddress(props.orderData.delivery.delivery_address.address);
-      setCity(props.orderData.delivery.delivery_address.city);
-      setState(props.orderData.delivery.delivery_address.state);
-      setZip(props.orderData.delivery.delivery_address.zip);
+      setBusinessName(props.orderData.delivery.deliveryAddress.businessName);
+      setAddress(props.orderData.delivery.deliveryAddress.address);
+      setCity(props.orderData.delivery.deliveryAddress.city);
+      setState(props.orderData.delivery.deliveryAddress.state);
+      setZip(props.orderData.delivery.deliveryAddress.zip);
       setScheduledPickupDate(
-        props.orderData.delivery.delivery_scheduled_first_date
+        props.orderData.delivery.deliveryScheduledFirstDate
       );
       setScheduledDeliveryDate(
-        props.orderData.delivery.delivery_scheduled_first_date
+        props.orderData.delivery.deliveryScheduledFirstDate
       );
-      setPickupNotes(props.orderData.delivery.delivery_additional_notes);
-      setContactName(props.orderData.delivery.delivery_address.contact_name);
-      setEmail(props.orderData.delivery.delivery_address.email);
-      setPhone(props.orderData.delivery.delivery_address.phone);
-      setFax(props.orderData.delivery.delivery_address.fax);
+      setPickupNotes(props.orderData.delivery.deliveryNotes);
+      setContactName(props.orderData.delivery.deliveryAddress.contact_name);
+      setEmail(props.orderData.delivery.deliveryAddress.email);
+      setPhone(props.orderData.delivery.deliveryAddress.phone);
+      setFax(props.orderData.delivery.deliveryAddress.fax);
     }
   }, []);
 
@@ -208,18 +208,18 @@ export default function LocationEditDialog(props) {
 
   dateContent = (
     <FormControl className={classes.testField}>
-      <label for="delivery_scheduled_first_date">
+      <label for="deliveryScheduledFirstDate">
         Scheduled delivery date{" "}
       </label>
       <TextField
-        id="delivery_scheduled_first_date"
+        id="deliveryScheduledFirstDate"
         defaultValue=""
         required
         type="date"
         value={scheduledDeliveryDate}
         onChange={(e) => setScheduledDeliveryDate(e.target.value)}
         margin="dense"
-        name="delivery_scheduled_first_date"
+        name="deliveryScheduledFirstDate"
         variant="outlined"
         InputProps={{ classes: { input: classes.input } }}
       />
@@ -229,16 +229,16 @@ export default function LocationEditDialog(props) {
   if (props.pickup) {
     dateContent = (
       <FormControl className={classes.testField}>
-        <label for="pickup_scheduled_first_date">Scheduled pickup date </label>
+        <label for="pickupScheduledFirstDate">Scheduled pickup date </label>
         <TextField
-          id="pickup_scheduled_first_date"
+          id="pickupScheduledFirstDate"
           defaultValue=""
           required
           type="date"
           value={scheduledPickupDate}
           onChange={(e) => setScheduledPickupDate(e.target.value)}
           margin="dense"
-          name="pickup_scheduled_first_date"
+          name="pickupScheduledFirstDate"
           variant="outlined"
           InputProps={{ classes: { input: classes.input } }}
         />
@@ -253,14 +253,14 @@ export default function LocationEditDialog(props) {
           <Grid container item xs={12}>
             <Grid item xs={6}>
               <FormControl className={classes.testField}>
-                <label for="business_name">Business name</label>
+                <label for="businessName">Business name</label>
                 <TextField
-                  id="business_name"
+                  id="businessName"
                   required
                   value={businessName}
                   onChange={(e) => setBusinessName(e.target.value)}
                   margin="dense"
-                  name="business_name"
+                  name="businessName"
                   variant="outlined"
                   InputProps={{ classes: { input: classes.input } }}
                 />
@@ -398,9 +398,9 @@ export default function LocationEditDialog(props) {
     </div>
   );
   if (
-    (props.pickup && props.orderData.order_status === "Delivered") ||
-    (props.pickup && props.orderData.order_status === "Paid") ||
-    (props.pickup && props.orderData.order_status === "Picked")
+    (props.pickup && props.orderData.orderStatus === "Delivered") ||
+    (props.pickup && props.orderData.orderStatus === "Paid") ||
+    (props.pickup && props.orderData.orderStatus === "Picked")
   ) {
     dialogContent = (
       <DialogContent dividers>
@@ -410,8 +410,8 @@ export default function LocationEditDialog(props) {
   }
 
   if (
-    (!props.pickup && props.orderData.order_status === "Delivered") ||
-    (!props.pickup && props.orderData.order_status === "Paid")
+    (!props.pickup && props.orderData.orderStatus === "Delivered") ||
+    (!props.pickup && props.orderData.orderStatus === "Paid")
   ) {
     dialogContent = (
       <DialogContent dividers>

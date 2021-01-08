@@ -19,7 +19,7 @@ export default async (req, res) => {
   .collection("orders")
   .doc(orderId)
   .update({
-    order_status: "Paid",
+    orderStatus: "Paid",
   });
 
   res.status(200).json({ status: "order cancelled" });
