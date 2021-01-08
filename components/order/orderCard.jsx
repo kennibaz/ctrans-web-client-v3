@@ -701,7 +701,7 @@ export default function orderCard({
                           align="left"
                           pt={2}
                         >
-                          {orderData.pickup.pickupAddress.contact_name}
+                          {orderData.pickup.pickupAddress.contactName}
                         </Box>
                       </Grid>
                       <Grid item xs={12}>
@@ -836,7 +836,7 @@ export default function orderCard({
                           align="left"
                           pt={2}
                         >
-                          {orderData.delivery.deliveryAddress.contact_name}
+                          {orderData.delivery.deliveryAddress.contactName}
                         </Box>
                       </Grid>
                       <Grid item xs={12}>

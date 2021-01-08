@@ -134,7 +134,7 @@ function EditOrder(props) {
     props.orderData.data.pickup.pickupNotes
   );
   const [contactNameOnPickup, setContactNameOnPickup] = useState(
-    props.orderData.data.pickup.pickupAddress.contact_name
+    props.orderData.data.pickup.pickupAddress.contactName
   );
   const [emailOnPickup, setEmailOnPickup] = useState(
     props.orderData.data.pickup.pickupAddress.email
@@ -168,7 +168,7 @@ function EditOrder(props) {
     props.orderData.data.delivery.deliveryNotes
   );
   const [contactNameOnDelivery, setContactNameOnDelivery] = useState(
-    props.orderData.data.delivery.deliveryAddress.contact_name
+    props.orderData.data.delivery.deliveryAddress.contactName
   );
   const [emailOnDelivery, setEmailOnDelivery] = useState(
     props.orderData.data.delivery.deliveryAddress.email
@@ -243,7 +243,7 @@ function EditOrder(props) {
     props.orderData.data.shipper.zip
   );
   const [contactNameOfShipper, setContactNameOfShipper] = useState(
-    props.orderData.data.shipper.contact_name
+    props.orderData.data.shipper.contactName
   );
   const [emailOfShipper, setEmailOfShipper] = useState(
     props.orderData.data.shipper.email
@@ -692,14 +692,14 @@ function EditOrder(props) {
             <Grid item xs={12}>
               <Box m={2}>
                 <FormControl className={classes.inputField}>
-                  <label for="shipper_contact_name">Contact name</label>
+                  <label for="shipper_contactName">Contact name</label>
                   <TextField
-                    id="shipper_contact_name"
+                    id="shipper_contactName"
                     required
                     value={contactNameOfShipper}
                     onChange={(e) => setContactNameOfShipper(e.target.value)}
                     margin="dense"
-                    name="shipper_contact_name"
+                    name="shipper_contactName"
                     variant="outlined"
                     InputProps={{
                       classes: { input: classes.inputText },
@@ -919,14 +919,14 @@ function EditOrder(props) {
             <Grid item xs={12}>
               <Box m={2}>
                 <FormControl className={classes.inputField}>
-                  <label for="contact_name">Contact name</label>
+                  <label for="contactName">Contact name</label>
                   <TextField
-                    id="contact_name"
+                    id="contactName"
                     required
                     value={contactNameOnPickup}
                     onChange={(e) => setContactNameOnPickup(e.target.value)}
                     margin="dense"
-                    name="contact_name"
+                    name="contactName"
                     variant="outlined"
                     InputProps={{
                       classes: { input: classes.inputText },
@@ -1183,14 +1183,14 @@ function EditOrder(props) {
             <Grid item xs={12}>
               <Box m={2}>
                 <FormControl className={classes.inputField}>
-                  <label for="contact_name">Contact name</label>
+                  <label for="contactName">Contact name</label>
                   <TextField
-                    id="contact_name"
+                    id="contactName"
                     required
                     value={contactNameOnDelivery}
                     onChange={(e) => setContactNameOnDelivery(e.target.value)}
                     margin="dense"
-                    name="contact_name"
+                    name="contactName"
                     variant="outlined"
                     InputProps={{
                       classes: { input: classes.inputText },

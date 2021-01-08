@@ -657,14 +657,14 @@ function createOrder(props) {
             <Grid item xs={12}>
               <Box m={2}>
                 <FormControl className={classes.inputField}>
-                  <label htmlFor="shipper_contact_name">Contact name</label>
+                  <label htmlFor="shipper_contactName">Contact name</label>
                   <TextField
-                    id="shipper_contact_name"
+                    id="shipper_contactName"
                     required
                     value={contactNameOfShipper}
                     onChange={(e) => setContactNameOfShipper(e.target.value)}
                     margin="dense"
-                    name="shipper_contact_name"
+                    name="shipper_contactName"
                     variant="outlined"
                     InputProps={{
                       classes: { input: classes.inputText },
@@ -884,14 +884,14 @@ function createOrder(props) {
             <Grid item xs={12}>
               <Box m={2}>
                 <FormControl className={classes.inputField}>
-                  <label htmlFor="contact_name">Contact name</label>
+                  <label htmlFor="contactName">Contact name</label>
                   <TextField
-                    id="contact_name"
+                    id="contactName"
                     required
                     value={contactNameOnPickup}
                     onChange={(e) => setContactNameOnPickup(e.target.value)}
                     margin="dense"
-                    name="contact_name"
+                    name="contactName"
                     variant="outlined"
                     InputProps={{
                       classes: { input: classes.inputText },
@@ -1147,14 +1147,14 @@ function createOrder(props) {
             <Grid item xs={12}>
               <Box m={2}>
                 <FormControl className={classes.inputField}>
-                  <label htmlFor="contact_name">Contact name</label>
+                  <label htmlFor="contactName">Contact name</label>
                   <TextField
-                    id="contact_name"
+                    id="contactName"
                     required
                     value={contactNameOnDelivery}
                     onChange={(e) => setContactNameOnDelivery(e.target.value)}
                     margin="dense"
-                    name="contact_name"
+                    name="contactName"
                     variant="outlined"
                     InputProps={{
                       classes: { input: classes.inputText },

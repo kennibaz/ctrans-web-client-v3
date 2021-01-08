@@ -43,7 +43,7 @@ export default async (req, res) => {
       "delivery.deliveryAddress.state": state,
       "delivery.deliveryAddress.zip": zip,
       "delivery.deliveryAddress.businessName": businessName,
-      "delivery.deliveryAddress.contact_name": contactName,
+      "delivery.deliveryAddress.contactName": contactName,
       "delivery.deliveryAddress.email": email,
       "delivery.deliveryAddress.phone": phone,
       "delivery.deliveryAddress.fax": fax,

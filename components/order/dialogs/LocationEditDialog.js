@@ -115,7 +115,7 @@ export default function LocationEditDialog(props) {
         props.orderData.delivery.deliveryScheduledFirstDate
       );
       setPickupNotes(props.orderData.pickup.pickupNotes);
-      setContactName(props.orderData.pickup.pickupAddress.contact_name);
+      setContactName(props.orderData.pickup.pickupAddress.contactName);
       setEmail(props.orderData.pickup.pickupAddress.email);
       setPhone(props.orderData.pickup.pickupAddress.phone);
       setFax(props.orderData.pickup.pickupAddress.fax);
@@ -133,7 +133,7 @@ export default function LocationEditDialog(props) {
         props.orderData.delivery.deliveryScheduledFirstDate
       );
       setPickupNotes(props.orderData.delivery.deliveryNotes);
-      setContactName(props.orderData.delivery.deliveryAddress.contact_name);
+      setContactName(props.orderData.delivery.deliveryAddress.contactName);
       setEmail(props.orderData.delivery.deliveryAddress.email);
       setPhone(props.orderData.delivery.deliveryAddress.phone);
       setFax(props.orderData.delivery.deliveryAddress.fax);
@@ -325,15 +325,15 @@ export default function LocationEditDialog(props) {
 
             <Grid item xs={6}>
               <FormControl className={classes.testField}>
-                <label for="contact_name">Contact name</label>
+                <label for="contactName">Contact name</label>
                 <TextField
-                  id="contact_name"
+                  id="contactName"
                   defaultValue=""
                   required
                   value={contactName}
                   onChange={(e) => setContactName(e.target.value)}
                   margin="dense"
-                  name="contact_name"
+                  name="contactName"
                   variant="outlined"
                   InputProps={{ classes: { input: classes.input } }}
                 />

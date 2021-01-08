@@ -500,7 +500,7 @@ const Transition = React.forwardRef(function Transition(props, ref) {
                     <Grid item xs={2}>
                       <Typography>
                         <Box fontSize="subtitle2.fontSize" m={2}>
-                          {orderData.data.shipper.contact_name}
+                          {orderData.data.shipper.contactName}
                         </Box>
                       </Typography>
                     </Grid>
@@ -704,7 +704,7 @@ const Transition = React.forwardRef(function Transition(props, ref) {
                             {orderData.data.pickup.pickupAddress.zip}
                           </TableCell>
                           <TableCell className={classes.tableCell}>
-                            {orderData.data.pickup.pickupAddress.contact_name}
+                            {orderData.data.pickup.pickupAddress.contactName}
                           </TableCell>
 
                           <TableCell className={classes.tableCell}>
@@ -750,7 +750,7 @@ const Transition = React.forwardRef(function Transition(props, ref) {
                           <TableCell className={classes.tableCell}>
                             {
                               orderData.data.delivery.deliveryAddress
-                                .contact_name
+                                .contactName
                             }
                           </TableCell>
                           <TableCell className={classes.tableCell}>

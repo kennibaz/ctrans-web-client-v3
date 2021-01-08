@@ -43,7 +43,7 @@ export default async (req, res) => {
       "pickup.pickupAddress.state": state,
       "pickup.pickupAddress.zip": zip,
       "pickup.pickupAddress.businessName": businessName,
-      "pickup.pickupAddress.contact_name": contactName,
+      "pickup.pickupAddress.contactName": contactName,
       "pickup.pickupAddress.email": email,
       "pickup.pickupAddress.phone": phone,
       "pickup.pickupAddress.fax": fax,
