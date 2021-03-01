@@ -1,4 +1,6 @@
 import firebase from "../../../firebase/firebase-adm";
+import { Constants } from "../../../utils/constants";
+import { Roles } from "../../../utils/roles";
 
 export default async (req, res) => {
   return new Promise( async(resolve) => {
@@ -9,27 +11,27 @@ export default async (req, res) => {
     }
     var driverRef = firebase
       .firestore()
-      .collection("users")
+      .collection(Constants.USERS)
       .where("carrierId", "==", carrierId)
-      .where("role", "==", "driver")
+      .where("role", "==", Roles.DRIVER)
       .where("active", "==", true);
-    let new_array = [];
+    let respondData = [];
 
     try {
     const driverData = await driverRef.get()
     driverData.forEach(function (doc) {
-      let new_obj = {
+      let nextDriver = {
         id: doc.id,
         data: doc.data(),
       };
-      new_array.push(new_obj);
+      respondData.push(nextDriver);
     });
     } catch (error) {
       console.log(error); // Can be a simple console.error too
       res.status(500).end();
       return resolve();
     }
-      res.status(200).send(new_array);
+      res.status(200).send(respondData);
       return resolve();
 
   });

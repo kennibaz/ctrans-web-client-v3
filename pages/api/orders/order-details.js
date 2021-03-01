@@ -1,18 +1,17 @@
 import firebase from "../../../firebase/firebase-adm";
+import { Constants } from "../../../utils/constants";
+
 
 export default async (req, res) => {
   return new Promise(async (resolve) => {
     if (req.method === "POST") {
       const { orderId, carrierId, token, userId } = req.body;
-      console.log(req.body)
       if (  !userId || !token) {
-
         res.status(405).end();
         return;
       }
 
       let decodedToken;
-
       try {
         decodedToken = await firebase.auth().verifyIdToken(token);
       } catch (err) {
@@ -33,9 +32,9 @@ export default async (req, res) => {
       if (orderId) {
         var orderRef = firebase
           .firestore()
-          .collection("carriers-records")
+          .collection(Constants.CARRIERS_RECORDS)
           .doc(carrierId)
-          .collection("orders")
+          .collection(Constants.ORDERS)
           .doc(orderId);
 
         try {

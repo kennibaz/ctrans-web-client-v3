@@ -14,6 +14,7 @@ import TextField from "@material-ui/core/TextField";
 import Grid from "@material-ui/core/Box";
 
 import axios from "axios";
+import {loadStatus} from "../../../utils/status"
 
 import AutoCompleteAddress from "../AutoCompleteAddress";
 
@@ -398,9 +399,9 @@ export default function LocationEditDialog(props) {
     </div>
   );
   if (
-    (props.pickup && props.orderData.orderStatus === "Delivered") ||
-    (props.pickup && props.orderData.orderStatus === "Paid") ||
-    (props.pickup && props.orderData.orderStatus === "Picked")
+    (props.pickup && props.orderData.orderStatus === loadStatus.DELIVERED) ||
+    (props.pickup && props.orderData.orderStatus === loadStatus.PAID) ||
+    (props.pickup && props.orderData.orderStatus === loadStatus.PICKED)
   ) {
     dialogContent = (
       <DialogContent dividers>
@@ -410,8 +411,8 @@ export default function LocationEditDialog(props) {
   }
 
   if (
-    (!props.pickup && props.orderData.orderStatus === "Delivered") ||
-    (!props.pickup && props.orderData.orderStatus === "Paid")
+    (!props.pickup && props.orderData.orderStatus === loadStatus.DELIVERED) ||
+    (!props.pickup && props.orderData.orderStatus === loadStatus.PAID)
   ) {
     dialogContent = (
       <DialogContent dividers>

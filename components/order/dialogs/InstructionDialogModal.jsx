@@ -3,10 +3,8 @@ import { makeStyles } from "@material-ui/core/styles";
 import Typography from "@material-ui/core/Typography";
 import Box from "@material-ui/core/Box";
 
-
 import Dialog from "@material-ui/core/Dialog";
 import Slide from "@material-ui/core/Slide";
-
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
@@ -36,7 +34,11 @@ export default function InstructionsModal(props) {
       >
         {" "}
         <Box width="100%" p={1}>
-          <Typography>{props.orderInstructions?props.orderInstructions: "NO INSTRUCTIONS DEFINED" }</Typography>
+          <Typography>
+            {props.orderInstructions
+              ? props.orderInstructions
+              : "NO INSTRUCTIONS DEFINED YET"}
+          </Typography>
         </Box>
       </Dialog>
     </div>

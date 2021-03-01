@@ -1,4 +1,7 @@
 import firebase from "../../../firebase/firebase-adm";
+import { loadStatus  } from "../../../utils/status"
+import {Constants} from "../../../utils/constants"
+import { Responds } from "../../../utils/responds";
 
 export default async (req, res) => {
   return new Promise(async (resolve) => {
@@ -23,11 +26,9 @@ export default async (req, res) => {
       return;
     }
 
-
-
     let ordersToUnassign = [];
 
-    const userRef = firebase.firestore().collection("users").doc(userId);
+    const userRef = firebase.firestore().collection(Constants.USERS).doc(userId);
     const userData = await userRef.get(); //get query
     const userDoc = userData.data();
     const userStatus = userDoc.active; // get current status
@@ -35,36 +36,37 @@ export default async (req, res) => {
     await userRef.update({ active: newUserStatus });
 
     if (newUserStatus === false) {
-      const curretLoadstoUnassignRef = firebase
+      const currentLoadstoUnassignRef = firebase
         .firestore()
-        .collection("carriers-records")
+        .collection(Constants.CARRIERS_RECORDS)
         .doc(carrierId)
-        .collection("orders")
+        .collection(Constants.ORDERS)
         .where("roles.driverId", "==", userId);
 
-      const curretLoadstoUnassign = await curretLoadstoUnassignRef.get();
-      if (curretLoadstoUnassign.empty) {
+      const currentLoadstoUnassign = await currentLoadstoUnassignRef.get();
+      if (currentLoadstoUnassign.empty) {
         console.log("No matching documents.");
         return;
       }
-      curretLoadstoUnassign.forEach((doc) => {
+      currentLoadstoUnassign.forEach((doc) => {
         ordersToUnassign.push(doc.id);
       });
 
       ordersToUnassign.forEach(async (order) => {
         const orderToUnassignRef = firebase
           .firestore()
-          .collection("carriers-records")
+          .collection(Constants.CARRIERS_RECORDS)
           .doc(carrierId)
-          .collection("orders")
+          .collection(Constants.ORDERS)
           .doc(order);
-        const orderToUnassign = await orderToUnassignRef.update({
+
+        await orderToUnassignRef.update({
           "roles.driverId": "",
-          orderStatus: "New",
+          orderStatus: loadStatus.NEW,
         });
       });
     }
-    res.status(200).send({st: "ok"});
+    res.status(200).send({st: Responds.USER_STATUS_CHANGED});
     return resolve();
   });
 };

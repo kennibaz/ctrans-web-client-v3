@@ -1,4 +1,6 @@
 import firebase from "../../../firebase/firebase-adm";
+import { Roles } from "../../../utils/roles"
+import {Constants} from "../../../utils/constants"
 
 export default async (req, res) => {
   return new Promise(async (resolve) => {
@@ -19,10 +21,10 @@ export default async (req, res) => {
 
     let requestArray = [];
 
-    showDrivers && requestArray.push("driver");
-    showDispatchers && requestArray.push("dispatcher");
+    showDrivers && requestArray.push(Roles.DRIVER);
+    showDispatchers && requestArray.push(Roles.DISPATCHER);
 
-    showAll && requestArray.push("driver", "dispatcher");
+    showAll && requestArray.push(Roles.DRIVER, Roles.DISPATCHER);
 
     let decodedToken;
     try {
@@ -40,7 +42,7 @@ export default async (req, res) => {
 
     var userRef = firebase
         .firestore()
-        .collection("users")
+        .collection(Constants.USERS)
         .where("carrierId", "==", carrierId);
 
         let new_array = [];

@@ -1,6 +1,10 @@
 import firebase from "../../../firebase/firebase-adm";
+import { Constants } from "../../../utils/constants";
+import { loadStatus } from "../../../utils/status";
+import {Responds} from "../../../utils/responds"
 
 export default async (req, res) => {
+  console.log("In Edit Order")
   const {
     orderId,
     userId,
@@ -121,9 +125,9 @@ export default async (req, res) => {
 
   firebase
     .firestore()
-    .collection("carriers-records")
+    .collection(Constants.CARRIERS_RECORDS)
     .doc(carrierId)
-    .collection("orders")
+    .collection(Constants.ORDERS)
     .doc(orderId)
     .update({
 
@@ -182,5 +186,5 @@ export default async (req, res) => {
       vehiclesArray: totalVehicles,
     });
 
-  res.status(200).json({ status: "order updated" });
+  res.status(200).json({ status: Responds.ORDER_UPDATED });
 };

@@ -7,8 +7,6 @@ import Toolbar from "@material-ui/core/Toolbar";
 import Typography from "@material-ui/core/Typography";
 import Grid from "@material-ui/core/Grid";
 import Box from "@material-ui/core/Box";
-import Chip from "@material-ui/core/Chip";
-import Avatar from "@material-ui/core/Avatar";
 import TextField from "@material-ui/core/TextField";
 import IconButton from "@material-ui/core/IconButton";
 import Button from "@material-ui/core/Button";
@@ -24,8 +22,7 @@ import OrderCard from "../../components/order/orderCard";
 
 //import utils
 import { withAuth } from "../../utils/withAuth";
-import {loadStatus} from "../../utils/status"
-import { Order } from "../../components/models/order";
+
 
 const drawerWidth = 120;
 
@@ -82,25 +79,16 @@ function orders(props) {
   const [searchWord, setSearchWord] = useState("");
   const [selectedDriver, setSelectedDriver] = useState(false);
 
-  const [statusAll, setStatusAll] = useState(true);
-  const [statusNew, setStatusNew] = useState(false);
-  const [statusAssigned, setStatusAssigned] = useState(false);
-  const [statusPicked, setStatusPicked] = useState(false);
-  const [statusDelivered, setStatusDelivered] = useState(false);
-  const [statusPaid, setStatusPaid] = useState(false);
-  const [readyToUpdateOrders, setReadyToUpdateOrders] = useState(false);
   const [readyToReload, setReadyToReload] = useState(false);
 
-  // const ordersArray = [] TODO later when switched to class
  
   
 //get initial order list
   useEffect(() => {
     const request = async () => {
       if (props.carrierId) {
-        const resultOrders = await axios.post("/api/orders", {
+        const resultOrders = await axios.post("/api/orders/archived-orders", {
           carrierId: props.carrierId,
-          statusAll: true,
           userId: props.userId,
           token: props.token,
         });
@@ -117,67 +105,6 @@ function orders(props) {
   }, [readyToReload, props.carrierId]);
 
 
-  //Get orders from Server when tab was changed
-  useEffect(() => {
-    if (readyToUpdateOrders) {
-      if (
-        !statusNew &&
-        !statusAssigned &&
-        !statusPicked &&
-        !statusDelivered &&
-        !statusPaid
-      ) {
-        setStatusAll(true);
-        const request = async () => {
-          const resultOrders = await axios.post("/api/orders", {
-            statusAll: true,
-            selectedDriver,
-            carrierId: props.carrierId,
-            userId: props.userId,
-            token: props.token,
-          });
-          setReadyToUpdateOrders(false);
-          setOrders(resultOrders.data);
-        };
-        request();
-        return;
-      }
-
-      const request = async () => {
-        const resultOrders = await axios.post("/api/orders", {
-          statusAll,
-          statusNew,
-          statusAssigned,
-          statusPicked,
-          statusDelivered,
-          statusPaid,
-          selectedDriver,
-          carrierId: props.carrierId,
-          userId: props.userId,
-          token: props.token,
-        });
-
-        setReadyToUpdateOrders(false);
-        setOrders(resultOrders.data);
-      };
-      request();
-    }
-  }, [readyToUpdateOrders]);
-
-
-  // Make orders TODO later
-
-  // const instantiateOrders = (orderData) => {
-  //   orderData.forEach((order) => {
-  //     let currentOrder = new Order(
-  //       order.id,
-  //       order.data.carrierId,
-  //       order.data.shipperOrderId
-  //     );
-  //     ordersArray.push(currentOrder);
-  //   });
-  //   console.log(ordersArray)
-  // };
 
   //search engine
   const searchHandler = () => {
@@ -209,49 +136,6 @@ function orders(props) {
     setReadyToUpdateOrders(true);
   };
 
-  
-
-  // handler to select status of the load to show
-  const statusSelectHandler = (status) => {
-    switch (status) {
-      case loadStatus.NEW:
-        setStatusNew(!statusNew);
-        setStatusAll(false);
-        setReadyToUpdateOrders(true);
-        break;
-      case loadStatus.ASSIGNED:
-        setStatusAssigned(!statusAssigned);
-        setStatusAll(false);
-        setReadyToUpdateOrders(true);
-        break;
-      case loadStatus.PICKED:
-        setStatusPicked(!statusPicked);
-        setStatusAll(false);
-        setReadyToUpdateOrders(true);
-        break;
-      case loadStatus.DELIVERED:
-        setStatusDelivered(!statusDelivered);
-        setStatusAll(false);
-        setReadyToUpdateOrders(true);
-        break;
-      case loadStatus.PAID:
-        setStatusPaid(!statusPaid);
-        setStatusAll(false);
-        setReadyToUpdateOrders(true);
-        break;
-    }
-  };
-
-  //show all loads
-  const statusSelectAllHandler = () => {
-    setStatusAll(true);
-    setStatusNew(false);
-    setStatusAssigned(false);
-    setStatusPicked(false);
-    setStatusDelivered(false);
-    setStatusPaid(false);
-    setReadyToUpdateOrders(true);
-  };
 
   //reloadHandler
   const reloadHandler = () => {
@@ -300,14 +184,14 @@ function orders(props) {
   return (
     <div>
       <Head>
-        <title>C|Transporter - Orders</title>
+        <title>C|Transporter - Archived Orders</title>
       </Head>
       <NavBar>
         <AppBar position="fixed" className={classes.appBar} elevation={0}>
           <Toolbar className={classes.upperToolBar}>
             <Grid>
               <Typography variant="h6" noWrap>
-                ORDERS
+                ARCHIVED ORDERS
               </Typography>
             </Grid>
           </Toolbar>
@@ -375,83 +259,6 @@ function orders(props) {
                 <Button onClick={clearSearchHandler}>CLEAR</Button>
               </Grid>
               <Grid item={3}></Grid>
-            </Grid>
-          </Toolbar>
-          <Toolbar className={classes.lowerToolBar}>
-            <Grid container direction="row" spacing={2}>
-              <Grid item xs={1}>
-                <Chip
-                  avatar={<Avatar>A</Avatar>}
-                  label="All"
-                  clickable
-                  color="primary"
-                  onClick={() => {
-                    statusSelectAllHandler();
-                  }}
-                  variant="outlined"
-                  variant={statusAll ? "default" : "outlined"}
-                />
-              </Grid>
-              <Grid item>
-                <Chip
-                  avatar={<Avatar>N</Avatar>}
-                  label="New"
-                  clickable
-                  color="primary"
-                  onClick={() => {
-                    statusSelectHandler(loadStatus.NEW);
-                  }}
-                  variant={statusNew ? "default" : "outlined"}
-                />
-              </Grid>
-              <Grid item>
-                <Chip
-                  avatar={<Avatar>A</Avatar>}
-                  label="Assigned"
-                  clickable
-                  color="primary"
-                  onClick={() => {
-                    statusSelectHandler(loadStatus.ASSIGNED);
-                  }}
-                  variant={statusAssigned ? "default" : "outlined"}
-                />
-              </Grid>
-              <Grid item>
-                <Chip
-                  avatar={<Avatar>PU</Avatar>}
-                  label="Picked up"
-                  clickable
-                  color="primary"
-                  onClick={() => {
-                    statusSelectHandler(loadStatus.PICKED);
-                  }}
-                  variant={statusPicked ? "default" : "outlined"}
-                />
-              </Grid>
-              <Grid item>
-                <Chip
-                  avatar={<Avatar>DL</Avatar>}
-                  label="Delivered"
-                  clickable
-                  color="primary"
-                  onClick={() => {
-                    statusSelectHandler(loadStatus.DELIVERED);
-                  }}
-                  variant={statusDelivered ? "default" : "outlined"}
-                />
-              </Grid>
-              <Grid item>
-                <Chip
-                  avatar={<Avatar>P</Avatar>}
-                  label="Paid"
-                  clickable
-                  color="primary"
-                  onClick={() => {
-                    statusSelectHandler(loadStatus.PAID);
-                  }}
-                  variant={statusPaid ? "default" : "outlined"}
-                />
-              </Grid>
             </Grid>
           </Toolbar>
         </AppBar>

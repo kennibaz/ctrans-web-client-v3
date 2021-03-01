@@ -1,8 +1,9 @@
-import { isResSent } from "next/dist/next-server/lib/utils";
 import firebase from "../../../firebase/firebase-adm";
+import { Constants } from "../../../utils/constants";
+import { loadStatus } from "../../../utils/status";
+import {Responds} from "../../../utils/responds"
 
 export default async (req, res) => {
- 
   const {
     carrierId,
     orderId,
@@ -14,13 +15,13 @@ export default async (req, res) => {
   }
   
 
-  firebase.firestore().collection("carriers-records")
+  firebase.firestore().collection(Constants.CARRIERS_RECORDS)
   .doc(carrierId)
-  .collection("orders")
+  .collection(Constants.ORDERS)
   .doc(orderId)
   .update({
-    orderStatus: "Paid",
+    orderStatus: loadStatus.PAID,
   });
 
-  res.status(200).json({ status: "order cancelled" });
+  res.status(200).json({ status: Responds.ORDER_PAID });
 };

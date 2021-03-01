@@ -7,32 +7,18 @@ export default async (req, res) => {
     return new Promise(async (resolve) => {
       const {
         carrierId,
-        statusAll,
-        statusNew,
-        statusAssigned,
-        statusPicked,
-        statusDelivered,
-        statusPaid,
         selectedDriver,
         token,
         userId,
       } = req.body;
 
+      //Check if all fields in request
       if (!token || !userId || !carrierId) {
         res.status(405).end();
         return;
       }
 
-      let requestArray = [];
-
-      statusNew && requestArray.push(loadStatus.NEW);
-      statusAssigned && requestArray.push(loadStatus.ASSIGNED);
-      statusPicked && requestArray.push(loadStatus.PICKED);
-      statusDelivered && requestArray.push(loadStatus.DELIVERED);
-      statusPaid && requestArray.push(loadStatus.PAID);
-      statusAll &&
-        requestArray.push(loadStatus.NEW, loadStatus.ASSIGNED, loadStatus.PICKED, loadStatus.DELIVERED, loadStatus.PAID);
-
+      //decode token in FS
       let decodedToken;
       try {
         decodedToken = await firebase.auth().verifyIdToken(token);
@@ -42,37 +28,50 @@ export default async (req, res) => {
         return;
       }
 
+      //check if user is authorized
       if (token && decodedToken.uid !== userId) {
         res.status(500).end();
         return;
       }
 
-      var requestRef = firebase
+      var requestArchivedRef = firebase
         .firestore()
         .collection(Constants.CARRIERS_RECORDS)
         .doc(carrierId)
         .collection(Constants.ORDERS)
-        .where("orderStatus", "!=", loadStatus.ARCHIVED);
+        .where("orderStatus", "==", loadStatus.ARCHIVED )
+
+
+        var requestCancelledRef = firebase
+        .firestore()
+        .collection(Constants.CARRIERS_RECORDS)
+        .doc(carrierId)
+        .collection(Constants.ORDERS)
+        .where("orderStatus", "==", loadStatus.CANCELLED)
       let downloadedOrdersFromFS = [];
-      let filtered_array = [];
       let filteredArrayByDriver = [];
 
       try {
-        const requestData = await requestRef.get();
-        requestData.forEach(function (doc) {
+        const requestArchivedData = await requestArchivedRef.get();
+        const requestCancelledData = await requestCancelledRef.get()
+
+        requestArchivedData.forEach(function (doc) {
           let nextOrder = {
             id: doc.id,
             data: doc.data(),
           };
           downloadedOrdersFromFS.push(nextOrder);
         });
-        requestArray.forEach((status) => {
-          downloadedOrdersFromFS.forEach((order) => {
-            if (order.data.orderStatus === status) {
-              filtered_array.push(order);
-            }
-          });
+
+        requestCancelledData.forEach(function (doc) {
+          let nextOrder = {
+            id: doc.id,
+            data: doc.data(),
+          };
+          downloadedOrdersFromFS.push(nextOrder);
         });
+
+
         if (selectedDriver) {
           filteredArrayByDriver = filtered_array.filter((order) => {
             return order.data.roles.driverId === selectedDriver;
@@ -89,7 +88,7 @@ export default async (req, res) => {
         return resolve();
       }
 
-      res.status(200).send(filtered_array);
+      res.status(200).send(downloadedOrdersFromFS);
       return resolve();
     });
   }

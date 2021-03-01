@@ -1,0 +1,12 @@
+------SIGHIN--------------------
+2/26/2021
+
+---Signin redirect to orders if already logged in was implemented. 
+
+
+
+-------ORDERS-------------------
+2/26/2021
+
+---Added search by year
+---Added enumerations for load status. Emunerations located in /utils/loadStatus

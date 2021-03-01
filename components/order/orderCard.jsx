@@ -8,7 +8,6 @@ import {
   Card,
   CardContent,
   Button,
-  Typography,
   Menu,
   MenuItem,
   Box,
@@ -40,6 +39,9 @@ const useStyles = makeStyles((theme) => ({
     marginLeft: "10px",
   },
   button: {
+    fontSize: 11,
+  },
+  orderStatusButton: {
     fontSize: 11,
   },
   inColumnButton: {
@@ -82,50 +84,83 @@ export default function orderCard({
   const [openPickupPhones, setOpenPickupPhones] = useState(false);
   const [openDeliveryPhones, setOpenDeliveryPhones] = useState(false);
 
+  //buttons status state
+
+  const [isPhotosButtonEnabled, setIsPhotosButtonEnabled] = useState(false)
+
   //USEEFFECTS
 
-  // pack the photos object
+  //Setup interface useEffect
+
   useEffect(() => {
-    let imagesRawPickup = [];
-
-    if (orderData.pickup.pickup_conditions?.pickup_inspection_images_links) {
-      orderData.pickup.pickup_conditions.pickup_inspection_images_links.forEach(
-        (image) => {
-          const newImageSet = {
-            original: image,
-            thumbnail: image,
-          };
-          imagesRawPickup.push(newImageSet);
-        }
-      );
-
-      setPickupImages(imagesRawPickup);
-    }
-  }, [orderData.pickup.pickup_conditions?.pickup_inspection_images_links]);
-
-  // pack the photos object
-  useEffect(() => {
-    let imagesRawDelivery = [];
-
+    //set state for photosButton
     if (
-      orderData.delivery.delivery_conditions?.delivery_inspection_images_links
+      orderData.vehiclesArray[0]?.pickupInspectionPhotos?.length > 0
     ) {
-      orderData.delivery.delivery_conditions.delivery_inspection_images_links.forEach(
-        (image) => {
-          const newImageSet = {
-            original: image,
-            thumbnail: image,
-          };
-          imagesRawDelivery.push(newImageSet);
-        }
-      );
-
-      setDeliveryImages(imagesRawDelivery);
+      setIsPhotosButtonEnabled(true)
     }
-  }, [
-    orderData.delivery.delivery_conditions?.delivery_inspection_images_links,
-    orderData.pickup.pickup_conditions?.pickup_inspection_images_links,
-  ]);
+  });
+
+  // pack the photos object
+  useEffect(() => {
+    // let imagesRawPickup = [];
+    let photoSchemaSetArray = []
+
+    if (orderData.vehiclesArray[0].pickupInspectionPhotos) {
+      orderData.vehiclesArray.forEach(
+        (vehicle) => {
+          const vehiclePhotosAndSchemaSet = {
+            vehicleId: vehicle.vehicleId,
+            vehicleMake: vehicle.make,
+            vehicleModel: vehicle.model,
+            vehicleYear: vehicle.year,
+            vehiclePickupInspectionPhotos: vehicle.pickupInspectionPhotos,
+            vehicleDeliveryInspectionPhotos: vehicle.deliveryInspectionPhotos,
+            vehiclePickupInspectionSchema: vehicle.pickupInspectionSchema,
+            vehicleDeliveryInspectionSchema: vehicle.deliveryInspectionSchema
+          }
+          photoSchemaSetArray.push(vehiclePhotosAndSchemaSet)
+        }
+      )
+      setPickupImages(photoSchemaSetArray)
+    }
+    // if (orderData.vehiclesArray[0].pickupInspectionPhotos) {
+    //   orderData.vehiclesArray[0].pickupInspectionPhotos.forEach(
+    //     (image) => {
+    //       const newImageSet = {
+    //         original: image,
+    //         thumbnail: image,
+    //       };
+    //       imagesRawPickup.push(newImageSet);
+    //     }
+    //   );
+    //   setPickupImages(imagesRawPickup);
+    // }
+  }, [orderData.vehiclesArray[0].pickupInspectionPhotos]);
+
+  // pack the photos object
+  // useEffect(() => {
+  //   let imagesRawDelivery = [];
+
+  //   if (
+  //     orderData.delivery.delivery_conditions?.delivery_inspection_images_links
+  //   ) {
+  //     orderData.delivery.delivery_conditions.delivery_inspection_images_links.forEach(
+  //       (image) => {
+  //         const newImageSet = {
+  //           original: image,
+  //           thumbnail: image,
+  //         };
+  //         imagesRawDelivery.push(newImageSet);
+  //       }
+  //     );
+
+  //     setDeliveryImages(imagesRawDelivery);
+  //   }
+  // }, [
+  //   orderData.delivery.delivery_conditions?.delivery_inspection_images_links,
+  //   orderData.pickup.pickup_conditions?.pickup_inspection_images_links,
+  // ]);
 
   //HANDLERS
   //cancel handler
@@ -191,7 +226,7 @@ export default function orderCard({
     menuBolHandleClose();
   };
 
-  //Close photo caroulse dialog
+  //Close photo carousel dialog
   const closePhotoInspectionDialog = () => {
     setIsPhotoInspectionDialogOpen(false);
   };
@@ -277,6 +312,7 @@ export default function orderCard({
     <PhotoInspectionImages
       pickupImages={pickupImages}
       deliveryImages={deliveryImages}
+
       isOpen={isPhotoInspectionDialogOpen}
       closePhotoInspectionDialog={closePhotoInspectionDialog}
     />
@@ -285,10 +321,7 @@ export default function orderCard({
   //CONTENT
 
   let cancelButtonContent;
-  if (
-    orderData.orderStatus === "Assigned" ||
-    orderData.orderStatus === "New"
-  ) {
+  if (orderData.orderStatus === "Assigned" || orderData.orderStatus === "New") {
     cancelButtonContent = (
       <Button
         onClick={cancelOrderHandler}
@@ -349,7 +382,7 @@ export default function orderCard({
   if (orderData.vehiclesArray.length <= 1) {
     vehiclesContent = (
       <div>
-        <Grid item xs={12}>
+        <Grid id="vehicleContentYMM" item xs={12}>
           <Box
             color="textPrimary"
             gutterBottom
@@ -363,7 +396,7 @@ export default function orderCard({
               orderData.vehiclesArray[0].model}
           </Box>
         </Grid>
-        <Grid item xs={12}>
+        <Grid id="vehicleContentVin" item xs={12}>
           <Box color="textPrimary" gutterBottom align="left">
             {orderData.vehiclesArray[0].vin}
           </Box>
@@ -376,11 +409,11 @@ export default function orderCard({
     vehiclesContent = (
       <div>
         <Grid container item xs={12}>
-          <Grid container item xs={12}>
+          <Grid  container item xs={12}>
             <Box color="textPrimary" gutterBottom fontWeight="fontWeightMedium">
               {orderData.vehiclesArray.length} mix vehicles
               <IconButton
-                aria-label="expand row"
+                aria-label="expand mixed vehicles row"
                 size="small"
                 onClick={() => setOpenVehicles(!openVehicles)}
               >
@@ -395,7 +428,7 @@ export default function orderCard({
           <Collapse in={openVehicles} timeout="auto" unmountOnExit>
             {orderData.vehiclesArray.map((vehicle, index) => (
               <div key={index}>
-                <Grid item xs={12}>
+                <Grid id="vehicleContentYMMmultiVehicles" item xs={12}>
                   <Box
                     className={classes.title}
                     color="textPrimary"
@@ -406,7 +439,7 @@ export default function orderCard({
                     {vehicle.year + " " + vehicle.make + " " + vehicle.model}
                   </Box>
                 </Grid>
-                <Grid item xs={12}>
+                <Grid id="vehiclesContentVinMultiVehicles" item xs={12}>
                   <Box
                     className={classes.title}
                     color="textPrimary"
@@ -416,7 +449,7 @@ export default function orderCard({
                     {vehicle.vin}
                   </Box>
                 </Grid>
-                <Divider />
+                
               </div>
             ))}
           </Collapse>
@@ -424,16 +457,47 @@ export default function orderCard({
       </div>
     );
   }
+   //MAIN BODY
+  /*
+STRUCTURE
+Container
+---Grid 12
+    ---Card
+      ---Box
+        ---CardContent
+          ---Grid = Container 1
+            ---Grid = Row 1 (First row with buttons)
+              ---Grid item (2) ShipperOrderId
+              ---Grid item (1) orderStatus
+              ---Grid item (4) assignButton
+              ---Grid item (1) archiveButton
+              ---Grid item (1) cancelButton
+              ---Grid item (1) editButton
+              ---Grid item (1) bolButton
+              ---Grid item (1) photosButton
+            ---Grid = Row 2 (Data row)
+              ---Grid container (2) column_1
+                ---Box
+                  --- Grid item (12) vehicleContentYMM
+                  --- Grid item (12) vehicleContenVin
+                  --- Grid item (12) orderAmount
+                  --- Grid item (12) paymentStatus
+                  --- Grid item (12) paymentOptions
 
+*/
   return (
     <Grid container spacing={0}>
       <Grid item xs={12}>
         <Card className={classes.card} elevation={0}>
           <Box border={1} borderRadius={5} borderColor="text.disabled">
             <CardContent>
-              <Grid id="container-1" container spacing={1}>
-                <Grid id="first_row" container item xs={8}>
-                  <Grid item xs={2}>
+             
+              <Grid id="container_1" container spacing={1}>
+          {/* ----------------------START OF FIRST ROW---------------------*/}
+
+                <Grid id="row_1" container item xs={8}>
+
+                  <Grid id="shipperOrderId" item xs={2}>
                     <Link href={`/orders/details/${orderId}`} passHref>
                       <Button
                         variant="outlined"
@@ -444,18 +508,21 @@ export default function orderCard({
                       </Button>
                     </Link>
                   </Grid>
-                  <Grid item xs={1}>
+
+                  <Grid id="orderStatus" item xs={1}>
                     <Box
                       className={classes.title}
                       color="textPrimary"
                       fontWeight="fontWeightMedium"
                     >
-                      <Button size="small" disabled className={classes.button}>
+                      <Button size="small" disabled className={classes.orderStatusButton} color="#f1f1f1" >
                         {orderData.orderStatus}
                       </Button>
                     </Box>
                   </Grid>
-                  <Grid item xs={4}>
+
+
+                  <Grid id="assignButton" item xs={4}>
                     <Box
                       className={classes.title}
                       color="textPrimary"
@@ -464,7 +531,9 @@ export default function orderCard({
                       {assignButtonAndDialog}{" "}
                     </Box>
                   </Grid>
-                  <Grid item xs={1}>
+
+
+                  <Grid id="archiveButton" item xs={1}>
                     <Box
                       className={classes.title}
                       color="textPrimary"
@@ -473,7 +542,8 @@ export default function orderCard({
                       {archiveButtonContent}
                     </Box>
                   </Grid>
-                  <Grid item xs={1}>
+
+                  <Grid id="cancelButton" item xs={1}>
                     <Box
                       className={classes.title}
                       color="textPrimary"
@@ -482,7 +552,8 @@ export default function orderCard({
                       {cancelButtonContent}
                     </Box>
                   </Grid>
-                  <Grid item xs={1}>
+
+                  <Grid id="editButton" item xs={1}>
                     <Box
                       className={classes.title}
                       color="textPrimary"
@@ -501,7 +572,8 @@ export default function orderCard({
                       </Button>
                     </Box>
                   </Grid>
-                  <Grid item xs={1}>
+
+                  <Grid id="bolButton" item xs={1}>
                     <Box
                       className={classes.title}
                       color="textPrimary"
@@ -532,7 +604,9 @@ export default function orderCard({
                       </Menu>
                     </Box>
                   </Grid>
-                  <Grid item xs={1}>
+
+
+                  <Grid id="photosButton" item xs={1}>
                     <Box
                       className={classes.title}
                       color="textPrimary"
@@ -546,26 +620,28 @@ export default function orderCard({
                           setIsPhotoInspectionDialogOpen(true);
                         }}
                         disabled={
-                          !orderData.pickup.pickup_conditions
-                            ?.pickup_inspection_images_links &&
-                          !orderData.delivery.delivery_conditions
-                            ?.delivery_inspection_images_links
+                          !isPhotosButtonEnabled
                         }
                       >
-                        PHOTO{" "}
+                        PHOTOS{" "}
                       </Button>
                     </Box>
                   </Grid>
+        
                 </Grid>
-                <Grid id="second_row" container item xs={12}>
-                  <Grid id="first_column" container item xs={2}>
+                {/* ----------------------END OF FIRST ROW---------------------*/}
+                {/* ----------------------START OF SECOND ROW---------------------*/}
+                <Grid id="row_2" container item xs={12}>
+
+                  <Grid id="column_1" container item xs={2}>
                     <Box borderLeft={1} borderColor="primary.main" p={1}>
                       {vehiclesContent}
                       <Divider />
                       <Grid item xs={12}>
                         <h1></h1>{" "}
                       </Grid>
-                      <Grid item xs={12}>
+
+                      <Grid id="orderAmount" item xs={12}>
                         <Box
                           className={classes.title}
                           color="textPrimary"
@@ -575,7 +651,8 @@ export default function orderCard({
                           Order amount: ${orderData.orderPayment.orderAmount}
                         </Box>
                       </Grid>
-                      <Grid item xs={12}>
+
+                      <Grid id="paymentStatus" item xs={12}> {/* TODO */}
                         <Box
                           className={classes.title}
                           color="textPrimary"
@@ -584,7 +661,8 @@ export default function orderCard({
                           Not received
                         </Box>
                       </Grid>
-                      <Grid item xs={12}>
+
+                      <Grid id="paymentOptions" item xs={12}>
                         <Box
                           className={classes.title}
                           color="textPrimary"
@@ -609,16 +687,20 @@ export default function orderCard({
                             onClose={menuHandleClose}
                           >
                             <MenuItem onClick={paidOrderHandler}>
-                              Mark as Paid
+                              Mark as PAID
                             </MenuItem>
                           </Menu>
                         </Box>
                       </Grid>
+
                     </Box>
                   </Grid>
-                  <Grid id="second_column" container item xs={2}>
+
+                  <Grid id="column_2" container item xs={2}>
+
                     <Box borderLeft={1} borderColor="primary.main" p={1}>
-                      <Grid item xs={12}>
+
+                      <Grid id="originColumnName" item xs={12}>
                         <Box
                           className={classes.title}
                           color="textPrimary"
@@ -630,7 +712,8 @@ export default function orderCard({
                           ORIGIN
                         </Box>
                       </Grid>
-                      <Grid item xs={12}>
+
+                      <Grid id="originDate" item xs={12}>
                         <Box
                           className={classes.title}
                           color="textPrimary"
@@ -640,7 +723,8 @@ export default function orderCard({
                           @ {orderData.pickup.pickupScheduledFirstDate}
                         </Box>
                       </Grid>
-                      <Grid item xs={12}>
+
+                      <Grid id="originBusinessName" item xs={12}>
                         <Box
                           className={classes.title}
                           color="textPrimary"
@@ -650,7 +734,8 @@ export default function orderCard({
                           {orderData.pickup.pickupAddress.businessName}
                         </Box>
                       </Grid>
-                      <Grid item xs={12}>
+
+                      <Grid id="originAddress1" item xs={12}>
                         <Box
                           className={classes.title}
                           color="textPrimary"
@@ -677,12 +762,13 @@ export default function orderCard({
                           </IconButton>
                         </Box>
                       </Grid>
+
                       <Collapse
                         in={openPickupAddress}
                         timeout="auto"
                         unmountOnExit
                       >
-                        <Grid item xs={12}>
+                        <Grid id="originAddress2" item xs={12}>
                           <Box
                             className={classes.title}
                             color="textPrimary"
@@ -694,7 +780,7 @@ export default function orderCard({
                         </Grid>
                       </Collapse>
 
-                      <Grid item xs={12}>
+                      <Grid id="originContactName" item xs={12}>
                         <Box
                           className={classes.title}
                           color="textPrimary"
@@ -704,15 +790,15 @@ export default function orderCard({
                           {orderData.pickup.pickupAddress.contactName}
                         </Box>
                       </Grid>
-                      <Grid item xs={12}>
+
+                      <Grid id="originPhone" item xs={12}>
                         <Box
                           className={classes.title}
                           color="textPrimary"
                           align="left"
                         >
                           P: {orderData.pickup.pickupAddress.phones[0]}
-                          {orderData.pickup.pickupAddress.phones?.length >
-                          1 ? (
+                          {orderData.pickup.pickupAddress.phones?.length > 1 ? (
                             <IconButton
                               aria-label="expand row"
                               size="small"
@@ -729,14 +815,16 @@ export default function orderCard({
                           ) : null}
                         </Box>
                       </Grid>
+
                       <Collapse
                         in={openPickupPhones}
                         timeout="auto"
                         unmountOnExit
                       >
                         <Grid item xs={12}>
-                          {orderData.pickup.pickupAddress.phones.slice(1).map(
-                            (phone, index) => (
+                          {orderData.pickup.pickupAddress.phones
+                            .slice(1)
+                            .map((phone, index) => (
                               <Box
                                 className={classes.title}
                                 color="textPrimary"
@@ -746,15 +834,15 @@ export default function orderCard({
                               >
                                 P: {phone}
                               </Box>
-                            )
-                          )}
+                            ))}
                         </Grid>
                       </Collapse>
                     </Box>
                   </Grid>
-                  <Grid id="third_column" container item xs={2}>
+
+                  <Grid id="column_3" container item xs={2}>
                     <Box borderLeft={1} borderColor="primary.main" p={1}>
-                      <Grid item xs={12}>
+                      <Grid id="destinationColumnName" item xs={12}>
                         <Box
                           className={classes.title}
                           color="textPrimary"
@@ -766,7 +854,8 @@ export default function orderCard({
                           DESTINATION
                         </Box>
                       </Grid>
-                      <Grid item xs={12}>
+
+                      <Grid id="destinationDate" item xs={12}>
                         <Box
                           className={classes.title}
                           color="textPrimary"
@@ -776,7 +865,8 @@ export default function orderCard({
                           @ {orderData.delivery.deliveryScheduledFirstDate}
                         </Box>
                       </Grid>
-                      <Grid item xs={12}>
+
+                      <Grid id="destinationBusinessName" item xs={12}>
                         <Box
                           className={classes.title}
                           color="textPrimary"
@@ -786,7 +876,8 @@ export default function orderCard({
                           {orderData.delivery.deliveryAddress.businessName}
                         </Box>
                       </Grid>
-                      <Grid item xs={12}>
+
+                      <Grid id="destinationAddress1" item xs={12}>
                         <Box
                           className={classes.title}
                           color="textPrimary"
@@ -818,7 +909,7 @@ export default function orderCard({
                         timeout="auto"
                         unmountOnExit
                       >
-                        <Grid item xs={12}>
+                        <Grid id="destinationAddress2"item xs={12}>
                           <Box
                             className={classes.title}
                             color="textPrimary"
@@ -829,7 +920,8 @@ export default function orderCard({
                           </Box>
                         </Grid>
                       </Collapse>
-                      <Grid item xs={12}>
+
+                      <Grid id="destinationContactName" item xs={12}>
                         <Box
                           className={classes.title}
                           color="textPrimary"
@@ -839,7 +931,8 @@ export default function orderCard({
                           {orderData.delivery.deliveryAddress.contactName}
                         </Box>
                       </Grid>
-                      <Grid item xs={12}>
+
+                      <Grid id="destinationPhone" item xs={12}>
                         <Box
                           className={classes.title}
                           color="textPrimary"
@@ -870,8 +963,9 @@ export default function orderCard({
                         unmountOnExit
                       >
                         <Grid item xs={12}>
-                          {orderData.delivery.deliveryAddress.phones.slice(1).map(
-                            (phone, index) => (
+                          {orderData.delivery.deliveryAddress.phones
+                            .slice(1)
+                            .map((phone, index) => (
                               <Box
                                 className={classes.title}
                                 color="textPrimary"
@@ -881,15 +975,15 @@ export default function orderCard({
                               >
                                 P: {phone}
                               </Box>
-                            )
-                          )}
+                            ))}
                         </Grid>
                       </Collapse>
                     </Box>
                   </Grid>
-                  <Grid id="fourth_column" container item xs={2}>
+
+                  <Grid id="column_4" container item xs={2}>
                     <Box borderLeft={1} borderColor="primary.main" p={1}>
-                      <Grid item xs={12}>
+                      <Grid id="shipperColumnName" item xs={12}>
                         <Box
                           className={classes.title}
                           color="textPrimary"
@@ -900,7 +994,8 @@ export default function orderCard({
                           SHIPPER
                         </Box>
                       </Grid>
-                      <Grid item xs={12}>
+
+                      <Grid id="shipperBusinessName" item xs={12}>
                         <Box
                           className={classes.title}
                           color="textPrimary"
@@ -910,7 +1005,8 @@ export default function orderCard({
                           {orderData.shipper.businessName}
                         </Box>
                       </Grid>
-                      <Grid item xs={12}>
+
+                      <Grid id="shipperPhone" item xs={12}>
                         <Box
                           className={classes.title}
                           color="textPrimary"
@@ -919,7 +1015,8 @@ export default function orderCard({
                           P: {orderData.shipper.phone}
                         </Box>
                       </Grid>
-                      <Grid item xs={12}>
+
+                      <Grid id="shipperInstructions" item xs={12}>
                         <Box
                           className={classes.title}
                           color="textPrimary"
@@ -940,9 +1037,10 @@ export default function orderCard({
                       </Grid>
                     </Box>
                   </Grid>
-                  <Grid id="fifth_column" container item xs={2}>
+
+                  <Grid id="column_5" container item xs={2}>
                     <Box borderLeft={1} borderColor="primary.main" p={1}>
-                      <Grid item xs={12}>
+                      <Grid id="notes" item xs={12}>
                         <Box
                           className={classes.title}
                           color="textPrimary"

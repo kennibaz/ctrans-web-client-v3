@@ -76,6 +76,11 @@ export default function PermanentDrawerLeft(props) {
             </Link>
           </ListItem>
           <ListItem button>
+            <Link href={`/archived-orders/`}>
+              <ListItemText primary={"ARCHIVED"} />
+            </Link>
+          </ListItem>
+          <ListItem button>
             <Link href={`/users/`}>
               <ListItemText primary={"USERS"} />
             </Link>

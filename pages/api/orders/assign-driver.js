@@ -1,11 +1,14 @@
 import firebase from "../../../firebase/firebase-adm";
+import { Constants } from "../../../utils/constants";
+import { loadStatus } from "../../../utils/status";
+import {Roles} from "../../../utils/roles"
+import { Responds } from "../../../utils/responds";
 
 export default async (req, res) => {
   const {
     carrierId,
     orderId,
     driverId,
-    shipperOrderId,
     driverName,
   } = req.body;
 
@@ -16,37 +19,35 @@ export default async (req, res) => {
   const createdAt = firebase.firestore.Timestamp.now();
   const orderRef = firebase
     .firestore()
-    .collection("carriers-records")
+    .collection(Constants.CARRIERS_RECORDS)
     .doc(carrierId)
-    .collection("orders")
+    .collection(Constants.ORDERS)
     .doc(orderId);
 
   const orderData = (await orderRef.get()).data();
   const currentOrderStatus = orderData.orderStatus;
 
-  const new_activity = {
+  const newActivity = {
     activityDate: createdAt,
     activityStatus: `${driverName} assigned`,
-    activityUser: "Dispatcher",
+    activityUser: Roles.DISPATCHER,
   };
 
-  if (currentOrderStatus === "New") {
+  if (currentOrderStatus === loadStatus.NEW) {
     orderRef.update({
       "roles.driverId": driverId,
       "usersNames.driverName": driverName,
-      orderStatus: "Assigned",
-      orderActivity: firebase.firestore.FieldValue.arrayUnion(new_activity),
+      orderStatus: loadStatus.ASSIGNED,
+      orderActivity: firebase.firestore.FieldValue.arrayUnion(newActivity),
     });
-    res.status(200).json({ status: "driver assigned" });
+    res.status(200).json({ status: Responds.DRIVER_ASSIGNED });
     return;
   }
 
   orderRef.update({
     "roles.driverId": driverId,
     "usersNames.driverName": driverName,
-    orderActivity: firebase.firestore,
-    orderActivity: firebase.firestore.FieldValue.arrayUnion(new_activity),
+    orderActivity: firebase.firestore.FieldValue.arrayUnion(newActivity),
   });
-  console.log("ok");
-  res.status(200).json({ status: "driver assigned" });
+  res.status(200).json({ status: Responds.DRIVER_ASSIGNED });
 };

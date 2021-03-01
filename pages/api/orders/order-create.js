@@ -1,5 +1,9 @@
 import firebase from "../../../firebase/firebase-adm";
 import uuid from "react-uuid";
+import { Constants } from "../../../utils/constants";
+import { loadStatus } from "../../../utils/status";
+import {Responds} from "../../../utils/responds"
+import { Roles } from "../../../utils/roles";
 
 export default async (req, res) => {
   const {
@@ -143,12 +147,12 @@ export default async (req, res) => {
 
   firebase
     .firestore()
-    .collection("carriers-records")
+    .collection(Constants.CARRIERS_RECORDS)
     .doc(carrierId)
-    .collection("orders")
+    .collection(Constants.ORDERS)
     .add({
       createdAt,
-      orderStatus: "New",
+      orderStatus: loadStatus.NEW,
       carrierId: carrierId,
       //   order_mileage: distanceData.data.distance || "",
       //   order_price_per_mile: distanceData.data.pricePerMile || "",
@@ -240,7 +244,7 @@ export default async (req, res) => {
         {
           activityDate: createdAt,
           activityStatus: "Created",
-          activityUser: "dispatcher",
+          activityUser: Roles.DISPATCHER,
         },
       ],
       tripId: "",
@@ -248,5 +252,5 @@ export default async (req, res) => {
       vehiclesArray: totalVehicles,
     });
 
-  res.status(200).json({ status: "order cancelled" });
+  res.status(200).json({ status: Responds.ORDER_CREATED });
 };

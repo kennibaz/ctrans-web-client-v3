@@ -17,12 +17,12 @@ export default async (req, res) => {
       res.status(500).end();
       return resolve();
     }
-    let list_of_models = models.data.Results.map((model) => {
+    let modelsList = models.data.Results.map((model) => {
       return {
         model: model.Model_Name,
       };
     });
-    res.status(200).send(list_of_models);
+    res.status(200).send(modelsList);
     return resolve();
   });
 };

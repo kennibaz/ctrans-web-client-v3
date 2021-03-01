@@ -1,4 +1,7 @@
 import firebase from "../../../firebase/firebase-adm";
+import { Constants } from "../../../utils/constants";
+import {Responds} from "../../../utils/responds"
+import { Roles } from "../../../utils/roles";
 
 export default async (req, res) => {
   const {
@@ -25,19 +28,18 @@ export default async (req, res) => {
 
   const new_activity = {
     activityDate: createdAt,
-    activityStatus: "Order changed",
-    activityUser: "dispatcher",
+    activityStatus: "Order pickup location was updated",
+    activityUser: Roles.DISPATCHER,
   };
 
   firebase
     .firestore()
-    .collection("carriers-records")
+    .collection(Constants.CARRIERS_RECORDS)
     .doc(carrierId)
-    .collection("orders")
+    .collection(Constants.ORDERS)
     .doc(orderId)
     .update({
       "pickup.pickupScheduledFirstDate": scheduledPickupDate,
-
       "pickup.pickupAddress.address": address,
       "pickup.pickupAddress.city": city,
       "pickup.pickupAddress.state": state,
@@ -51,5 +53,5 @@ export default async (req, res) => {
       orderActivity: firebase.firestore.FieldValue.arrayUnion(new_activity),
     });
 
-  res.status(200).json({ status: "order pickup location updated" });
+  res.status(200).json({ status: Responds.PICKUP_LOCATION_UPDATED});
 };

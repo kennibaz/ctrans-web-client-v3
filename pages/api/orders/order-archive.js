@@ -1,4 +1,7 @@
 import firebase from "../../../firebase/firebase-adm";
+import { Constants } from "../../../utils/constants";
+import { loadStatus } from "../../../utils/status";
+import {Responds} from "../../../utils/responds"
 
 export default async (req, res) => {
   const { carrierId, orderId } = req.body;
@@ -9,13 +12,13 @@ export default async (req, res) => {
 
   firebase
     .firestore()
-    .collection("carriers-records")
+    .collection(Constants.CARRIERS_RECORDS)
     .doc(carrierId)
-    .collection("orders")
+    .collection(Constants.ORDERS)
     .doc(orderId)
     .update({
-      orderStatus: "Archived",
+      orderStatus: loadStatus.ARCHIVED,
     });
 
-  res.status(200).json({ status: "order archived" });
+  res.status(200).json({ status: Responds.ORDER_ARCHIVED });
 };

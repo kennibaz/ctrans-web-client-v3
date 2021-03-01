@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from "react";
+import Router from 'next/router'
+import Head from "next/head"
 import { useRouter } from "next/router";
 import { makeStyles, withStyles } from "@material-ui/core/styles";
 import Grid from "@material-ui/core/Grid";
 import Container from "@material-ui/core/Container";
-import NavBar from "../../../components/NavBar"
+import NavBar from "../../../components/NavBar";
 import AppBar from "@material-ui/core/AppBar";
 import Toolbar from "@material-ui/core/Toolbar";
 import Typography from "@material-ui/core/Typography";
@@ -37,7 +39,8 @@ import ListItem from "@material-ui/core/ListItem";
 import ListItemIcon from "@material-ui/core/ListItemIcon";
 import ListItemText from "@material-ui/core/ListItemText";
 
-import {withAuth} from "../../../utils/withAuth"
+import { withAuth } from "../../../utils/withAuth";
+import {loadStatus} from "../../../utils/status"
 
 //dialogs
 import AssignDriverDialog from "../../../components/order/dialogs/AssignDriverDialog";
@@ -102,7 +105,7 @@ const useStyles = makeStyles((theme) => ({
     paddingBottom: 8,
   },
   media: {
-    height: 140,
+    height: 200,
   },
   editButton: {
     color: "red",
@@ -121,7 +124,7 @@ const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
 });
 
- function orderDetails(props) {
+function orderDetails(props) {
   const classes = useStyles();
   const router = useRouter();
 
@@ -133,6 +136,10 @@ const Transition = React.forwardRef(function Transition(props, ref) {
   const [emailForBol, setEmailForBol] = useState("info@azbsupply.com");
   const [readyToReload, setReadyToReload] = useState("");
   const [openEditDialog, setOpenEditDialog] = useState(false);
+  const [pickupImageObjects, setPickupImageObjects] = useState([]);
+  const [deliveryImageObjects, setDeliveryImageObjects] = useState([]);
+  const [pickupSchemaObjects, setPickupSchemaObjects] = useState([]);
+  const [deliverySchemaObjects, setDeliverySchemaObjects] = useState([]);
 
   const openEditOrderDialogHandler = () => {
     setOpenEditDialog(true);
@@ -145,14 +152,15 @@ const Transition = React.forwardRef(function Transition(props, ref) {
 
   useEffect(() => {
     setOrderId(router.query.id);
-    setCarrierId(props.carrierId)
+    setCarrierId(props.carrierId);
     const result = async () => {
-      const resultDrivers = await axios.post("/api/drivers", {carrierId: props.carrierId});
+      const resultDrivers = await axios.post("/api/drivers", {
+        carrierId: props.carrierId,
+      });
       setDrivers(resultDrivers.data);
     };
     result();
-  },[]);
-
+  }, []);
 
   useEffect(() => {
     if (orderId && carrierId) {
@@ -161,27 +169,99 @@ const Transition = React.forwardRef(function Transition(props, ref) {
           orderId,
           carrierId,
           userId: props.userId,
-          token: props.token
+          token: props.token,
         });
         setOrderData(respond.data);
+        initialSetup(respond);
       };
       result();
     }
   }, [orderId, carrierId]);
 
   useEffect(() => {
-
     const result = async () => {
       const respond = await axios.post("/api/orders/order-details", {
         orderId,
         carrierId,
         userId: props.userId,
-        token: props.token
+        token: props.token,
       });
       setOrderData(respond.data);
+      // setReadyToLoadImages(true);
     };
     result();
   }, [readyToReload]);
+
+  //Initial setup
+
+  const initialSetup = (respond) => {
+    let photoSetArrayOnPickup = [];
+    let photoSetArrayOnDelivery = [];
+    let schemaSetArrayOnPickup = [];
+    let schemaSetArrayOnDelivery = [];
+    if (respond.data.data.vehiclesArray[0].pickupInspectionPhotos) {
+      respond.data.data.vehiclesArray.forEach((vehicle) => {
+        vehicle.pickupInspectionPhotos.forEach((photo) => {
+          const newPhoto = {
+            vehicleMake: vehicle.make,
+            vehicleModel: vehicle.model,
+            vehicleYear: vehicle.year,
+            vehicleVin: vehicle.vin,
+            vehicleInspectionPhoto: photo,
+          };
+          photoSetArrayOnPickup.push(newPhoto);
+        });
+      });
+      setPickupImageObjects(photoSetArrayOnPickup);
+    }
+
+    if (respond.data.data.vehiclesArray[0].deliveryInspectionPhotos) {
+      respond.data.data.vehiclesArray.forEach((vehicle) => {
+        vehicle.deliveryInspectionPhotos.forEach((photo) => {
+          const newPhoto = {
+            vehicleMake: vehicle.make,
+            vehicleModel: vehicle.model,
+            vehicleYear: vehicle.year,
+            vehicleVin: vehicle.vin,
+            vehicleInspectionPhoto: photo,
+          };
+          photoSetArrayOnDelivery.push(newPhoto);
+        });
+      });
+      setDeliveryImageObjects(photoSetArrayOnDelivery);
+    }
+
+    if (respond.data.data.vehiclesArray[0].pickupInspectionSchema) {
+      respond.data.data.vehiclesArray.forEach((vehicle) => {
+        vehicle.pickupInspectionSchema.forEach((schema) => {
+          const newSchema = {
+            vehicleMake: vehicle.make,
+            vehicleModel: vehicle.model,
+            vehicleYear: vehicle.year,
+            vehicleVin: vehicle.vin,
+            vehicleInspectionSchema: schema,
+          };
+          schemaSetArrayOnPickup.push(newSchema);
+        });
+      });
+      setPickupSchemaObjects(schemaSetArrayOnPickup);
+    }
+    if (respond.data.data.vehiclesArray[0].deliveryInspectionSchema) {
+      respond.data.data.vehiclesArray.forEach((vehicle) => {
+        vehicle.deliveryInspectionSchema.forEach((schema) => {
+          const newSchema = {
+            vehicleMake: vehicle.make,
+            vehicleModel: vehicle.model,
+            vehicleYear: vehicle.year,
+            vehicleVin: vehicle.vin,
+            vehicleInspectionSchema: schema,
+          };
+          schemaSetArrayOnDelivery.push(newSchema);
+        });
+      });
+      setDeliverySchemaObjects(schemaSetArrayOnDelivery);
+    }
+  };
 
   //Handlers
 
@@ -190,8 +270,11 @@ const Transition = React.forwardRef(function Transition(props, ref) {
   };
   // send bol button handler
   const sendBolHandler = async () => {
-    if(orderData.data.orderStatus === "New" || orderData.data.orderStatus === "Assigned"  ){
-      return
+    if (
+      orderData.data.orderStatus === loadStatus.NEW ||
+      orderData.data.orderStatus === loadStatus.ASSIGNED
+    ) {
+      return;
     }
     await axios.post("/api/bol/send-bol", {
       orderId,
@@ -199,14 +282,17 @@ const Transition = React.forwardRef(function Transition(props, ref) {
       carrierId: props.carrierId,
       orderShipperInnerId: orderData.data.shipperOrderId,
       userId: props.userId,
-      token: props.token
+      token: props.token,
     });
   };
 
   // send invoice button handler
   const sendInvoiceHandler = async () => {
-    if(orderData.data.orderStatus === "New" || orderData.data.orderStatus === "Assigned"  ){
-      return
+    if (
+      orderData.data.orderStatus === loadStatus.NEW ||
+      orderData.data.orderStatus === loadStatus.ASSIGNED
+    ) {
+      return;
     }
     await axios.post("/api/bol/send-invoice", {
       orderId,
@@ -218,7 +304,7 @@ const Transition = React.forwardRef(function Transition(props, ref) {
 
   //mark order as paid
   const paidOrderHandler = async () => {
-    if (orderData.data.orderStatus === "Delivered") {
+    if (orderData.data.orderStatus === loadStatus.DELIVERED) {
       await axios.post("/api/orders/order-paid", {
         carrierId: props.carrierId,
         orderId,
@@ -288,7 +374,7 @@ const Transition = React.forwardRef(function Transition(props, ref) {
 
   //page content
 
-  const photoPickupContent = (
+  let photoPickupContent = (
     <Card className={classes.root}>
       <CardActionArea>
         <CardMedia
@@ -304,7 +390,7 @@ const Transition = React.forwardRef(function Transition(props, ref) {
       </CardActionArea>
     </Card>
   );
-  const photoDeliveryContent = (
+  let photoDeliveryContent = (
     <Card className={classes.root}>
       <CardActionArea>
         <CardMedia
@@ -321,49 +407,157 @@ const Transition = React.forwardRef(function Transition(props, ref) {
     </Card>
   );
 
-  if (orderData.data.pickup.pickup_conditions?.pickup_inspection_images_links) {
-    const photoPickupContent = orderData.data.pickup.pickup_conditions?.pickup_inspection_images_links.map(
-      (photo, index) => (
-        <Card className={classes.root} key={index}>
-          <CardActionArea>
-            <CardMedia
-              className={classes.media}
-              image={photo}
-              title="Load photo"
-            />
-            <CardContent>
-              <Typography variant="body2" color="textSecondary" component="p">
-                1972 Ford Mustang
-              </Typography>
-            </CardContent>
-          </CardActionArea>
-        </Card>
-      )
-    );
+  let schemaPickupContent = (
+    <Card className={classes.root}>
+      <CardActionArea>
+        <CardMedia
+          className={classes.media}
+          image={"https://via.placeholder.com/150"}
+          title="Load schema"
+        />
+        <CardContent>
+          <Typography variant="body2" color="textSecondary" component="p">
+            Shemas are unavailable yet
+          </Typography>
+        </CardContent>
+      </CardActionArea>
+    </Card>
+  );
+  let schemaDeliveryContent = (
+    <Card className={classes.root}>
+      <CardActionArea>
+        <CardMedia
+          className={classes.media}
+          image={"https://via.placeholder.com/150"}
+          title="Load schema"
+        />
+        <CardContent>
+          <Typography variant="body2" color="textSecondary" component="p">
+            Schemas are unavailable yet
+          </Typography>
+        </CardContent>
+      </CardActionArea>
+    </Card>
+  );
+
+  if (pickupImageObjects) {
+    photoPickupContent = pickupImageObjects.map((photo, index) => (
+      <Grid item xs={3}>
+        <Box fontSize="body2.fontSize" m={2}>
+          <Card className={classes.root} key={index}>
+            <CardActionArea>
+              <CardMedia
+                className={classes.media}
+                image={photo.vehicleInspectionPhoto}
+                title="Load photo"
+              />
+              <CardContent>
+                <Typography variant="body2" color="textSecondary" component="p">
+                  {photo.vehicleYear +
+                    " " +
+                    photo.vehicleMake +
+                    " " +
+                    photo.vehicleModel}
+                </Typography>
+                <Typography variant="body2" color="textSecondary" component="p">
+                  VIN: {photo.vehicleVin}
+                </Typography>
+              </CardContent>
+            </CardActionArea>
+          </Card>
+        </Box>
+      </Grid>
+    ));
   }
 
-  if (
-    orderData.data.delivery.delivery_conditions
-      ?.delivery_inspection_images_links
-  ) {
-    const photoDeliveryContent = orderData.data.delivery.delivery_conditions?.delivery_inspection_images_links.map(
-      (photo, index) => (
-        <Card className={classes.root} key={index}>
-          <CardActionArea>
-            <CardMedia
-              className={classes.media}
-              image={photo}
-              title="Load photo"
-            />
-            <CardContent>
-              <Typography variant="body2" color="textSecondary" component="p">
-                1972 Ford Mustang
-              </Typography>
-            </CardContent>
-          </CardActionArea>
-        </Card>
-      )
-    );
+  if (deliveryImageObjects) {
+    photoDeliveryContent = deliveryImageObjects.map((photo, index) => (
+      <Grid item xs={3}>
+        <Box fontSize="body2.fontSize" m={2}>
+          <Card className={classes.root} key={index}>
+            <CardActionArea>
+              <CardMedia
+                className={classes.media}
+                image={photo.vehicleInspectionPhoto}
+                title="Load photo"
+              />
+              <CardContent>
+                <Typography variant="body2" color="textSecondary" component="p">
+                  {photo.vehicleYear +
+                    " " +
+                    photo.vehicleMake +
+                    " " +
+                    photo.vehicleModel}
+                </Typography>
+                <Typography variant="body2" color="textSecondary" component="p">
+                  VIN: {photo.vehicleVin}
+                </Typography>
+              </CardContent>
+            </CardActionArea>
+          </Card>
+        </Box>
+      </Grid>
+    ));
+  }
+
+  if (pickupSchemaObjects) {
+    schemaPickupContent = pickupSchemaObjects.map((schema, index) => (
+      <Grid item xs={3}>
+        <Box fontSize="body2.fontSize" m={2}>
+          <Card className={classes.root} key={index}>
+            <CardActionArea>
+              <CardMedia
+                className={classes.media}
+                image={schema.vehicleInspectionSchema}
+                title="Load photo"
+              />
+              <CardContent>
+                <Typography variant="body2" color="textSecondary" component="p">
+                  {schema.vehicleYear +
+                    " " +
+                    schema.vehicleMake +
+                    " " +
+                    schema.vehicleModel}
+                </Typography>
+                <Typography variant="body2" color="textSecondary" component="p">
+                  VIN: {schema.vehicleVin}
+                </Typography>
+              </CardContent>
+            </CardActionArea>
+          </Card>
+        </Box>
+      </Grid>
+    ));
+  }
+
+  if (deliverySchemaObjects) {
+    schemaDeliveryContent = deliverySchemaObjects.map((schema, index) => (
+      <Grid item xs={3}>
+        <Box fontSize="body2.fontSize" m={2}>
+          <Card className={classes.root} key={index}>
+            <CardActionArea>
+              <CardMedia
+                className={classes.media}
+                image={schema.vehicleInspectionSchema}
+                title="Load photo"
+              />
+              <CardContent>
+                <Typography variant="body2" color="textSecondary" component="p">
+                  {schema.vehicleYear +
+                    " " +
+                    schema.vehicleMake +
+                    " " +
+                    schema.vehicleModel}
+                </Typography>
+                <Typography variant="body2" color="textSecondary" component="p">
+                  VIN: {schema.vehicleVin}
+                </Typography>
+              </CardContent>
+            </CardActionArea>
+          </Card>
+        </Box>
+      </Grid>
+    ));
   }
 
   const appBarContent = (
@@ -372,7 +566,15 @@ const Transition = React.forwardRef(function Transition(props, ref) {
         <Grid container>
           <Grid item xs={2}>
             <Typography variant="h6" noWrap>
+            <Button onClick={()=> Router.back()}>
+              Back
+            </Button>
               Load # {orderData.data.shipperOrderId}
+            </Typography>
+          </Grid>
+          <Grid item xs={2}>
+            <Typography variant="h6" noWrap>
+              {orderData.data.orderStatus}
             </Typography>
           </Grid>
         </Grid>
@@ -411,13 +613,11 @@ const Transition = React.forwardRef(function Transition(props, ref) {
             </ButtonGroup>
           </Grid>
           <Grid item xs={2}>
-            
             <ButtonGroup size="small" aria-label="small outlined button group">
               <Button
                 size="small"
                 className={classes.button}
                 onClick={sendBolHandler}
-                
               >
                 Send BOL
               </Button>
@@ -458,31 +658,15 @@ const Transition = React.forwardRef(function Transition(props, ref) {
           <Grid item xs={12}>
             <Paper elevation={0} variant="outlined">
               <Grid id="subrow_1" item container xs={12}>
-                <Grid id="column_1" item container xs={2}>
-                  <Grid item xs={12}>
-                    <Typography>
-                      <Box fontSize="h6.fontSize" m={2} color="primary.main">
-                        Status
-                      </Box>
-                    </Typography>
-                  </Grid>
-                  <Grid item xs={12}>
-                    <Typography>
-                      <Box fontSize="subtitle2.fontSize" m={2}>
-                        {orderData.data.orderStatus}
-                      </Box>
-                    </Typography>
-                  </Grid>
-                </Grid>
                 <Grid id="column_2" item container xs={10}>
-                  <Grid item xs={2}>
+                  <Grid item xs={3}>
                     <Typography>
                       <Box fontSize="h6.fontSize" m={2} color="primary.main">
                         Shipper:
                       </Box>
                     </Typography>
                   </Grid>
-                  <Grid item xs={10}>
+                  <Grid item xs={3}>
                     <Typography>
                       <Box fontSize="h6.fontSize" m={2}>
                         {orderData.data.shipper.businessName}
@@ -490,10 +674,17 @@ const Transition = React.forwardRef(function Transition(props, ref) {
                     </Typography>
                   </Grid>
                   <Grid item container xs={12}>
-                    <Grid item xs={5}>
+                    <Grid item xs={3}>
                       <Typography>
                         <Box fontSize="subtitle2.fontSize" m={2}>
                           {orderData.data.shipper.address}
+                        </Box>
+                      </Typography>
+                    </Grid>
+                    <Grid item xs={2}>
+                      <Typography>
+                        <Box fontSize="subtitle2.fontSize" m={2}>
+                          P: {orderData.data.shipper.phone}
                         </Box>
                       </Typography>
                     </Grid>
@@ -504,13 +695,7 @@ const Transition = React.forwardRef(function Transition(props, ref) {
                         </Box>
                       </Typography>
                     </Grid>
-                    <Grid item xs={2}>
-                      <Typography>
-                        <Box fontSize="subtitle2.fontSize" m={2}>
-                          {orderData.data.shipper.phone}
-                        </Box>
-                      </Typography>
-                    </Grid>
+
                     <Grid item xs={3}>
                       <Typography>
                         <Box fontSize="subtitle2.fontSize" m={2}>
@@ -724,10 +909,7 @@ const Transition = React.forwardRef(function Transition(props, ref) {
                             <ArrowDownwardIcon />
                           </TableCell>
                           <TableCell className={classes.tableCell}>
-                            {
-                              orderData.data.delivery
-                                .deliveryScheduledFirstDate
-                            }
+                            {orderData.data.delivery.deliveryScheduledFirstDate}
                           </TableCell>
                           <TableCell className={classes.tableCell}>
                             {
@@ -874,8 +1056,8 @@ const Transition = React.forwardRef(function Transition(props, ref) {
                   </Grid>
                 </Grid>
               </Grid>
-              <Grid id="subrow_1" item container xs={12}>
-                <Grid id="column_2" item container xs={12}>
+              <Grid id="subrow_2" item container xs={12}>
+                <Grid id="column_1" item container xs={12}>
                   <Grid item xs={12}>
                     <Typography>
                       <Box fontSize="body2.fontSize" m={2}>
@@ -899,23 +1081,50 @@ const Transition = React.forwardRef(function Transition(props, ref) {
                   <Grid item xs={12}>
                     <Typography>
                       <Box fontSize="h6.fontSize" m={2} color="primary.main">
-                        Photos
+                        Inspection
                       </Box>
                     </Typography>
                   </Grid>
                 </Grid>
               </Grid>
               <Grid id="subrow_1" item container xs={12}>
-                <Grid id="column_2" item container xs={10}>
-                  <Grid item xs={3}>
+                <Grid id="column_1" item container xs={2}>
+                  <Grid item xs={12}>
                     <Typography>
-                      <Box fontSize="body2.fontSize" m={2}>
-                        {photoPickupContent}
-                        {photoDeliveryContent}
+                      <Box fontSize="h6.fontSize" m={2} color="primary.main">
+                        On pickup
                       </Box>
                     </Typography>
                   </Grid>
                 </Grid>
+              </Grid>
+
+              <Grid id="subrow_2" item container xs={12} direction="row">
+                {schemaPickupContent}
+              </Grid>
+
+              <Grid id="subrow_3" item container xs={12} direction="row">
+                {photoPickupContent}
+              </Grid>
+
+              <Grid id="subrow_4" item container xs={12}>
+                <Grid id="column_1" item container xs={2}>
+                  <Grid item xs={12}>
+                    <Typography>
+                      <Box fontSize="h6.fontSize" m={2} color="primary.main">
+                        On delivery
+                      </Box>
+                    </Typography>
+                  </Grid>
+                </Grid>
+              </Grid>
+
+              <Grid id="subrow_6" item container xs={12} direction="row">
+                {schemaDeliveryContent}
+              </Grid>
+
+              <Grid id="subrow_6" item container xs={12} direction="row">
+                {photoDeliveryContent}
               </Grid>
             </Paper>
           </Grid>
@@ -1058,21 +1267,24 @@ const Transition = React.forwardRef(function Transition(props, ref) {
 
   return (
     <div>
+      <Head>
+        <title>C|Transporter - Order "{orderData.data.shipperOrderId}"</title>
+      </Head>
       <NavBar>
-      {appBarContent}
+        {appBarContent}
 
-      <Grid container spacing={2}>
-        <Grid item container md={9} xs={12}>
-          {leftSideContent}
+        <Grid container spacing={2}>
+          <Grid item container md={9} xs={12}>
+            {leftSideContent}
+          </Grid>
+          <Grid item container md={3} xs={12}>
+            {rightSideContent}
+          </Grid>
         </Grid>
-        <Grid item container md={3} xs={12}>
-          {rightSideContent}
-        </Grid>
-      </Grid>
-      {editOrderDialog}
+        {editOrderDialog}
       </NavBar>
     </div>
   );
 }
 
-export default withAuth(orderDetails)
+export default withAuth(orderDetails);

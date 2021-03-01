@@ -6,6 +6,8 @@ import Box from "@material-ui/core/Box";
 import Dialog from "@material-ui/core/Dialog";
 import Slide from "@material-ui/core/Slide";
 import ImageGallery from "react-image-gallery";
+import Menu from "@material-ui/core/Menu";
+import MenuItem from "@material-ui/core/MenuItem";
 import "react-image-gallery/styles/css/image-gallery.css";
 
 const Transition = React.forwardRef(function Transition(props, ref) {
@@ -22,15 +24,37 @@ const useStyles = makeStyles({
   },
 });
 
-export default function PhotoInspectionImages(props) {
+export default function PhotoInspectionImages({
+  pickupImages,
+  deliveryImages,
+  isOpen,
+  closePhotoInspectionDialog,
+}) {
   const classes = useStyles();
   const [openModalImages, setOpenModalImages] = useState(false);
-  const [carouselImages, setCarouselImages] = useState([])
+  const [carouselImages, setCarouselImages] = useState([]);
+  const [selectedVehicleId, setSelectedVehicleId] = useState("");
+  const [anchorElementForYMMButton, setAnchorElementForYMMButton] = useState(
+    null
+  );
 
   useEffect(() => {
-      setCarouselImages(props.pickupImages)
+    setCarouselImages(pickupImages);
+  }, [pickupImages]);
+
+  useEffect(() => {
+    if (isOpen) {
+      console.log(pickupImages)
+    }
     
-  }, [props.pickupImages])
+  }, [pickupImages])
+
+  const handleYMMButtonOpen = (event) => {
+    setAnchorElementForYMMButton(event.currentTarget);
+  };
+  const handleYMMButtonClose = () => {
+    setAnchorElementForYMMButton(null);
+  };
 
   const handleClickOpen = () => {
     setOpenModalImages(true);
@@ -41,62 +65,88 @@ export default function PhotoInspectionImages(props) {
   };
 
   const setPickupImages = () => {
-      setCarouselImages(props.pickupImages)
-  }
+    setCarouselImages(pickupImages);
+  };
 
   const setDeliveryImages = () => {
-    setCarouselImages(props.deliveryImages)
-}
+    setCarouselImages(deliveryImages);
+  };
 
-if(!carouselImages){
-    return null
-}
+  if (!carouselImages) {
+    return null;
+  }
   return (
     <div>
       <Dialog
-        open={props.isOpen}
-        onClose={props.closePhotoInspectionDialog}
+        open={isOpen}
+        onClose={closePhotoInspectionDialog}
         TransitionComponent={Transition}
         style={{ width: "100%", backgroundColor: "transparent" }}
         overlayStyle={{ backgroundColor: "transparent" }}
       >
         {" "}
-       
-          <Box width="100%" p={1}>
+        <Box width="100%" p={1}>
           <Grid container direction="row" justify="center">
-            <Grid item xs={3}>
+            <Grid item xs={5}>
+              <div>
+                <Button
+                  aria-controls="simple-menu"
+                  aria-haspopup="true"
+                  onClick={handleYMMButtonOpen}
+                >
+                  Open Menu
+                </Button>
+                <Menu
+                  id="simple-menu"
+                  anchorEl={anchorElementForYMMButton}
+                  keepMounted
+                  open={Boolean(anchorElementForYMMButton)}
+                  onClose={handleYMMButtonClose}
+                >
+                  {/* {pickupImages.map((order) => (
+                    <MenuItem onClick={handleYMMButtonClose}>
+                      {order.vehicleYear +
+                        " " +
+                        order.vehicleMake +
+                        " " +
+                        vehicleModel}
+                    </MenuItem>
+                  ))} */}
+                </Menu>
+              </div>
+            </Grid>
+            <Grid item xs={2}>
               <Button
-               onClick={setPickupImages}
+                onClick={setPickupImages}
                 variant="outlined"
                 size="small"
-                disabled={props.pickupImages.length <1}
+                disabled={pickupImages.length < 1}
               >
                 Pickup
               </Button>
             </Grid>
-            <Grid item xs={3}>
+            <Grid item xs={2}>
               {" "}
               <Button
                 onClick={setDeliveryImages}
                 variant="outlined"
                 size="small"
-                disabled={props.deliveryImages.length <1}
+                disabled={deliveryImages.length < 1}
               >
                 Delivery
               </Button>
             </Grid>
-            <Grid item xs={3}>
+            <Grid item xs={2}>
               <Button
-                onClick={props.closePhotoInspectionDialog}
+                onClick={closePhotoInspectionDialog}
                 variant="outlined"
                 size="small"
               >
                 CLose
               </Button>
             </Grid>
-            </Grid>
-          </Box>
-        
+          </Grid>
+        </Box>
         <ImageGallery items={carouselImages} />;
       </Dialog>
     </div>

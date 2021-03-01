@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, {  useState } from "react";
 import { withStyles } from "@material-ui/core/styles";
 import { makeStyles } from "@material-ui/core/styles";
 import Button from "@material-ui/core/Button";
@@ -13,7 +13,8 @@ import FormControl from "@material-ui/core/FormControl";
 import Select from "@material-ui/core/Select";
 import MenuItem from "@material-ui/core/MenuItem";
 import Grid from "@material-ui/core/Grid";
-import Router from "next/router";
+
+import { loadStatus } from "../../../utils/status"
 
 import axios from "axios";
 
@@ -144,10 +145,10 @@ export default function AssignDriverDialog(props) {
         onClick={assignDriverhandleClickOpen}
         size="small"
         disabled={
-          props.orderStatus === "Delivered" || props.orderStatus === "Paid"
+          props.orderStatus === loadStatus.DELIVERED || props.orderStatus === loadStatus.PAID
         }
       >
-        {props.orderStatus === "New"
+        {props.orderStatus === loadStatus.NEW
           ? "Assign"
           : "Driver: " + props.order_assigned_driver}
       </Button>
@@ -158,7 +159,7 @@ export default function AssignDriverDialog(props) {
         maxWidth="xs"
       >
         <DialogTitle id="customized-dialog-title" onClose={dialogCloseHandler}>
-          {props.order_assigned_driver ? "Reassign driver" : "Assign driver"}
+          {props.order_assigned_driver === "Not assigned" ? "Assign a driver" : "Reassign the driver" }
         </DialogTitle>
         <DialogContent dividers>
           <Grid container spacing={2} alignItems="center">
@@ -172,16 +173,16 @@ export default function AssignDriverDialog(props) {
                   value={selectedDriver}
                   onChange={driverSelectHandler}
                 >
-                  {props.drivers.map((driver) => (
+                  {props.drivers.map((driver) => (  
                     <MenuItem value={driver.id} key={driver.id}>
-                      {driver.data.lastName}
+                      {driver.data.firstName + " " + driver.data.lastName}
                     </MenuItem>
                   ))}
                 </Select>
               </FormControl>
             </Grid>
             <Grid item xs={12}>
-              {props.orderStatus === "Assigned" ? (
+              {props.orderStatus === loadStatus.ASSIGNED ? (
                 <Button onClick={unAssignDriverFromOrderHandler}>
                   Unnassign driver
                 </Button>
