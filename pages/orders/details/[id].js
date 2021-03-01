@@ -644,7 +644,7 @@ function orderDetails(props) {
         <Grid container>
           <Grid item xs={2}>
             <Typography variant="h6" noWrap>
-              <Button onClick={() => Router.back()}>Back</Button>
+              <Button onClick={() => Router.push("/orders")}>Back</Button>
               Load # {orderData.data.shipperOrderId}
             </Typography>
           </Grid>
