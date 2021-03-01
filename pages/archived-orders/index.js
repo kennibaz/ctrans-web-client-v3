@@ -70,7 +70,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-function orders(props) {
+function archivedOrders(props) {
   const classes = useStyles();
 
   const [orders, setOrders] = useState([]);
@@ -78,11 +78,12 @@ function orders(props) {
   const [drivers, setDrivers] = useState([]);
   const [searchWord, setSearchWord] = useState("");
   const [selectedDriver, setSelectedDriver] = useState(false);
+  const [readyToUpdateOrders, setReadyToUpdateOrders] = useState(false);
 
   const [readyToReload, setReadyToReload] = useState(false);
 
  
-  
+    
 //get initial order list
   useEffect(() => {
     const request = async () => {
@@ -103,6 +104,24 @@ function orders(props) {
     };
     request();
   }, [readyToReload, props.carrierId]);
+  
+  //driver filter
+  useEffect(() => {
+    const request = async () => {
+      if (readyToUpdateOrders) {
+        const resultOrders = await axios.post("/api/orders/archived-orders", {
+          carrierId: props.carrierId,
+          userId: props.userId,
+          token: props.token,
+          selectedDriver: selectedDriver,
+        });
+        setReadyToUpdateOrders(false);
+        setOrders(resultOrders.data);
+        setOrdersForSearch(resultOrders.data);
+      }
+    };
+    request();
+  }, [readyToUpdateOrders]);
 
 
 
@@ -268,7 +287,7 @@ function orders(props) {
   );
 }
 
-export default withAuth(orders);
+export default withAuth(archivedOrders);
 
 /* Page using withAuth to check user login status.
 Design pattern:

@@ -4,13 +4,14 @@ import { loadStatus } from "../../../utils/status";
 
 export default async (req, res) => {
   if (req.method === "POST") {
-    return new Promise(async (resolve) => {
+    return new Promise(async (resolve) => { 
       const {
         carrierId,
         selectedDriver,
         token,
         userId,
       } = req.body;
+     console.log("selected driver",selectedDriver)
 
       //Check if all fields in request
       if (!token || !userId || !carrierId) {
@@ -73,7 +74,7 @@ export default async (req, res) => {
 
 
         if (selectedDriver) {
-          filteredArrayByDriver = filtered_array.filter((order) => {
+          filteredArrayByDriver = downloadedOrdersFromFS.filter((order) => {
             return order.data.roles.driverId === selectedDriver;
           });
         }

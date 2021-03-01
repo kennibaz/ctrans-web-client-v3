@@ -73,7 +73,7 @@ export default async (req, res) => {
             }
           });
         });
-        if (selectedDriver) {
+        if (selectedDriver) { 
           filteredArrayByDriver = filtered_array.filter((order) => {
             return order.data.roles.driverId === selectedDriver;
           });
