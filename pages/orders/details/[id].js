@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
-import Router from 'next/router'
-import Head from "next/head"
+import Router from "next/router";
+import Head from "next/head";
+import Link from "next/link";
 import { useRouter } from "next/router";
 import { makeStyles, withStyles } from "@material-ui/core/styles";
 import Grid from "@material-ui/core/Grid";
@@ -23,6 +24,7 @@ import Card from "@material-ui/core/Card";
 import CardActionArea from "@material-ui/core/CardActionArea";
 import CardContent from "@material-ui/core/CardContent";
 import CardMedia from "@material-ui/core/CardMedia";
+import ButtonBase from "@material-ui/core/ButtonBase";
 import CheckIcon from "@material-ui/icons/Check";
 import RoomIcon from "@material-ui/icons/Room";
 import DateRangeIcon from "@material-ui/icons/DateRange";
@@ -40,7 +42,7 @@ import ListItemIcon from "@material-ui/core/ListItemIcon";
 import ListItemText from "@material-ui/core/ListItemText";
 
 import { withAuth } from "../../../utils/withAuth";
-import {loadStatus} from "../../../utils/status"
+import { loadStatus } from "../../../utils/status";
 
 //dialogs
 import AssignDriverDialog from "../../../components/order/dialogs/AssignDriverDialog";
@@ -445,25 +447,49 @@ function orderDetails(props) {
       <Grid item xs={3}>
         <Box fontSize="body2.fontSize" m={2}>
           <Card className={classes.root} key={index}>
-            <CardActionArea>
-              <CardMedia
-                className={classes.media}
-                image={photo.vehicleInspectionPhoto}
-                title="Load photo"
-              />
-              <CardContent>
-                <Typography variant="body2" color="textSecondary" component="p">
-                  {photo.vehicleYear +
+
+              <CardActionArea>
+                <CardMedia
+                  className={classes.media}
+                  image={photo.vehicleInspectionPhoto}
+                  title={
+                    photo.vehicleYear +
                     " " +
                     photo.vehicleMake +
                     " " +
-                    photo.vehicleModel}
-                </Typography>
-                <Typography variant="body2" color="textSecondary" component="p">
-                  VIN: {photo.vehicleVin}
-                </Typography>
-              </CardContent>
-            </CardActionArea>
+                    photo.vehicleModel
+                  }
+                  onClick={() => {
+                    const newWindow = window.open(
+                      photo.vehicleInspectionPhoto,
+                      "_blank",
+                      "noopener,noreferrer"
+                    );
+                    if (newWindow) newWindow.opener = null;
+                  }}
+                />
+                <CardContent>
+                  <Typography
+                    variant="body2"
+                    color="textSecondary"
+                    component="p"
+                  >
+                    {photo.vehicleYear +
+                      " " +
+                      photo.vehicleMake +
+                      " " +
+                      photo.vehicleModel}
+                  </Typography>
+                  <Typography
+                    variant="body2"
+                    color="textSecondary"
+                    component="p"
+                  >
+                    VIN: {photo.vehicleVin}
+                  </Typography>
+                </CardContent>
+              </CardActionArea>
+
           </Card>
         </Box>
       </Grid>
@@ -475,25 +501,42 @@ function orderDetails(props) {
       <Grid item xs={3}>
         <Box fontSize="body2.fontSize" m={2}>
           <Card className={classes.root} key={index}>
-            <CardActionArea>
-              <CardMedia
-                className={classes.media}
-                image={photo.vehicleInspectionPhoto}
-                title="Load photo"
-              />
-              <CardContent>
-                <Typography variant="body2" color="textSecondary" component="p">
-                  {photo.vehicleYear +
-                    " " +
-                    photo.vehicleMake +
-                    " " +
-                    photo.vehicleModel}
-                </Typography>
-                <Typography variant="body2" color="textSecondary" component="p">
-                  VIN: {photo.vehicleVin}
-                </Typography>
-              </CardContent>
-            </CardActionArea>
+ 
+              <CardActionArea>
+                <CardMedia
+                  className={classes.media}
+                  image={photo.vehicleInspectionPhoto}
+                  title="Load photo"
+                  onClick={() => {
+                    const newWindow = window.open(
+                      photo.vehicleInspectionPhoto,
+                      "_blank",
+                      "noopener,noreferrer"
+                    );
+                    if (newWindow) newWindow.opener = null;
+                  }}
+                />
+                <CardContent>
+                  <Typography
+                    variant="body2"
+                    color="textSecondary"
+                    component="p"
+                  >
+                    {photo.vehicleYear +
+                      " " +
+                      photo.vehicleMake +
+                      " " +
+                      photo.vehicleModel}
+                  </Typography>
+                  <Typography
+                    variant="body2"
+                    color="textSecondary"
+                    component="p"
+                  >
+                    VIN: {photo.vehicleVin}
+                  </Typography>
+                </CardContent>
+              </CardActionArea>
           </Card>
         </Box>
       </Grid>
@@ -504,26 +547,44 @@ function orderDetails(props) {
     schemaPickupContent = pickupSchemaObjects.map((schema, index) => (
       <Grid item xs={3}>
         <Box fontSize="body2.fontSize" m={2}>
+
           <Card className={classes.root} key={index}>
-            <CardActionArea>
-              <CardMedia
-                className={classes.media}
-                image={schema.vehicleInspectionSchema}
-                title="Load photo"
-              />
-              <CardContent>
-                <Typography variant="body2" color="textSecondary" component="p">
-                  {schema.vehicleYear +
-                    " " +
-                    schema.vehicleMake +
-                    " " +
-                    schema.vehicleModel}
-                </Typography>
-                <Typography variant="body2" color="textSecondary" component="p">
-                  VIN: {schema.vehicleVin}
-                </Typography>
-              </CardContent>
-            </CardActionArea>
+        
+              <CardActionArea>
+                <CardMedia
+                  className={classes.media}
+                  image={schema.vehicleInspectionSchema}
+                  title="Load photo"
+                  onClick={() => {
+                    const newWindow = window.open(
+                      schema.vehicleInspectionSchema,
+                      "_blank",
+                      "noopener,noreferrer"
+                    );
+                    if (newWindow) newWindow.opener = null;
+                  }}
+                />
+                <CardContent>
+                  <Typography
+                    variant="body2"
+                    color="textSecondary"
+                    component="p"
+                  >
+                    {schema.vehicleYear +
+                      " " +
+                      schema.vehicleMake +
+                      " " +
+                      schema.vehicleModel}
+                  </Typography>
+                  <Typography
+                    variant="body2"
+                    color="textSecondary"
+                    component="p"
+                  >
+                    VIN: {schema.vehicleVin}
+                  </Typography>
+                </CardContent>
+              </CardActionArea>
           </Card>
         </Box>
       </Grid>
@@ -535,25 +596,42 @@ function orderDetails(props) {
       <Grid item xs={3}>
         <Box fontSize="body2.fontSize" m={2}>
           <Card className={classes.root} key={index}>
-            <CardActionArea>
-              <CardMedia
-                className={classes.media}
-                image={schema.vehicleInspectionSchema}
-                title="Load photo"
-              />
-              <CardContent>
-                <Typography variant="body2" color="textSecondary" component="p">
-                  {schema.vehicleYear +
-                    " " +
-                    schema.vehicleMake +
-                    " " +
-                    schema.vehicleModel}
-                </Typography>
-                <Typography variant="body2" color="textSecondary" component="p">
-                  VIN: {schema.vehicleVin}
-                </Typography>
-              </CardContent>
-            </CardActionArea>
+    
+              <CardActionArea>
+                <CardMedia
+                  className={classes.media}
+                  image={schema.vehicleInspectionSchema}
+                  title="Load photo"
+                  onClick={() => {
+                    const newWindow = window.open(
+                      schema.vehicleInspectionSchema,
+                      "_blank",
+                      "noopener,noreferrer"
+                    );
+                    if (newWindow) newWindow.opener = null;
+                  }}
+                />
+                <CardContent>
+                  <Typography
+                    variant="body2"
+                    color="textSecondary"
+                    component="p"
+                  >
+                    {schema.vehicleYear +
+                      " " +
+                      schema.vehicleMake +
+                      " " +
+                      schema.vehicleModel}
+                  </Typography>
+                  <Typography
+                    variant="body2"
+                    color="textSecondary"
+                    component="p"
+                  >
+                    VIN: {schema.vehicleVin}
+                  </Typography>
+                </CardContent>
+              </CardActionArea>
           </Card>
         </Box>
       </Grid>
@@ -566,9 +644,7 @@ function orderDetails(props) {
         <Grid container>
           <Grid item xs={2}>
             <Typography variant="h6" noWrap>
-            <Button onClick={()=> Router.back()}>
-              Back
-            </Button>
+              <Button onClick={() => Router.back()}>Back</Button>
               Load # {orderData.data.shipperOrderId}
             </Typography>
           </Grid>
