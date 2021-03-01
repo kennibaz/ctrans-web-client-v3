@@ -463,7 +463,8 @@ function EditOrder(props) {
 
   //save handler
   const saveOrderHandler = async () => {
-    await axios.post("/api/orders/order-edit", {
+    console.log("In first call")
+    let respond = await axios.post("/api/orders/order-edit", {
       carrierId: props.carrierId,
       orderId: props.orderId,
       userId: props.userId,
@@ -527,6 +528,7 @@ function EditOrder(props) {
       phoneOfShipper,
       faxOfShipper,
     });
+    console.log(respond)
     props.closeDialogHandler()
   };
 
