@@ -19,6 +19,7 @@ import Select from "@material-ui/core/Select";
 import MenuItem from "@material-ui/core/MenuItem";
 import InputLabel from "@material-ui/core/InputLabel";
 import axios from "axios";
+import CircularProgress from "@material-ui/core/CircularProgress";
 
 import OrderCard from "../../components/order/orderCard";
 
@@ -92,10 +93,10 @@ function orders(props) {
   const [readyToReload, setReadyToReload] = useState(false);
 
   const [numberOfNewLoads, setNumberOfNewLoads] = useState("");
-  const [numberOfAssignedLoads, setNumberOfAssignedLoads] = useState("")
-  const [numberOfPickedLoads, setNumberOfPickedLoads] = useState("")
-  const [numberOfDeliveredLoads, setNumberOfDeliveredLoads] = useState("")
-  const [numberOfPaidLoads, setNumberOfPaidLoads] = useState("")
+  const [numberOfAssignedLoads, setNumberOfAssignedLoads] = useState("");
+  const [numberOfPickedLoads, setNumberOfPickedLoads] = useState("");
+  const [numberOfDeliveredLoads, setNumberOfDeliveredLoads] = useState("");
+  const [numberOfPaidLoads, setNumberOfPaidLoads] = useState("");
   // const ordersArray = [] TODO later when switched to class
 
   //get initial order list
@@ -124,27 +125,26 @@ function orders(props) {
 
   //Get Data how many loads per each tab
   const calculateNumberOfLoadsPerTab = (orders) => {
-    let numberOfNewLoads = orders.filter((order)=> (
-      order.data.orderStatus === loadStatus.NEW
-    ))
-    let numberOfAssignedLoads = orders.filter((order)=> (
-      order.data.orderStatus === loadStatus.ASSIGNED
-    ))
-    let numberOfPickedLoads = orders.filter((order)=> (
-      order.data.orderStatus === loadStatus.PICKED
-    ))
-    let numberOfDeliveredLoads = orders.filter((order)=> (
-      order.data.orderStatus === loadStatus.DELIVERED
-    ))
-    let numberOfPaidLoads = orders.filter((order)=> (
-      order.data.orderStatus === loadStatus.PAID
-    ))
-    setNumberOfNewLoads(numberOfNewLoads.length)
-    setNumberOfAssignedLoads(numberOfAssignedLoads.length)
-    setNumberOfPickedLoads(numberOfPickedLoads.length)
-    setNumberOfDeliveredLoads(numberOfDeliveredLoads.length)
-    setNumberOfPaidLoads(numberOfPaidLoads.length)
-
+    let numberOfNewLoads = orders.filter(
+      (order) => order.data.orderStatus === loadStatus.NEW
+    );
+    let numberOfAssignedLoads = orders.filter(
+      (order) => order.data.orderStatus === loadStatus.ASSIGNED
+    );
+    let numberOfPickedLoads = orders.filter(
+      (order) => order.data.orderStatus === loadStatus.PICKED
+    );
+    let numberOfDeliveredLoads = orders.filter(
+      (order) => order.data.orderStatus === loadStatus.DELIVERED
+    );
+    let numberOfPaidLoads = orders.filter(
+      (order) => order.data.orderStatus === loadStatus.PAID
+    );
+    setNumberOfNewLoads(numberOfNewLoads.length);
+    setNumberOfAssignedLoads(numberOfAssignedLoads.length);
+    setNumberOfPickedLoads(numberOfPickedLoads.length);
+    setNumberOfDeliveredLoads(numberOfDeliveredLoads.length);
+    setNumberOfPaidLoads(numberOfPaidLoads.length);
   };
 
   //Get orders from Server when tab was changed
@@ -314,9 +314,7 @@ function orders(props) {
         <Grid item container xs={12} justify="center" alignItems="center">
           <Grid item xs={2}>
             <Box pt={5}>
-              <Typography variant="h4" noWrap>
-                No Loads yet
-              </Typography>
+              <CircularProgress />
             </Box>
           </Grid>
         </Grid>

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { makeStyles } from "@material-ui/core/styles";
-import Head from "next/head"
+import Head from "next/head";
 import NavBar from "../../components/NavBar";
 import AppBar from "@material-ui/core/AppBar";
 import Toolbar from "@material-ui/core/Toolbar";
@@ -17,12 +17,12 @@ import Select from "@material-ui/core/Select";
 import MenuItem from "@material-ui/core/MenuItem";
 import InputLabel from "@material-ui/core/InputLabel";
 import axios from "axios";
+import CircularProgress from "@material-ui/core/CircularProgress";
 
 import OrderCard from "../../components/order/orderCard";
 
 //import utils
 import { withAuth } from "../../utils/withAuth";
-
 
 const drawerWidth = 120;
 
@@ -82,9 +82,7 @@ function archivedOrders(props) {
 
   const [readyToReload, setReadyToReload] = useState(false);
 
- 
-    
-//get initial order list
+  //get initial order list
   useEffect(() => {
     const request = async () => {
       if (props.carrierId) {
@@ -104,7 +102,7 @@ function archivedOrders(props) {
     };
     request();
   }, [readyToReload, props.carrierId]);
-  
+
   //driver filter
   useEffect(() => {
     const request = async () => {
@@ -122,8 +120,6 @@ function archivedOrders(props) {
     };
     request();
   }, [readyToUpdateOrders]);
-
-
 
   //search engine
   const searchHandler = () => {
@@ -154,7 +150,6 @@ function archivedOrders(props) {
     setSelectedDriver(e.target.value);
     setReadyToUpdateOrders(true);
   };
-
 
   //reloadHandler
   const reloadHandler = () => {
@@ -189,9 +184,7 @@ function archivedOrders(props) {
         <Grid item container xs={12} justify="center" alignItems="center">
           <Grid item xs={2}>
             <Box pt={5}>
-              <Typography variant="h4" noWrap>
-                No Loads yet
-              </Typography>
+              <CircularProgress />
             </Box>
           </Grid>
         </Grid>
@@ -199,7 +192,7 @@ function archivedOrders(props) {
     );
   }
 
-  //MAIN BODY 
+  //MAIN BODY
   return (
     <div>
       <Head>
