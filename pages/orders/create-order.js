@@ -435,7 +435,7 @@ function createOrder(props) {
     let isVaidated = validateInputs()
     if (!isVaidated
     ) {
-      alert("NO Data");
+      alert("Please enter all required fields");
       return;
     }
     await axios.post("/api/orders/order-create", {

@@ -382,7 +382,7 @@ function orders(props) {
               <Grid item xs={1}>
                 <Chip
                   avatar={<Avatar>A</Avatar>}
-                  label="All"
+                  label="All - 32"
                   clickable
                   color="primary"
                   onClick={() => {
@@ -395,7 +395,7 @@ function orders(props) {
               <Grid item>
                 <Chip
                   avatar={<Avatar>N</Avatar>}
-                  label="New"
+                  label="New - 12"
                   clickable
                   color="primary"
                   onClick={() => {
