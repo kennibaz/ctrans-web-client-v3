@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import { withStyles } from "@material-ui/core/styles";
 import { useRouter } from "next/router";
-import uuid from 'react-uuid'
+import uuid from "react-uuid";
 import NavBar from "../../components/NavBar";
 import AppBar from "@material-ui/core/AppBar";
 import Toolbar from "@material-ui/core/Toolbar";
@@ -101,7 +101,7 @@ const StyledBadge = withStyles((theme) => ({
 }))(Badge);
 
 function createOrder(props) {
-  const vehicleId = uuid()
+  const vehicleId = uuid();
   const classes = useStyles();
   const router = useRouter();
 
@@ -180,6 +180,29 @@ function createOrder(props) {
   const [emailOfShipper, setEmailOfShipper] = useState("");
   const [phoneOfShipper, setPhoneOfShipper] = useState("");
   const [faxOfShipper, setFaxOfShipper] = useState("");
+
+  //Validation
+
+  const [isShipperOrderValid, setIsShipperOrderValid] = useState(true);
+  const [isBusinessNameOfShipperValid, setIsBusinessNameOfShipperValid]= useState(true);
+  const [isPhoneOfShipperValid, setIsPhoneOfShipperValid ]= useState(true);
+  const [isAddressOnPickupValid, setIsAddressOnPickupValid]= useState(false);
+  const [isAddressOnDeliveryValid, setIsAddressOnDeliveryValid]= useState(false);
+  const [isScheduledPickupDateValid, setIsScheduledPickupDateValid]= useState(true);
+  const [isScheduledDeliveryDateValid, setIsScheduledDeliveryDateValid]= useState(true);
+  const [isPhoneOnPickupValid, setIsPhoneOnPickupValid]= useState(true);
+  const [isPhoneOnDeliveryValid, setIsPhoneOnDeliveryValid]= useState(true);
+  const [isYearValid, setIsYearValid]= useState(true);
+  const [isMakeValid, setIsMakeValid]= useState(true);
+  const [isModelValid, setIsModelValid]= useState(true);
+  const [isOrderAmountValid, setIsOrderAmountValid]= useState(true);
+  const [isPaymentMethodValid, setIsPaymentMethodValid]= useState(true);
+  const [isPaymentStartUponValid, setIsPaymentStartUponValid]= useState(true);
+  const [isPaymentTermsValid, setIsPaymentTermsValid]= useState(true);
+
+
+
+
 
   //USEEFFECTS
   //ZIP finder
@@ -409,23 +432,8 @@ function createOrder(props) {
 
   //save handler
   const saveOrderHandler = async () => {
-    if (
-      !shipperOrderId ||
-      !businessNameOfShipper ||
-      !phoneOfShipper ||
-      !addressOnPickup ||
-      !scheduledPickupDate ||
-      !phoneOnPickup ||
-      !phoneOnDelivery ||
-      !scheduledDeliveryDate ||
-      !addressOnDelivery ||
-      !year ||
-      !make ||
-      !model ||
-      !orderAmount ||
-      !paymentMethod ||
-      !paymentStartUpon ||
-      !paymentTerms
+    let isVaidated = validateInputs()
+    if (!isVaidated
     ) {
       alert("NO Data");
       return;
@@ -496,6 +504,141 @@ function createOrder(props) {
     router.push("/orders/");
   };
 
+  //validate inputs
+
+  const validateInputs = () => {
+   
+   let isValid = false
+    if (shipperOrderId) {
+      setIsShipperOrderValid(true)
+      isValid = true
+    } else {
+      setIsShipperOrderValid(false)
+      isValid = false
+    }
+
+    if (businessNameOfShipper) {
+      setIsBusinessNameOfShipperValid(true)
+      isValid = true
+    } else {
+      setIsBusinessNameOfShipperValid(false)
+      isValid = false
+    }
+
+    if (phoneOfShipper) {
+      setIsPhoneOfShipperValid(true)
+      isValid = true
+    }else {
+      setIsPhoneOfShipperValid(false)
+      isValid = false
+    }
+
+    if (addressOnPickup) {
+      setIsAddressOnPickupValid(true)
+      isValid = true
+    }else {
+      setIsAddressOnPickupValid(false)
+      isValid = false
+    }
+
+    if (scheduledPickupDate) {
+      setIsScheduledPickupDateValid(true)
+      isValid = true
+    }else {
+      setIsScheduledPickupDateValid(false)
+      isValid = false
+    }
+
+    if (phoneOnPickup) {
+      setIsPhoneOnPickupValid(true)
+      isValid = true
+    }else {
+      setIsPhoneOnPickupValid(false)
+      isValid = false
+    }
+
+    if (phoneOnDelivery) {
+      setIsPhoneOnDeliveryValid(true)
+      isValid = true
+    }else {
+      setIsPhoneOnDeliveryValid(false)
+      isValid = false
+    }
+
+    if (scheduledDeliveryDate) {
+      setIsScheduledDeliveryDateValid(true)
+      isValid = true
+    } else {
+      setIsScheduledDeliveryDateValid(false)
+      isValid = false
+    }
+
+    if (addressOnDelivery) {
+      setIsAddressOnDeliveryValid(true)
+      isValid = true
+    }else {
+      setIsAddressOnDeliveryValid(false)
+      isValid = false
+    }
+
+    if (year) {
+      setIsYearValid(true)
+      isValid = true
+    }else {
+      setIsYearValid(false)
+      isValid = false
+    }
+
+    if (make) {
+      setIsMakeValid(true)
+      isValid = true
+    }else {
+      setIsMakeValid(false)
+      isValid = false
+    }
+
+    if (model) {
+      setIsModelValid(true)
+      isValid = true
+    }else {
+      setIsModelValid(false)
+      isValid = false
+    }
+
+    if (orderAmount) {
+      setIsOrderAmountValid(true)
+      isValid = true
+    }else {
+      setIsOrderAmountValid(false)
+      isValid = false
+    }
+
+    if (paymentMethod) {
+      setIsPaymentMethodValid(true)
+      isValid = true
+    }else {
+      setIsPaymentMethodValid(false)
+      isValid = false
+    }
+
+    if (paymentStartUpon) {
+      setIsPaymentStartUponValid(true)
+      isValid = true
+    }else {
+      setIsPaymentStartUponValid(false)
+      isValid = false
+    }
+
+    if (paymentTerms) {
+      setIsPaymentTermsValid(true)
+      isValid = true
+    }else {
+      setIsPaymentTermsValid(false)
+      isValid = false
+    }
+    return isValid
+  }
+
   //Dialogs
 
   let editPhoneOnPickupDialog = (
@@ -539,6 +682,8 @@ function createOrder(props) {
                 <FormControl className={classes.inputField}>
                   <label htmlFor="shipper_id">Load ID</label>
                   <TextField
+                    error={!isShipperOrderValid ? true : false}
+                    placeholder={!isShipperOrderValid ? "Required" : null}
                     id="shipper_id"
                     required
                     value={shipperOrderId}
@@ -558,6 +703,8 @@ function createOrder(props) {
                 <FormControl className={classes.inputField}>
                   <label htmlFor="shipper_businessName">Shipper name</label>
                   <TextField
+                  error={!isBusinessNameOfShipperValid ? true : false}
+                  placeholder={!isBusinessNameOfShipperValid ? "Required" : null}
                     id="shipper_businessName"
                     required
                     value={businessNameOfShipper}
@@ -700,6 +847,8 @@ function createOrder(props) {
                 <FormControl className={classes.inputField}>
                   <label htmlFor="shipper_phone">Phone</label>
                   <TextField
+                  error={!isPhoneOfShipperValid ? true : false}
+                  placeholder={!isPhoneOfShipperValid ? "Required" : null}
                     id="shipper_phone"
                     required
                     value={phoneOfShipper}
@@ -782,6 +931,8 @@ function createOrder(props) {
                     Scheduled pickup date
                   </label>
                   <TextField
+                  error={!isScheduledPickupDateValid ? true : false}
+                  placeholder={!isScheduledPickupDateValid ? "Required" : null}
                     id="pickupScheduledFirstDate"
                     required
                     type="date"
@@ -943,6 +1094,8 @@ function createOrder(props) {
                   </label>
 
                   <TextField
+                  error={!isPhoneOnPickupValid ? true : false}
+                  placeholder={!isPhoneOnPickupValid ? "Required" : null}
                     id="phone"
                     required
                     value={phoneOnPickup}
@@ -1045,6 +1198,8 @@ function createOrder(props) {
                     Scheduled delivery date
                   </label>
                   <TextField
+                  error={!isScheduledDeliveryDateValid ? true : false}
+                  placeholder={!isScheduledDeliveryDateValid ? "Required" : null}
                     id="deliveryScheduledFirstDate"
                     required
                     type="date"
@@ -1206,6 +1361,8 @@ function createOrder(props) {
                   </label>
 
                   <TextField
+                  error={!isPhoneOnDeliveryValid ? true : false}
+                  placeholder={!isPhoneOnDeliveryValid ? "Required" : null}
                     id="phone"
                     required
                     value={phoneOnDelivery}
@@ -1403,6 +1560,8 @@ function createOrder(props) {
                     {" "}
                     <FormControl>
                       <TextField
+                      error={!isYearValid ? true : false}
+                      placeholder={!isYearValid ? "Required" : null}
                         id="year"
                         required
                         value={year}
@@ -1418,6 +1577,7 @@ function createOrder(props) {
                     {" "}
                     <div style={{ width: 130 }}>
                       <Autocomplete
+                  
                         id="make-autocomplete"
                         name="make"
                         value={make}
@@ -1433,6 +1593,8 @@ function createOrder(props) {
                           <div>
                             <TextField
                               {...params}
+                              error={!isMakeValid ? true : false}
+                              placeholder={!isMakeValid ? "Required" : null}
                               id="make"
                               required
                               value={make}
@@ -1471,6 +1633,8 @@ function createOrder(props) {
                           <div>
                             <TextField
                               {...params}
+                              error={!isModelValid ? true : false}
+                              placeholder={!isModelValid ? "Required" : null}
                               id="model"
                               required
                               margin="dense"
@@ -1637,6 +1801,8 @@ function createOrder(props) {
                 <FormControl className={classes.inputField}>
                   <label htmlFor="orderAmount">Order Amount</label>
                   <TextField
+                   error={!isOrderAmountValid ? true : false}
+                   placeholder={!isOrderAmountValid ? "Required" : null}
                     id="orderAmount"
                     required
                     value={orderAmount}
@@ -1660,6 +1826,8 @@ function createOrder(props) {
                     Terms
                   </label>
                   <Select
+                     error={!isPaymentTermsValid ? true : false}
+                     placeholder={!isPaymentTermsValid ? "Required" : null}
                     id="paymentTerms"
                     margin="dense"
                     style={{ fontSize: 12, width: "170%" }}
@@ -1690,6 +1858,8 @@ function createOrder(props) {
                     Method
                   </label>
                   <Select
+                  error={!isPaymentMethodValid ? true : false}
+                  placeholder={!isPaymentMethodValid ? "Required" : null}
                     id="paymentMethod"
                     margin="dense"
                     style={{ fontSize: 12, width: "190%" }}
@@ -1717,6 +1887,8 @@ function createOrder(props) {
                     Payment start upon
                   </label>
                   <Select
+                      error={!isPaymentStartUponValid ? true : false}
+                      placeholder={!isPaymentStartUponValid ? "Required" : null}
                     id="paymentUpon"
                     margin="dense"
                     style={{ fontSize: 12, width: "100%" }}
@@ -1795,9 +1967,7 @@ function createOrder(props) {
             <Grid item xs={12}>
               <Box m={2}>
                 <FormControl className={classes.inputField}>
-                  <label htmlFor="invoiceRecipientEmail">
-                    Recipient email
-                  </label>
+                  <label htmlFor="invoiceRecipientEmail">Recipient email</label>
                   <TextField
                     id="invoiceRecipientEmail"
                     required
