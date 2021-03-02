@@ -709,11 +709,11 @@ Container
                           fontWeight="fontWeightMedium"
                         >
                           {iconOriginEditContent}
-                          ORIGIN
+                          ORIGIN @ {orderData.pickup.pickupScheduledFirstDate}
                         </Box>
                       </Grid>
 
-                      <Grid id="originDate" item xs={12}>
+                      {/* <Grid id="originDate" item xs={12}>
                         <Box
                           className={classes.title}
                           color="textPrimary"
@@ -722,7 +722,7 @@ Container
                         >
                           @ {orderData.pickup.pickupScheduledFirstDate}
                         </Box>
-                      </Grid>
+                      </Grid> */}
 
                       <Grid id="originBusinessName" item xs={12}>
                         <Box
@@ -851,11 +851,11 @@ Container
                           fontWeight="fontWeightMedium"
                         >
                           {iconDestinationEditContent}
-                          DESTINATION
+                          DESTINATION @ {orderData.delivery.deliveryScheduledFirstDate}
                         </Box>
                       </Grid>
 
-                      <Grid id="destinationDate" item xs={12}>
+                      {/* <Grid id="destinationDate" item xs={12}>
                         <Box
                           className={classes.title}
                           color="textPrimary"
@@ -864,7 +864,7 @@ Container
                         >
                           @ {orderData.delivery.deliveryScheduledFirstDate}
                         </Box>
-                      </Grid>
+                      </Grid> */}
 
                       <Grid id="destinationBusinessName" item xs={12}>
                         <Box
