@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { makeStyles } from "@material-ui/core/styles";
-import Head from "next/head"
+import Head from "next/head";
 import NavBar from "../../components/NavBar";
 import AppBar from "@material-ui/core/AppBar";
 import Toolbar from "@material-ui/core/Toolbar";
@@ -24,7 +24,7 @@ import OrderCard from "../../components/order/orderCard";
 
 //import utils
 import { withAuth } from "../../utils/withAuth";
-import {loadStatus} from "../../utils/status"
+import { loadStatus } from "../../utils/status";
 import { Order } from "../../components/models/order";
 
 const drawerWidth = 120;
@@ -91,10 +91,14 @@ function orders(props) {
   const [readyToUpdateOrders, setReadyToUpdateOrders] = useState(false);
   const [readyToReload, setReadyToReload] = useState(false);
 
+  const [numberOfNewLoads, setNumberOfNewLoads] = useState("");
+  const [numberOfAssignedLoads, setNumberOfAssignedLoads] = useState("")
+  const [numberOfPickedLoads, setNumberOfPickedLoads] = useState("")
+  const [numberOfDeliveredLoads, setNumberOfDeliveredLoads] = useState("")
+  const [numberOfPaidLoads, setNumberOfPaidLoads] = useState("")
   // const ordersArray = [] TODO later when switched to class
- 
-  
-//get initial order list
+
+  //get initial order list
   useEffect(() => {
     const request = async () => {
       if (props.carrierId) {
@@ -107,6 +111,8 @@ function orders(props) {
         const resultDrivers = await axios.post("/api/drivers", {
           carrierId: props.carrierId,
         });
+
+        calculateNumberOfLoadsPerTab(resultOrders.data);
         setOrders(resultOrders.data);
         setOrdersForSearch(resultOrders.data);
         setDrivers(resultDrivers.data);
@@ -116,6 +122,30 @@ function orders(props) {
     request();
   }, [readyToReload, props.carrierId]);
 
+  //Get Data how many loads per each tab
+  const calculateNumberOfLoadsPerTab = (orders) => {
+    let numberOfNewLoads = orders.filter((order)=> (
+      order.data.orderStatus === loadStatus.NEW
+    ))
+    let numberOfAssignedLoads = orders.filter((order)=> (
+      order.data.orderStatus === loadStatus.ASSIGNED
+    ))
+    let numberOfPickedLoads = orders.filter((order)=> (
+      order.data.orderStatus === loadStatus.PICKED
+    ))
+    let numberOfDeliveredLoads = orders.filter((order)=> (
+      order.data.orderStatus === loadStatus.DELIVERED
+    ))
+    let numberOfPaidLoads = orders.filter((order)=> (
+      order.data.orderStatus === loadStatus.PAID
+    ))
+    setNumberOfNewLoads(numberOfNewLoads.length)
+    setNumberOfAssignedLoads(numberOfAssignedLoads.length)
+    setNumberOfPickedLoads(numberOfPickedLoads.length)
+    setNumberOfDeliveredLoads(numberOfDeliveredLoads.length)
+    setNumberOfPaidLoads(numberOfPaidLoads.length)
+
+  };
 
   //Get orders from Server when tab was changed
   useEffect(() => {
@@ -164,7 +194,6 @@ function orders(props) {
     }
   }, [readyToUpdateOrders]);
 
-
   // Make orders TODO later
 
   // const instantiateOrders = (orderData) => {
@@ -208,8 +237,6 @@ function orders(props) {
     setSelectedDriver(e.target.value);
     setReadyToUpdateOrders(true);
   };
-
-  
 
   // handler to select status of the load to show
   const statusSelectHandler = (status) => {
@@ -296,7 +323,7 @@ function orders(props) {
     );
   }
 
-  //MAIN BODY 
+  //MAIN BODY
   return (
     <div>
       <Head>
@@ -382,7 +409,7 @@ function orders(props) {
               <Grid item xs={1}>
                 <Chip
                   avatar={<Avatar>A</Avatar>}
-                  label="All - 32"
+                  label={`All - ${orders.length}`}
                   clickable
                   color="primary"
                   onClick={() => {
@@ -395,7 +422,7 @@ function orders(props) {
               <Grid item>
                 <Chip
                   avatar={<Avatar>N</Avatar>}
-                  label="New - 12"
+                  label={`New - ${numberOfNewLoads}`}
                   clickable
                   color="primary"
                   onClick={() => {
@@ -407,7 +434,7 @@ function orders(props) {
               <Grid item>
                 <Chip
                   avatar={<Avatar>A</Avatar>}
-                  label="Assigned"
+                  label={`Assigned - ${numberOfAssignedLoads}`}
                   clickable
                   color="primary"
                   onClick={() => {
@@ -419,7 +446,7 @@ function orders(props) {
               <Grid item>
                 <Chip
                   avatar={<Avatar>PU</Avatar>}
-                  label="Picked up"
+                  label={`Picked up - ${numberOfPickedLoads}`}
                   clickable
                   color="primary"
                   onClick={() => {
@@ -431,7 +458,7 @@ function orders(props) {
               <Grid item>
                 <Chip
                   avatar={<Avatar>DL</Avatar>}
-                  label="Delivered"
+                  label={`Delivered - ${numberOfDeliveredLoads}`}
                   clickable
                   color="primary"
                   onClick={() => {
@@ -443,7 +470,7 @@ function orders(props) {
               <Grid item>
                 <Chip
                   avatar={<Avatar>P</Avatar>}
-                  label="Paid"
+                  label={`Paid - ${numberOfPaidLoads}`}
                   clickable
                   color="primary"
                   onClick={() => {
