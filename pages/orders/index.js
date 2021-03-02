@@ -282,7 +282,8 @@ function orders(props) {
 
   //reloadHandler
   const reloadHandler = () => {
-    setReadyToReload(!readyToReload);
+    // setReadyToReload(!readyToReload);
+    setReadyToUpdateOrders(true);
   };
 
   let orderContent;
