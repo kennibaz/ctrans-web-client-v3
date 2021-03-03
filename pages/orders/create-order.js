@@ -40,7 +40,10 @@ import EditPhoneDialogDelivery from "../../components/order/dialogs/EditPhonesDi
 import AutoCompleteAddress from "../../components/order/AutoCompleteAddress";
 import { makes } from "../../src/makes";
 
+import { orderValidator } from "../../utils/validators"
+
 import axios from "axios";
+import { TrendingUp } from "@material-ui/icons";
 const drawerWidth = 120;
 
 const useStyles = makeStyles((theme) => ({
@@ -87,6 +90,9 @@ const useStyles = makeStyles((theme) => ({
   },
   select: {
     paddingBottom: 8,
+  },
+  checkBoxLabel: {
+    fontSize: 15,
   },
 }));
 
@@ -182,73 +188,46 @@ function createOrder(props) {
   const [faxOfShipper, setFaxOfShipper] = useState("");
 
   //Validation
+  
+  const [isShipperOrderValid, setIsShipperOrderValid] = useState(false);
+  const [
+    isBusinessNameOfShipperValid,
+    setIsBusinessNameOfShipperValid,
+  ] = useState(false);
+  const [isPhoneOfShipperValid, setIsPhoneOfShipperValid] = useState(false);
+  const [isAddressZipOnPickupValid, setIsAddressZipOnPickupValid] = useState(
+    false
+  );
+  const [
+    isAddressZipOnDeliveryValid,
+    setIsAddressZipOnDeliveryValid,
+  ] = useState(false);
+  const [isScheduledPickupDateValid, setIsScheduledPickupDateValid] = useState(
+    false
+  );
+  const [
+    isScheduledDeliveryDateValid,
+    setIsScheduledDeliveryDateValid,
+  ] = useState(false);
+  const [isPhoneOnPickupValid, setIsPhoneOnPickupValid] = useState(false);
+  const [isPhoneOnDeliveryValid, setIsPhoneOnDeliveryValid] = useState(false);
+  const [isYearValid, setIsYearValid] = useState(false);
+  const [isMakeValid, setIsMakeValid] = useState(false);
+  const [isModelValid, setIsModelValid] = useState(false);
+  const [isOrderAmountValid, setIsOrderAmountValid] = useState(false);
+  const [isPaymentMethodValid, setIsPaymentMethodValid] = useState(false);
+  const [isPaymentStartUponValid, setIsPaymentStartUponValid] = useState(false);
+  const [isPaymentTermsValid, setIsPaymentTermsValid] = useState(false);
+  
 
-  const [isShipperOrderValid, setIsShipperOrderValid] = useState(true);
-  const [isBusinessNameOfShipperValid, setIsBusinessNameOfShipperValid]= useState(true);
-  const [isPhoneOfShipperValid, setIsPhoneOfShipperValid ]= useState(true);
-  const [isAddressOnPickupValid, setIsAddressOnPickupValid]= useState(false);
-  const [isAddressOnDeliveryValid, setIsAddressOnDeliveryValid]= useState(false);
-  const [isScheduledPickupDateValid, setIsScheduledPickupDateValid]= useState(true);
-  const [isScheduledDeliveryDateValid, setIsScheduledDeliveryDateValid]= useState(true);
-  const [isPhoneOnPickupValid, setIsPhoneOnPickupValid]= useState(true);
-  const [isPhoneOnDeliveryValid, setIsPhoneOnDeliveryValid]= useState(true);
-  const [isYearValid, setIsYearValid]= useState(true);
-  const [isMakeValid, setIsMakeValid]= useState(true);
-  const [isModelValid, setIsModelValid]= useState(true);
-  const [isOrderAmountValid, setIsOrderAmountValid]= useState(true);
-  const [isPaymentMethodValid, setIsPaymentMethodValid]= useState(true);
-  const [isPaymentStartUponValid, setIsPaymentStartUponValid]= useState(true);
-  const [isPaymentTermsValid, setIsPaymentTermsValid]= useState(true);
+  //TBD for addresses
+  const [shipperAddressTBD, setShipperAddressTBD] = useState(false);
+  const [originAddressTBD, setOriginAddressTBD] = useState(false);
+  const [destinationAddressTBD, setDestinationAddressTBD] = useState(false);
 
-
-
-
+  const [isFormValid, setIsFormValid] = useState(false)
 
   //USEEFFECTS
-  //ZIP finder
-  useEffect(() => {
-    if (placeIdOnPickup) {
-      const result = async () => {
-        console.log("hio");
-        const respond = await axios.post("/api/geo/get-zip-by-place-id", {
-          placeId: placeIdOnPickup,
-        });
-        console.log(respond);
-        setZipOnPickup(respond.data.zip);
-        setCityOnPickup(respond.data.city);
-        setStateOnPickup(respond.data.state);
-      };
-      result();
-    }
-  }, [placeIdOnPickup]);
-  //ZIP finder
-  useEffect(() => {
-    if (placeIdOnDelivery) {
-      const result = async () => {
-        const respond = await axios.post("/api/geo/get-zip-by-place-id", {
-          placeId: placeIdOnDelivery,
-        });
-        setZipOnDelivery(respond.data.zip);
-        setCityOnDelivery(respond.data.city);
-        setStateOnDelivery(respond.data.state);
-      };
-      result();
-    }
-  }, [placeIdOnDelivery]);
-  //ZIP finder
-  useEffect(() => {
-    if (placeIdOfShipper) {
-      const result = async () => {
-        const respond = await axios.post("/api/geo/get-zip-by-place-id", {
-          placeId: placeIdOfShipper,
-        });
-        setZipOfShipper(respond.data.zip);
-        setCityOfShipper(respond.data.city);
-        setStateOfShipper(respond.data.state);
-      };
-      result();
-    }
-  }, [placeIdOfShipper]);
 
   //Models array setter
   useEffect(() => {
@@ -389,25 +368,49 @@ function createOrder(props) {
     setPhonesOnDelivery(currentPhonesArray);
   };
 
-  const autoCompleteHandlerPickup = async (description, reference) => {
-    if (description) {
-      setAddressOnPickup(description);
-      setPlaceIdOnPickup(reference);
-      // setPlaceIdOnPickup(place_id)
+  const autoCompleteHandlerPickup = async (addressDescription, place_id) => {
+    if (originAddressTBD) {
+      setAddressOnPickup("To Be Defined...");
+      setPlaceIdOnPickup("");
+    } else if (addressDescription) {
+      setAddressOnPickup(addressDescription);
+      setPlaceIdOnPickup(place_id);
+      const respond = await axios.post("/api/geo/get-zip-by-place-id", {
+        placeId: place_id,
+      });
+      setZipOnPickup(respond.data.zip);
+      setCityOnPickup(respond.data.city);
+      setStateOnPickup(respond.data.state);
     }
   };
-  const autoCompleteHandlerDelivery = async (description, place_id) => {
-    if (description) {
-      setAddressOnDelivery(description);
+  const autoCompleteHandlerDelivery = async (addressDescription, place_id) => {
+    if (destinationAddressTBD) {
+      setAddressOnDelivery("To Be Defined...");
+      setPlaceIdOnDelivery("");
+    } else if (addressDescription) {
+      setAddressOnDelivery(addressDescription);
       setPlaceIdOnDelivery(place_id);
-      // setPlaceIdOnPickup(place_id)
+      const respond = await axios.post("/api/geo/get-zip-by-place-id", {
+        placeId: place_id,
+      });
+      setZipOnDelivery(respond.data.zip);
+      setCityOnDelivery(respond.data.city);
+      setStateOnDelivery(respond.data.state);
     }
   };
-  const autoCompleteHandlerShipper = async (description, place_id) => {
-    if (description) {
-      setAddressOfShipper(description);
+  const autoCompleteHandlerShipper = async (addressDescription, place_id) => {
+    if (shipperAddressTBD) {
+      setAddressOfShipper("To Be Defined...");
+      setPlaceIdOfShipper("");
+    } else if (addressDescription) {
+      setAddressOfShipper(addressDescription);
       setPlaceIdOfShipper(place_id);
-      // setPlaceIdOnPickup(place_id)
+      const respond = await axios.post("/api/geo/get-zip-by-place-id", {
+        placeId: place_id,
+      });
+      setZipOfShipper(respond.data.zip);
+      setCityOfShipper(respond.data.city);
+      setStateOfShipper(respond.data.state);
     }
   };
 
@@ -432,212 +435,236 @@ function createOrder(props) {
 
   //save handler
   const saveOrderHandler = async () => {
-    let isVaidated = validateInputs()
-    if (!isVaidated
-    ) {
+    validateInputs();
+    if (!isFormValid) {
       alert("Please enter all required fields");
       return;
+    } else {
+      await axios.post("/api/orders/order-create", {
+        carrierId: props.carrierId,
+        shipperOrderId,
+        carrierOrderId,
+        orderInstructions,
+        businessNameOnPickup,
+        addressOnPickup,
+        placeIdOnPickup,
+        zipOnPickup,
+        cityOnPickup,
+        stateOnPickup,
+        scheduledPickupDate,
+        pickupNotes,
+        contactNameOnPickup,
+        emailOnPickup,
+        phoneOnPickup,
+        phonesOnPickup,
+        faxOnPickup,
+        businessNameOnDelivery,
+        addressOnDelivery,
+        placeIdOnDelivery,
+        zipOnDelivery,
+        cityOnDelivery,
+        stateOnDelivery,
+        scheduledDeliveryDate,
+        deliveryNotes,
+        contactNameOnDelivery,
+        emailOnDelivery,
+        phoneOnDelivery,
+        phonesOnDelivery,
+        faxOnDelivery,
+        vin,
+        year,
+        make,
+        model,
+        color,
+        lotNumber,
+        price,
+        type,
+        inoperable,
+        totalVehicles,
+        orderAmount,
+        driverPay,
+        brokerFee,
+        paymentMethod,
+        paymentTerms,
+        paymentStartUpon,
+        invoiceId,
+        invoiceEmail,
+        invoiceNotes,
+        businessNameOfShipper,
+        addressOfShipper,
+        placeIdOfShipper,
+        cityOfShipper,
+        stateOfShipper,
+        zipOfShipper,
+        contactNameOfShipper,
+        emailOfShipper,
+        phoneOfShipper,
+        faxOfShipper,
+        userId: props.userId,
+        token: props.token,
+      });
+      router.push("/orders/");
     }
-    await axios.post("/api/orders/order-create", {
-      carrierId: props.carrierId,
-      shipperOrderId,
-      carrierOrderId,
-      orderInstructions,
-      businessNameOnPickup,
-      addressOnPickup,
-      placeIdOnPickup,
-      zipOnPickup,
-      cityOnPickup,
-      stateOnPickup,
-      scheduledPickupDate,
-      pickupNotes,
-      contactNameOnPickup,
-      emailOnPickup,
-      phoneOnPickup,
-      phonesOnPickup,
-      faxOnPickup,
-      businessNameOnDelivery,
-      addressOnDelivery,
-      placeIdOnDelivery,
-      zipOnDelivery,
-      cityOnDelivery,
-      stateOnDelivery,
-      scheduledDeliveryDate,
-      deliveryNotes,
-      contactNameOnDelivery,
-      emailOnDelivery,
-      phoneOnDelivery,
-      phonesOnDelivery,
-      faxOnDelivery,
-      vin,
-      year,
-      make,
-      model,
-      color,
-      lotNumber,
-      price,
-      type,
-      inoperable,
-      totalVehicles,
-      orderAmount,
-      driverPay,
-      brokerFee,
-      paymentMethod,
-      paymentTerms,
-      paymentStartUpon,
-      invoiceId,
-      invoiceEmail,
-      invoiceNotes,
-      businessNameOfShipper,
-      addressOfShipper,
-      placeIdOfShipper,
-      cityOfShipper,
-      stateOfShipper,
-      zipOfShipper,
-      contactNameOfShipper,
-      emailOfShipper,
-      phoneOfShipper,
-      faxOfShipper,
-      userId: props.userId,
-      token: props.token,
-    });
-    router.push("/orders/");
+    
   };
 
   //validate inputs
 
   const validateInputs = () => {
-   
-   let isValid = false
+
     if (shipperOrderId) {
-      setIsShipperOrderValid(true)
-      isValid = true
+      setIsShipperOrderValid(true);
+      
     } else {
-      setIsShipperOrderValid(false)
-      isValid = false
+      setIsShipperOrderValid(false);
+      
     }
 
     if (businessNameOfShipper) {
-      setIsBusinessNameOfShipperValid(true)
-      isValid = true
+      setIsBusinessNameOfShipperValid(true);
+      
     } else {
-      setIsBusinessNameOfShipperValid(false)
-      isValid = false
+      setIsBusinessNameOfShipperValid(false);
+      
     }
 
     if (phoneOfShipper) {
-      setIsPhoneOfShipperValid(true)
-      isValid = true
-    }else {
-      setIsPhoneOfShipperValid(false)
-      isValid = false
+      setIsPhoneOfShipperValid(true);
+      
+    } else {
+      setIsPhoneOfShipperValid(false);
+      
     }
 
-    if (addressOnPickup) {
-      setIsAddressOnPickupValid(true)
-      isValid = true
-    }else {
-      setIsAddressOnPickupValid(false)
-      isValid = false
+    if (zipOnPickup && zipOnPickup.length >= 5) {
+      setIsAddressZipOnPickupValid(true);
+      
+    } else {
+      setIsAddressZipOnPickupValid(false);
+      
     }
 
-    if (scheduledPickupDate) {
-      setIsScheduledPickupDateValid(true)
-      isValid = true
-    }else {
-      setIsScheduledPickupDateValid(false)
-      isValid = false
+    if (scheduledPickupDate) { // Issue with validation. validaiton goes trhough despite false state
+      setIsScheduledPickupDateValid(true);
+      
+    } else {
+      setIsScheduledPickupDateValid(false);
+      
     }
 
     if (phoneOnPickup) {
-      setIsPhoneOnPickupValid(true)
-      isValid = true
-    }else {
-      setIsPhoneOnPickupValid(false)
-      isValid = false
+      setIsPhoneOnPickupValid(true);
+      
+    } else {
+      setIsPhoneOnPickupValid(false);
+      
     }
 
     if (phoneOnDelivery) {
-      setIsPhoneOnDeliveryValid(true)
-      isValid = true
-    }else {
-      setIsPhoneOnDeliveryValid(false)
-      isValid = false
-    }
-
-    if (scheduledDeliveryDate) {
-      setIsScheduledDeliveryDateValid(true)
-      isValid = true
+      setIsPhoneOnDeliveryValid(true);
+      
     } else {
-      setIsScheduledDeliveryDateValid(false)
-      isValid = false
+      setIsPhoneOnDeliveryValid(false);
+      
     }
 
-    if (addressOnDelivery) {
-      setIsAddressOnDeliveryValid(true)
-      isValid = true
-    }else {
-      setIsAddressOnDeliveryValid(false)
-      isValid = false
+    // if (scheduledDeliveryDate) {
+    //   setIsScheduledDeliveryDateValid(true);
+    //   isValid = true;
+    // } else {
+    //   setIsScheduledDeliveryDateValid(false);
+    //   isValid = false;
+    // }
+
+    if (zipOnDelivery && zipOnDelivery.length >= 5) {
+      setIsAddressZipOnDeliveryValid(true);
+      
+    } else {
+      setIsAddressZipOnDeliveryValid(false);
+      
     }
 
     if (year) {
-      setIsYearValid(true)
-      isValid = true
-    }else {
-      setIsYearValid(false)
-      isValid = false
+      setIsYearValid(true);
+      
+    } else {
+      setIsYearValid(false);
+      
     }
 
     if (make) {
-      setIsMakeValid(true)
-      isValid = true
-    }else {
-      setIsMakeValid(false)
-      isValid = false
+      setIsMakeValid(true);
+     
+    } else {
+      setIsMakeValid(false);
+      
     }
 
     if (model) {
-      setIsModelValid(true)
-      isValid = true
-    }else {
-      setIsModelValid(false)
-      isValid = false
+      setIsModelValid(true);
+      
+    } else {
+      setIsModelValid(false);
+     
     }
 
     if (orderAmount) {
-      setIsOrderAmountValid(true)
-      isValid = true
-    }else {
-      setIsOrderAmountValid(false)
-      isValid = false
+      setIsOrderAmountValid(true);
+      
+    } else {
+      setIsOrderAmountValid(false);
+      
     }
 
     if (paymentMethod) {
-      setIsPaymentMethodValid(true)
-      isValid = true
-    }else {
-      setIsPaymentMethodValid(false)
-      isValid = false
+      setIsPaymentMethodValid(true);
+      
+    } else {
+      setIsPaymentMethodValid(false);
+      
     }
 
-    if (paymentStartUpon) {
-      setIsPaymentStartUponValid(true)
-      isValid = true
-    }else {
-      setIsPaymentStartUponValid(false)
-      isValid = false
-    }
+  
 
-    if (paymentTerms) {
-      setIsPaymentTermsValid(true)
-      isValid = true
-    }else {
-      setIsPaymentTermsValid(false)
-      isValid = false
-    }
-    return isValid
+   if (paymentTerms) {
+     setIsPaymentTermsValid(true)
+     
+   } else {
+     setIsPaymentTermsValid(false)
+     
+   }
+
+   if (paymentStartUpon) {
+    setIsPaymentStartUponValid(true);
+    
+  } else {
+    setIsPaymentStartUponValid(false);
+    
   }
+
+  if (isShipperOrderValid, isBusinessNameOfShipperValid, isPhoneOfShipperValid,
+    isPhoneOnPickupValid, isScheduledPickupDateValid, isAddressZipOnPickupValid, 
+    isPhoneOnDeliveryValid, isScheduledDeliveryDateValid, isAddressZipOnDeliveryValid,
+    isYearValid, isMakeValid, isModelValid,
+    isOrderAmountValid, isPaymentMethodValid, isPaymentStartUponValid, isPaymentTermsValid) {
+      setIsFormValid(true)
+    }
+    return;
+  };
+
+  // TBD functions
+
+  const shipperAddressTBDHandler = () => {
+    setShipperAddressTBD(!shipperAddressTBD);
+  };
+
+  const originAddressTBDHandler = () => {
+    setOriginAddressTBD(!originAddressTBD);
+  };
+
+  const destinationAddressTBDHandler = () => {
+    setDestinationAddressTBD(!destinationAddressTBD);
+  };
 
   //Dialogs
 
@@ -665,13 +692,34 @@ function createOrder(props) {
     <Grid item xs={12}>
       <Paper elevation={0} variant="outlined">
         <Grid id="subrow_1" item container xs={12}>
-          <Grid id="column_1" item xs={12}>
-            <Grid item xs={12}>
+          <Grid id="column_1" item container direction="row" xs={12}>
+            <Grid item xs={3}>
               <Typography>
                 <Box fontSize="h6.fontSize" m={2}>
                   Shipper and Order
                 </Box>
               </Typography>
+            </Grid>
+            <Grid item xs={4}>
+              <Box fontSize="h6.fontSize" m={1}>
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={shipperAddressTBD}
+                      onChange={() => {
+                        shipperAddressTBDHandler();
+                      }}
+                      name="shipperAddressTBD"
+                      color="primary"
+                    />
+                  }
+                  label={
+                    <span style={{ fontSize: 12 }}>
+                      Define shipper address later
+                    </span>
+                  }
+                />
+              </Box>
             </Grid>
           </Grid>
         </Grid>
@@ -703,8 +751,10 @@ function createOrder(props) {
                 <FormControl className={classes.inputField}>
                   <label htmlFor="shipper_businessName">Shipper name</label>
                   <TextField
-                  error={!isBusinessNameOfShipperValid ? true : false}
-                  placeholder={!isBusinessNameOfShipperValid ? "Required" : null}
+                    error={!isBusinessNameOfShipperValid ? true : false}
+                    placeholder={
+                      !isBusinessNameOfShipperValid ? "Required" : null
+                    }
                     id="shipper_businessName"
                     required
                     value={businessNameOfShipper}
@@ -722,18 +772,21 @@ function createOrder(props) {
           </Grid>
 
           <Grid id="column_2" item xs={5}>
-            <Grid item xs={12}>
+            <Grid item xs={10}>
               <Box m={2} pb={1}>
-                <FormControl className={classes.inputField}>
+                <FormControl className={classes.inputField} disabled>
                   <label htmlFor="shipper_address">Shipper Address</label>
                   <AutoCompleteAddress
                     autoCompleteHandlerShipper={autoCompleteHandlerShipper}
                     shipper
                     address={addressOfShipper}
+                    disabled={shipperAddressTBD}
+                    placeholder={shipperAddressTBD}
                   />
                 </FormControl>
               </Box>
             </Grid>
+
             <Grid item container xs={12}>
               <Grid item xs={4}>
                 <Box ml={2}>
@@ -847,8 +900,8 @@ function createOrder(props) {
                 <FormControl className={classes.inputField}>
                   <label htmlFor="shipper_phone">Phone</label>
                   <TextField
-                  error={!isPhoneOfShipperValid ? true : false}
-                  placeholder={!isPhoneOfShipperValid ? "Required" : null}
+                    error={!isPhoneOfShipperValid ? true : false}
+                    placeholder={!isPhoneOfShipperValid ? "Required" : null}
                     id="shipper_phone"
                     required
                     value={phoneOfShipper}
@@ -893,13 +946,34 @@ function createOrder(props) {
     <Grid item xs={12}>
       <Paper elevation={0} variant="outlined">
         <Grid id="subrow_1" item container xs={12}>
-          <Grid id="column_1" item xs={12}>
-            <Grid item xs={12}>
+          <Grid id="column_1" item container direction="row" xs={12}>
+            <Grid item xs={3}>
               <Typography>
                 <Box fontSize="h6.fontSize" m={2}>
                   Origin
                 </Box>
               </Typography>
+            </Grid>
+            <Grid item xs={4}>
+              <Box fontSize="h6.fontSize" m={1}>
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={originAddressTBD}
+                      onChange={() => {
+                        originAddressTBDHandler();
+                      }}
+                      name="originAddressTBD"
+                      color="primary"
+                    />
+                  }
+                  label={
+                    <span style={{ fontSize: 12 }}>
+                      Define origin address later
+                    </span>
+                  }
+                />
+              </Box>
             </Grid>
           </Grid>
         </Grid>
@@ -931,8 +1005,10 @@ function createOrder(props) {
                     Scheduled pickup date
                   </label>
                   <TextField
-                  error={!isScheduledPickupDateValid ? true : false}
-                  placeholder={!isScheduledPickupDateValid ? "Required" : null}
+                    error={!isScheduledPickupDateValid ? true : false}
+                    placeholder={
+                      !isScheduledPickupDateValid ? "Required" : null
+                    }
                     id="pickupScheduledFirstDate"
                     required
                     type="date"
@@ -1012,6 +1088,10 @@ function createOrder(props) {
                   <FormControl className={classes.inputField}>
                     <label htmlFor="zip">ZIP</label>
                     <TextField
+                      error={!isAddressZipOnPickupValid ? true : false}
+                      placeholder={
+                        !isAddressZipOnPickupValid ? "Required" : null
+                      }
                       id="zip"
                       required
                       value={zipOnPickup}
@@ -1094,8 +1174,8 @@ function createOrder(props) {
                   </label>
 
                   <TextField
-                  error={!isPhoneOnPickupValid ? true : false}
-                  placeholder={!isPhoneOnPickupValid ? "Required" : null}
+                    error={!isPhoneOnPickupValid ? true : false}
+                    placeholder={!isPhoneOnPickupValid ? "Required" : null}
                     id="phone"
                     required
                     value={phoneOnPickup}
@@ -1160,13 +1240,34 @@ function createOrder(props) {
     <Grid item xs={12}>
       <Paper elevation={0} variant="outlined">
         <Grid id="subrow_1" item container xs={12}>
-          <Grid id="column_1" item xs={12}>
-            <Grid item xs={12}>
+          <Grid id="column_1" item container direction="row" xs={12}>
+            <Grid item xs={3}>
               <Typography>
                 <Box fontSize="h6.fontSize" m={2}>
                   Destination
                 </Box>
               </Typography>
+            </Grid>
+            <Grid item xs={4}>
+              <Box fontSize="h6.fontSize" m={1}>
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={destinationAddressTBD}
+                      onChange={() => {
+                        destinationAddressTBDHandler();
+                      }}
+                      name="destianationAddressTBD"
+                      color="primary"
+                    />
+                  }
+                  label={
+                    <span style={{ fontSize: 12 }}>
+                      Define destination address later
+                    </span>
+                  }
+                />
+              </Box>
             </Grid>
           </Grid>
         </Grid>
@@ -1198,8 +1299,10 @@ function createOrder(props) {
                     Scheduled delivery date
                   </label>
                   <TextField
-                  error={!isScheduledDeliveryDateValid ? true : false}
-                  placeholder={!isScheduledDeliveryDateValid ? "Required" : null}
+                    error={!isScheduledDeliveryDateValid ? true : false}
+                    placeholder={
+                      !isScheduledDeliveryDateValid ? "Required" : null
+                    }
                     id="deliveryScheduledFirstDate"
                     required
                     type="date"
@@ -1279,6 +1382,10 @@ function createOrder(props) {
                   <FormControl className={classes.inputField}>
                     <label htmlFor="delivery_zip">ZIP</label>
                     <TextField
+                      error={!isAddressZipOnDeliveryValid ? true : false}
+                      placeholder={
+                        !isAddressZipOnDeliveryValid ? "Required" : null
+                      }
                       id="delivery_zip"
                       required
                       value={zipOnDelivery}
@@ -1361,8 +1468,8 @@ function createOrder(props) {
                   </label>
 
                   <TextField
-                  error={!isPhoneOnDeliveryValid ? true : false}
-                  placeholder={!isPhoneOnDeliveryValid ? "Required" : null}
+                    error={!isPhoneOnDeliveryValid ? true : false}
+                    placeholder={!isPhoneOnDeliveryValid ? "Required" : null}
                     id="phone"
                     required
                     value={phoneOnDelivery}
@@ -1560,8 +1667,8 @@ function createOrder(props) {
                     {" "}
                     <FormControl>
                       <TextField
-                      error={!isYearValid ? true : false}
-                      placeholder={!isYearValid ? "Required" : null}
+                        error={!isYearValid ? true : false}
+                        placeholder={!isYearValid ? "Required" : null}
                         id="year"
                         required
                         value={year}
@@ -1577,7 +1684,6 @@ function createOrder(props) {
                     {" "}
                     <div style={{ width: 130 }}>
                       <Autocomplete
-                  
                         id="make-autocomplete"
                         name="make"
                         value={make}
@@ -1801,8 +1907,8 @@ function createOrder(props) {
                 <FormControl className={classes.inputField}>
                   <label htmlFor="orderAmount">Order Amount</label>
                   <TextField
-                   error={!isOrderAmountValid ? true : false}
-                   placeholder={!isOrderAmountValid ? "Required" : null}
+                    error={!isOrderAmountValid ? true : false}
+                    placeholder={!isOrderAmountValid ? "Required" : null}
                     id="orderAmount"
                     required
                     value={orderAmount}
@@ -1826,8 +1932,8 @@ function createOrder(props) {
                     Terms
                   </label>
                   <Select
-                     error={!isPaymentTermsValid ? true : false}
-                     placeholder={!isPaymentTermsValid ? "Required" : null}
+                    error={!isPaymentTermsValid ? true : false}
+                    placeholder={!isPaymentTermsValid ? "Required" : null}
                     id="paymentTerms"
                     margin="dense"
                     style={{ fontSize: 12, width: "170%" }}
@@ -1858,8 +1964,8 @@ function createOrder(props) {
                     Method
                   </label>
                   <Select
-                  error={!isPaymentMethodValid ? true : false}
-                  placeholder={!isPaymentMethodValid ? "Required" : null}
+                    error={!isPaymentMethodValid ? true : false}
+                    placeholder={!isPaymentMethodValid ? "Required" : null}
                     id="paymentMethod"
                     margin="dense"
                     style={{ fontSize: 12, width: "190%" }}
@@ -1887,8 +1993,8 @@ function createOrder(props) {
                     Payment start upon
                   </label>
                   <Select
-                      error={!isPaymentStartUponValid ? true : false}
-                      placeholder={!isPaymentStartUponValid ? "Required" : null}
+                    error={!isPaymentStartUponValid ? true : false}
+                    placeholder={!isPaymentStartUponValid ? "Required" : null}
                     id="paymentUpon"
                     margin="dense"
                     style={{ fontSize: 12, width: "100%" }}

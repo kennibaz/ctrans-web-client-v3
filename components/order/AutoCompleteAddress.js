@@ -30,7 +30,6 @@ const useStyles = makeStyles((theme) => ({
   inputText: {
     fontSize: 12,
   },
-
 }));
 
 export default function AutoCompleteAddress(props) {
@@ -40,19 +39,17 @@ export default function AutoCompleteAddress(props) {
   const [options, setOptions] = useState([]);
   const loaded = useRef(false);
 
-  useEffect(()=>{
-    if(props.pickup){
+  useEffect(() => {
+    if (props.pickup) {
       props.autoCompleteHandlerPickup(value?.description, value?.reference);
     }
-    if(props.delivery){
+    if (props.delivery) {
       props.autoCompleteHandlerDelivery(value?.description, value?.reference);
     }
-    if(props.shipper){
+    if (props.shipper) {
       props.autoCompleteHandlerShipper(value?.description, value?.reference);
     }
-  },[value])
-
- 
+  }, [value]);
 
   if (typeof window !== "undefined" && !loaded.current) {
     if (!document.querySelector("#google-maps")) {
@@ -113,7 +110,7 @@ export default function AutoCompleteAddress(props) {
   return (
     <Autocomplete
       id="google-map-demo"
-      size={"small"} 
+      size={"small"}
       style={{ width: "450%", height: 40 }}
       getOptionLabel={(option) =>
         typeof option === "string" ? option : option.description
@@ -121,16 +118,15 @@ export default function AutoCompleteAddress(props) {
       filterOptions={(x) => x}
       options={options}
       autoComplete
+      disabled={props.disabled}
       freeSolo
       classes={{
-        input: classes.inputText
+        input: classes.inputText,
       }}
       includeInputInList
-      ListboxProps={{ style: { maxHeight: '8rem',  } }}
+      ListboxProps={{ style: { maxHeight: "8rem" } }}
       filterSelectedOptions
-      value={
-        props.address
-      }
+      value={props.address}
       onChange={(event, newValue) => {
         setOptions(newValue ? [newValue, ...options] : options);
         setValue(newValue);
@@ -140,12 +136,11 @@ export default function AutoCompleteAddress(props) {
       }}
       renderInput={(params) => (
         <TextField
-        {...params}
-        
+          {...params}
+          placeholder={props.placeholder ? "To Be Defined" : null}
           variant="outlined"
           margin="dense"
           fontSize="8"
-         
         />
       )}
       renderOption={(option) => {
