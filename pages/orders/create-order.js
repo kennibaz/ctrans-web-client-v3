@@ -3,6 +3,7 @@ import { makeStyles } from "@material-ui/core/styles";
 import { withStyles } from "@material-ui/core/styles";
 import { useRouter } from "next/router";
 import uuid from "react-uuid";
+import Head from "next/head";
 import NavBar from "../../components/NavBar";
 import AppBar from "@material-ui/core/AppBar";
 import Toolbar from "@material-ui/core/Toolbar";
@@ -2143,6 +2144,9 @@ function createOrder(props) {
   return (
     <div>
       <NavBar>
+      <Head>
+        <title>C|Transporter - Create an Order</title>
+      </Head>
         <AppBar position="fixed" className={classes.appBar} elevation={0}>
           <Toolbar className={classes.upperToolBar}>
             <Grid container>
