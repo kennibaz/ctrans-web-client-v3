@@ -127,7 +127,7 @@ function createOrder(props) {
   const [zipOnPickup, setZipOnPickup] = useState("");
   const [cityOnPickup, setCityOnPickup] = useState("");
   const [stateOnPickup, setStateOnPickup] = useState("");
-  const [scheduledPickupDate, setScheduledPickupDate] = useState("");
+  
   const [pickupNotes, setPickupNotes] = useState("");
   const [contactNameOnPickup, setContactNameOnPickup] = useState("");
   const [emailOnPickup, setEmailOnPickup] = useState("");
@@ -188,36 +188,35 @@ function createOrder(props) {
   const [faxOfShipper, setFaxOfShipper] = useState("");
 
   //Validation
-  
-  const [isShipperOrderValid, setIsShipperOrderValid] = useState(false);
+
+  const [isFormValid, setIsFormValid] = useState(false)
+  const [isShipperOrderValid, setIsShipperOrderValid] = useState(true);
   const [
     isBusinessNameOfShipperValid,
     setIsBusinessNameOfShipperValid,
-  ] = useState(false);
-  const [isPhoneOfShipperValid, setIsPhoneOfShipperValid] = useState(false);
+  ] = useState(true);
+  const [isPhoneOfShipperValid, setIsPhoneOfShipperValid] = useState(true);
   const [isAddressZipOnPickupValid, setIsAddressZipOnPickupValid] = useState(
-    false
+    true
   );
   const [
     isAddressZipOnDeliveryValid,
     setIsAddressZipOnDeliveryValid,
-  ] = useState(false);
-  const [isScheduledPickupDateValid, setIsScheduledPickupDateValid] = useState(
-    false
-  );
+  ] = useState(true);
+  
   const [
     isScheduledDeliveryDateValid,
     setIsScheduledDeliveryDateValid,
-  ] = useState(false);
-  const [isPhoneOnPickupValid, setIsPhoneOnPickupValid] = useState(false);
-  const [isPhoneOnDeliveryValid, setIsPhoneOnDeliveryValid] = useState(false);
-  const [isYearValid, setIsYearValid] = useState(false);
-  const [isMakeValid, setIsMakeValid] = useState(false);
-  const [isModelValid, setIsModelValid] = useState(false);
-  const [isOrderAmountValid, setIsOrderAmountValid] = useState(false);
-  const [isPaymentMethodValid, setIsPaymentMethodValid] = useState(false);
-  const [isPaymentStartUponValid, setIsPaymentStartUponValid] = useState(false);
-  const [isPaymentTermsValid, setIsPaymentTermsValid] = useState(false);
+  ] = useState(true);
+  const [isPhoneOnPickupValid, setIsPhoneOnPickupValid] = useState(true);
+  const [isPhoneOnDeliveryValid, setIsPhoneOnDeliveryValid] = useState(true);
+  const [isYearValid, setIsYearValid] = useState(true);
+  const [isMakeValid, setIsMakeValid] = useState(true);
+  const [isModelValid, setIsModelValid] = useState(true);
+  const [isOrderAmountValid, setIsOrderAmountValid] = useState(true);
+  const [isPaymentMethodValid, setIsPaymentMethodValid] = useState(true);
+  const [isPaymentStartUponValid, setIsPaymentStartUponValid] = useState(true);
+  const [isPaymentTermsValid, setIsPaymentTermsValid] = useState(true);
   
 
   //TBD for addresses
@@ -225,7 +224,10 @@ function createOrder(props) {
   const [originAddressTBD, setOriginAddressTBD] = useState(false);
   const [destinationAddressTBD, setDestinationAddressTBD] = useState(false);
 
-  const [isFormValid, setIsFormValid] = useState(false)
+  const [isScheduledPickupDateValid, setIsScheduledPickupDateValid] = useState(
+    true
+  );
+  const [scheduledPickupDate, setScheduledPickupDate] = useState("");
 
   //USEEFFECTS
 
@@ -510,144 +512,153 @@ function createOrder(props) {
 
   //validate inputs
 
-  const validateInputs = () => {
 
-    if (shipperOrderId) {
-      setIsShipperOrderValid(true);
-      
-    } else {
+  const validateLoadId = (e) => {
+    
+    if (!e) {
       setIsShipperOrderValid(false);
-      
-    }
-
-    if (businessNameOfShipper) {
-      setIsBusinessNameOfShipperValid(true);
-      
     } else {
-      setIsBusinessNameOfShipperValid(false);
-      
+      setIsShipperOrderValid(true);
     }
+  };
 
-    if (phoneOfShipper) {
-      setIsPhoneOfShipperValid(true);
-      
-    } else {
+
+  const validateShipperPhone = (e) => {
+    if (!e) {
       setIsPhoneOfShipperValid(false);
-      
-    }
-
-    if (zipOnPickup && zipOnPickup.length >= 5) {
-      setIsAddressZipOnPickupValid(true);
-      
     } else {
-      setIsAddressZipOnPickupValid(false);
-      
+      setIsPhoneOfShipperValid(true);
     }
-
-    if (scheduledPickupDate) { // Issue with validation. validaiton goes trhough despite false state
-      setIsScheduledPickupDateValid(true);
-      
-    } else {
-      setIsScheduledPickupDateValid(false);
-      
-    }
-
-    if (phoneOnPickup) {
-      setIsPhoneOnPickupValid(true);
-      
-    } else {
-      setIsPhoneOnPickupValid(false);
-      
-    }
-
-    if (phoneOnDelivery) {
-      setIsPhoneOnDeliveryValid(true);
-      
-    } else {
-      setIsPhoneOnDeliveryValid(false);
-      
-    }
-
-    // if (scheduledDeliveryDate) {
-    //   setIsScheduledDeliveryDateValid(true);
-    //   isValid = true;
-    // } else {
-    //   setIsScheduledDeliveryDateValid(false);
-    //   isValid = false;
-    // }
-
-    if (zipOnDelivery && zipOnDelivery.length >= 5) {
-      setIsAddressZipOnDeliveryValid(true);
-      
-    } else {
-      setIsAddressZipOnDeliveryValid(false);
-      
-    }
-
-    if (year) {
-      setIsYearValid(true);
-      
-    } else {
-      setIsYearValid(false);
-      
-    }
-
-    if (make) {
-      setIsMakeValid(true);
-     
-    } else {
-      setIsMakeValid(false);
-      
-    }
-
-    if (model) {
-      setIsModelValid(true);
-      
-    } else {
-      setIsModelValid(false);
-     
-    }
-
-    if (orderAmount) {
-      setIsOrderAmountValid(true);
-      
-    } else {
-      setIsOrderAmountValid(false);
-      
-    }
-
-    if (paymentMethod) {
-      setIsPaymentMethodValid(true);
-      
-    } else {
-      setIsPaymentMethodValid(false);
-      
-    }
-
-  
-
-   if (paymentTerms) {
-     setIsPaymentTermsValid(true)
-     
-   } else {
-     setIsPaymentTermsValid(false)
-     
-   }
-
-   if (paymentStartUpon) {
-    setIsPaymentStartUponValid(true);
-    
-  } else {
-    setIsPaymentStartUponValid(false);
-    
   }
 
-  if (isShipperOrderValid, isBusinessNameOfShipperValid, isPhoneOfShipperValid,
-    isPhoneOnPickupValid, isScheduledPickupDateValid, isAddressZipOnPickupValid, 
-    isPhoneOnDeliveryValid, isScheduledDeliveryDateValid, isAddressZipOnDeliveryValid,
-    isYearValid, isMakeValid, isModelValid,
-    isOrderAmountValid, isPaymentMethodValid, isPaymentStartUponValid, isPaymentTermsValid) {
-      setIsFormValid(true)
+  const validateShipperBusinessName = (e) => {
+    if (!e) {
+      setIsBusinessNameOfShipperValid(false);
+    } else {
+      setIsBusinessNameOfShipperValid(true);
+    }
+  }
+
+  const validateOriginPhone = (e) => {
+    if (!e) {
+      setIsPhoneOnPickupValid(false);
+    } else {
+      setIsPhoneOnPickupValid(true);
+    }
+  }
+
+  const validateOriginZip = (e) => {
+    if (!e) {
+      setIsAddressZipOnPickupValid(false);
+    } else {
+      setIsAddressZipOnPickupValid(true);
+    }
+  }
+
+  const validateOriginDate = (e) => {
+    if (!e) {
+      setIsScheduledPickupDateValid(false);
+    } else {
+      setIsScheduledPickupDateValid(true);
+    }
+  }
+
+  const validateDestinationPhone = (e) => {
+    if (!e) {
+      setIsPhoneOnDeliveryValid(false);
+    } else {
+      setIsPhoneOnDeliveryValid(true);
+    }
+  }
+
+  const validateDestinationZip = (e) => {
+    if (!e) {
+      setIsAddressZipOnDeliveryValid(false);
+    } else {
+      setIsAddressZipOnDeliveryValid(true);
+    }
+  }
+
+  const validateDestinationDate = (e) => {
+    if (!e) {
+      setIsScheduledDeliveryDateValid(false);
+    } else {
+      setIsScheduledDeliveryDateValid(true);
+    }
+  }
+
+  const validateOrderAmount = (e) => {
+    if (!e) {
+      setIsOrderAmountValid(false);
+    } else {
+      setIsOrderAmountValid(true);
+    }
+  }
+
+  const validatePaymentTerms = (e) => {
+    if (!e) {
+      setIsPaymentTermsValid(false);
+    } else {
+      setIsPaymentTermsValid(true);
+    }
+  }
+ 
+  const validatePaymentStartDate = (e) => {
+    if (!e) {
+      setIsPaymentStartUponValid(false);
+    } else {
+      setIsPaymentStartUponValid(true);
+    }
+  }
+
+  const validatePaymentMethod = (e) => {
+    if (!e) {
+      setIsPaymentMethodValid(false);
+    } else {
+      setIsPaymentMethodValid(true);
+    }
+  }
+
+
+
+  const validateInputs = () => {
+    if (
+      (shipperOrderId,
+      businessNameOfShipper,
+      phoneOfShipper,
+      year,
+      make,
+      model,
+      phoneOnPickup,
+      zipOnPickup,
+      scheduledPickupDate,
+      phonesOnDelivery,
+      zipOnDelivery,
+      scheduledDeliveryDate,
+      orderAmount,
+      paymentTerms,
+      paymentMethod,
+      paymentStartUpon)
+    ) {
+      setIsFormValid(true);
+    } else {
+      
+      !shipperOrderId && setIsShipperOrderValid(false),
+      !businessNameOfShipper && setIsBusinessNameOfShipperValid(false)
+      !phoneOfShipper &&  setIsPhoneOfShipperValid(false)
+      !year && setIsYearValid(false)
+      !make && setIsMakeValid(false)
+      !model && setIsModelValid(false)
+      !phoneOnPickup && setIsPhoneOnPickupValid(false)
+      !zipOnPickup && setIsAddressZipOnPickupValid(false)
+      !scheduledPickupDate && setIsScheduledPickupDateValid(false)
+      !phoneOnDelivery && setIsPhoneOnDeliveryValid(false)
+      !zipOnDelivery && setIsAddressZipOnDeliveryValid(false)
+      !scheduledDeliveryDate && setIsScheduledDeliveryDateValid(false)
+      !orderAmount && setIsOrderAmountValid(false)
+      !paymentTerms && setIsPaymentTermsValid(false)
+      !paymentMethod && setIsPaymentMethodValid(false)
+      !paymentStartUpon && setIsPaymentStartUponValid(false)
     }
     return;
   };
@@ -736,6 +747,7 @@ function createOrder(props) {
                     required
                     value={shipperOrderId}
                     onChange={(e) => setShipperOrderId(e.target.value)}
+                    onBlur={(e)=>{validateLoadId(e.target.value)}}
                     margin="dense"
                     name="shipper_id"
                     variant="outlined"
@@ -759,6 +771,7 @@ function createOrder(props) {
                     required
                     value={businessNameOfShipper}
                     onChange={(e) => setBusinessNameOfShipper(e.target.value)}
+                    onBlur={(e)=>{validateShipperBusinessName(e.target.value)}}
                     margin="dense"
                     name="shipper_businessName"
                     variant="outlined"
@@ -906,6 +919,7 @@ function createOrder(props) {
                     required
                     value={phoneOfShipper}
                     onChange={(e) => setPhoneOfShipper(e.target.value)}
+                    onBlur={(e)=>{validateShipperPhone(e.target.value)}}
                     margin="dense"
                     name="shipper_phone"
                     variant="outlined"
@@ -1014,6 +1028,7 @@ function createOrder(props) {
                     type="date"
                     value={scheduledPickupDate}
                     onChange={(e) => setScheduledPickupDate(e.target.value)}
+                    onBlur={(e)=>{validateOriginDate(e.target.value)}}
                     margin="dense"
                     name="pickupScheduledFirstDate"
                     fullWidth={true}
@@ -1096,6 +1111,7 @@ function createOrder(props) {
                       required
                       value={zipOnPickup}
                       onChange={(e) => setZipOnPickup(e.target.value)}
+                      onBlur={(e)=>{validateOriginZip(e.target.value)}}
                       margin="dense"
                       name="zip"
                       fullWidth={true}
@@ -1180,6 +1196,7 @@ function createOrder(props) {
                     required
                     value={phoneOnPickup}
                     onChange={(e) => setPhoneOnPickup(e.target.value)}
+                    onBlur={(e)=>{validateOriginPhone(e.target.value)}}
                     margin="dense"
                     name="phone"
                     variant="outlined"
@@ -1308,6 +1325,7 @@ function createOrder(props) {
                     type="date"
                     value={scheduledDeliveryDate}
                     onChange={(e) => setScheduledDeliveryDate(e.target.value)}
+                    onBlur={(e)=>{validateDestinationDate(e.target.value)}}
                     margin="dense"
                     name="deliveryScheduledFirstDate"
                     fullWidth={true}
@@ -1390,6 +1408,7 @@ function createOrder(props) {
                       required
                       value={zipOnDelivery}
                       onChange={(e) => setZipOnDelivery(e.target.value)}
+                      onBlur={(e)=>{validateDestinationZip(e.target.value)}}
                       margin="dense"
                       name="delivery_zip"
                       fullWidth={true}
@@ -1474,6 +1493,7 @@ function createOrder(props) {
                     required
                     value={phoneOnDelivery}
                     onChange={(e) => setPhoneOnDelivery(e.target.value)}
+                    onBlur={(e)=>{validateDestinationPhone(e.target.value)}}
                     margin="dense"
                     name="phone"
                     variant="outlined"
@@ -1915,6 +1935,7 @@ function createOrder(props) {
                     placeholder={"$"}
                     style={{ width: "70%" }}
                     onChange={(e) => setOrderAmount(e.target.value)}
+                    onBlur={(e)=>{validateOrderAmount(e.target.value)}}
                     margin="dense"
                     name="orderAmount"
                     variant="outlined"
@@ -1940,6 +1961,7 @@ function createOrder(props) {
                     name="paymentTerms"
                     value={paymentTerms}
                     onChange={(e) => setPaymentTerms(e.target.value)}
+                    onBlur={(e)=>{validatePaymentTerms(e.target.value)}}
                     InputProps={{ classes: { input: classes.inputText } }}
                   >
                     <MenuItem value={"cod"}>COD</MenuItem>
@@ -1972,6 +1994,7 @@ function createOrder(props) {
                     name="paymentMethod"
                     value={paymentMethod}
                     onChange={(e) => setPaymentMethod(e.target.value)}
+                    onBlur={(e)=>{validatePaymentMethod(e.target.value)}}
                     InputProps={{ classes: { input: classes.inputText } }}
                   >
                     <MenuItem value={"cash"}>Cash</MenuItem>
@@ -2001,6 +2024,7 @@ function createOrder(props) {
                     name="paymentUpon"
                     value={paymentStartUpon}
                     onChange={(e) => setPaymentStartUpon(e.target.value)}
+                    onBlur={(e)=>{validatePaymentStartDate(e.target.value)}}
                     InputProps={{ classes: { input: classes.inputText } }}
                   >
                     <MenuItem value={"pickup"}>Pickup</MenuItem>
