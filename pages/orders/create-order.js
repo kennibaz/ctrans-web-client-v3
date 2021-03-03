@@ -128,7 +128,8 @@ function createOrder(props) {
   const [zipOnPickup, setZipOnPickup] = useState("");
   const [cityOnPickup, setCityOnPickup] = useState("");
   const [stateOnPickup, setStateOnPickup] = useState("");
-  
+  const [scheduledPickupDate, setScheduledPickupDate] = useState("");
+
   const [pickupNotes, setPickupNotes] = useState("");
   const [contactNameOnPickup, setContactNameOnPickup] = useState("");
   const [emailOnPickup, setEmailOnPickup] = useState("");
@@ -163,7 +164,7 @@ function createOrder(props) {
   const [isEditVehicleMode, setIsEditVehicleMode] = useState(false);
   const [updateButtonShow, setUpdateButtonShow] = useState(false); //state for update button
   const [selectedVehicleIndex, setSelectedVehicleIndex] = useState(""); //state for storing selected row index to update it in parent component
-  const [modelsArray, setModelsArray] = useState(""); //state for storing selected row index to update it in parent component
+  const [modelsArray, setModelsArray] = useState(["model"]); //state for storing selected row index to update it in parent component
 
   //payment
   const [orderAmount, setOrderAmount] = useState("");
@@ -189,7 +190,9 @@ function createOrder(props) {
   const [faxOfShipper, setFaxOfShipper] = useState("");
 
   //Validation
-
+  const [isScheduledPickupDateValid, setIsScheduledPickupDateValid] = useState(
+    true
+  );
   const [isFormValid, setIsFormValid] = useState(false)
   const [isShipperOrderValid, setIsShipperOrderValid] = useState(true);
   const [
@@ -225,23 +228,28 @@ function createOrder(props) {
   const [originAddressTBD, setOriginAddressTBD] = useState(false);
   const [destinationAddressTBD, setDestinationAddressTBD] = useState(false);
 
-  const [isScheduledPickupDateValid, setIsScheduledPickupDateValid] = useState(
-    true
-  );
-  const [scheduledPickupDate, setScheduledPickupDate] = useState("");
-
+ 
+ 
   //USEEFFECTS
 
   //Models array setter
-  useEffect(() => {
-    async function result() {
-      const result = await axios.post("/api/vehicles/get-models-by-make", {
-        make: make,
-      });
-      setModelsArray(result.data);
-    }
-    result();
-  }, [make]);
+  // useEffect(() => {
+  //   async function result() {
+  //     const result = await axios.post("/api/vehicles/get-models-by-make", {
+  //       make: make,
+  //     });
+  //     setModelsArray(result.data);
+  //   }
+  //   result();
+  // }, [make]);
+
+  const setMakeModelHandler = async (make) => {
+    setMake(make)
+    const result = await axios.post("/api/vehicles/get-models-by-make", {
+      make: make,
+    });
+    setModelsArray(result.data);
+  }
 
   // add vehicle to array
   const addVehicleHandler = () => {
@@ -1713,7 +1721,7 @@ function createOrder(props) {
                           input: classes.vehicleInput,
                         }}
                         onChange={(event, newValue) => {
-                          setMake(newValue);
+                           setMakeModelHandler(newValue);
                         }}
                         options={makes.map((vehicle) => vehicle.make)}
                         renderInput={(params) => (
