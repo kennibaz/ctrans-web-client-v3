@@ -8,21 +8,21 @@ const fs = require("fs");
 const path = require("path");
 
 export default async (req, res) => {
-  console.log("inside");
+
   if (req.method === "POST") {
     return new Promise(async (resolve) => {
-      let newPath = path.join(__dirname, "..", "DispatchSheet.pdf");
+      const {document} = req.body
 
-      let dataBuffer = fs.readFileSync(newPath);
+      // let newPath = path.join(__dirname, "..", "DispatchSheet.pdf");
 
-     
+      // let dataBuffer = fs.readFileSync(newPath);
+
+      let dataBuffer = document
+
       const data = await pdf(dataBuffer);
       
-
       let resultData = data.text;
       var zipNumberPatternInAddress = / \d+/g;
-
-      // console.log(resultData)
 
       //Intial Split by blocks
       var pickupInformation = resultData.substring(
@@ -294,7 +294,6 @@ export default async (req, res) => {
         deliveryDate: deliveryDateConvertedFormat
       };
 
-      console.log(newUploadedObject);
       res.status(200).send(newUploadedObject);
       return resolve();
     });

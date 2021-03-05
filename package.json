@@ -26,6 +26,7 @@
     "pdfreader": "^1.2.8",
     "react": "17.0.1",
     "react-dom": "^17.0.1",
+    "react-dropzone": "^11.3.1",
     "react-highlight-words": "^0.16.0",
     "react-image-gallery": "^1.0.8",
     "react-uuid": "^1.0.2",

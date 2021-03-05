@@ -33,8 +33,9 @@ import CheckIcon from "@material-ui/icons/Check";
 import Collapse from "@material-ui/core/Collapse";
 import ButtonGroup from "@material-ui/core/ButtonGroup";
 import { Container } from "@material-ui/core";
-import { DropzoneArea } from "material-ui-dropzone";
+import Dropzone from 'react-dropzone'
 import { withAuth } from "../../utils/withAuth";
+import CircularProgress from "@material-ui/core/CircularProgress";
 
 import EditPhoneDialog from "../../components/order/dialogs/EditPhonesDialog";
 import EditPhoneDialogDelivery from "../../components/order/dialogs/EditPhonesDialogDelivery";
@@ -44,7 +45,7 @@ import { makes } from "../../src/makes";
 import { PaymentMethods, CarTypes } from "../../utils/constants"
 
 import axios from "axios";
-import { TrendingUp } from "@material-ui/icons";
+
 const drawerWidth = 120;
 
 const useStyles = makeStyles((theme) => ({
@@ -111,6 +112,8 @@ function createOrder(props) {
   const vehicleId = uuid();
   const classes = useStyles();
   const router = useRouter();
+
+  const [uploadedSpinner, setUploadSpinner] = useState(false)
 
   const [isEditPhonesOnPickupOpen, setIsEditPhonesOnPickupOpen] = useState(
     false
@@ -248,10 +251,10 @@ function createOrder(props) {
     setModelsArray(result.data);
   };
 
-  const testParser = async () => {
-    const result = await axios.post("/api/bol/test-parser", {});
-
-    console.log("result", result.data);
+  const uploadFileParser = async (document) => {
+    setUploadSpinner(true)
+    const result = await axios.post("/api/bol/test-parser", {document: Buffer.from(document)});
+    setUploadSpinner(false)
     let parsedData = result.data;
     setShipperOrderId(parsedData.shipperOrderId);
     setBusinessNameOfShipper(parsedData.shipperName);
@@ -288,6 +291,22 @@ function createOrder(props) {
     setScheduledDeliveryDate(parsedData.deliveryDate)
 
   };
+
+  // const uploadedFilesHandler = (files) => {
+  //   setUploadedFiles(files)
+  //   const reader = new FileReader()
+
+  //   reader.onabort = () => console.log('file reading was aborted')
+  //   reader.onerror = () => console.log('file reading has failed')
+  //   reader.onload = () => {
+  //   // Do whatever you want with the file contents
+  //     const binaryStr = reader.result
+  //     console.log(binaryStr)
+  //   }
+  //   reader.readAsArrayBuffer(files)
+
+  // }
+
 
   const setPaymentMethodFromParsedDocument = (method) => {
     switch (method) {
@@ -765,7 +784,7 @@ function createOrder(props) {
                 </Box>
                 <Button
                   onClick={() => {
-                    testParser();
+                    uploadFileParser();
                   }}
                 >
                   Test
@@ -2258,7 +2277,36 @@ function createOrder(props) {
               <Grid item xs={12}>
                 <Paper elevation={0} variant="outlined">
                   <Box m={2}>
-                    <DropzoneArea />
+                    <Dropzone
+                      onDrop={(acceptedFiles) => {
+                        acceptedFiles.forEach((file) => {
+                          const reader = new FileReader()
+                    
+                          reader.onabort = () => console.log('file reading was aborted')
+                          reader.onerror = () => console.log('file reading has failed')
+                          reader.onload = () => {
+                          // Do whatever you want with the file contents
+                            const binaryStr = reader.result
+                            uploadFileParser(binaryStr)
+                          }
+                          reader.readAsArrayBuffer(file)
+                        })
+                      }}
+                    >
+                      {({ getRootProps, getInputProps }) => (
+                        <section>
+                          <div {...getRootProps()}>
+                            <input {...getInputProps()} />
+                            <p>
+                              Drag 'n' drop some files here, or click to select
+                              files
+                            </p>
+                            {uploadedSpinner? <CircularProgress/> : null}
+                            
+                          </div>
+                        </section>
+                      )}
+                    </Dropzone>
                   </Box>
                 </Paper>
               </Grid>
