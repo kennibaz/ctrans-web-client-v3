@@ -1,5 +1,7 @@
 import { ContactsOutlined } from "@material-ui/icons";
 import { makes } from "../../../src/makes";
+const axios = require("axios");
+
 
 const pdf = require("pdf-parse");
 const fs = require("fs");
@@ -15,11 +17,11 @@ export default async (req, res) => {
 
      
       const data = await pdf(dataBuffer);
+      
 
       let resultData = data.text;
       var zipNumberPatternInAddress = / \d+/g;
-      var phoneNumberPatternInAddress = / \d+/g;
-      var yearNumberPatternInVehicle = /\d+/g;
+
       // console.log(resultData)
 
       //Intial Split by blocks
@@ -58,6 +60,16 @@ export default async (req, res) => {
         resultData.lastIndexOf("Pickup Information")
       );
 
+      var instructionInformation = resultData.substring(
+        resultData.lastIndexOf("DISPATCH INSTRUCTIONS"),
+        resultData.lastIndexOf("CD reference")
+      );
+
+      var datesInformation = resultData.substring(
+        resultData.lastIndexOf("Dispatch Date:"),
+        resultData.lastIndexOf("Ship Via:")
+      );
+
       var resultDataSplitByLines = resultData.split("\n");
 
       //////Second split blocks by lines
@@ -65,6 +77,7 @@ export default async (req, res) => {
       var pickupInformationSplitByLines = pickupInformation.split("\n");
       var deliveryInformationSplitByLines = deliveryInformation.split("\n");
       var paymentInformationSplitByLines = paymentInformation.split("\n");
+      var datesInformationSplitByLines = datesInformation.split("\n")
       var vehicleInformationSplitByLines = vehicleInformation.split("\n");
       //remove last and first elements from vehicles array
       vehicleInformationSplitByLines.shift();
@@ -102,9 +115,19 @@ export default async (req, res) => {
         .substring(resultDataSplitByLines[2].indexOf(":") + 1)
         .trim();
 
+        var shipperAddress2 = await getGoogleCoordinates(shipperZip)
+        var shipperAddress2Split = shipperAddress2.split(",")
+        var shipperCity = shipperAddress2Split[0]
+        var shipperState = shipperAddress2Split[1].trim().slice(0,2)  
+
+
+//vehicles
+
       var totalVehiclesInOrder = resultDataSplitByLines[3]
         .substring(resultDataSplitByLines[3].indexOf(":") + 1)
         .trim();
+
+
       //pickup
 
       var pickupContactName = pickupInformationSplitByLines[1]
@@ -117,6 +140,13 @@ export default async (req, res) => {
       var pickupPhone = pickupInformationSplitByLines[4]
         .substring(pickupInformationSplitByLines[4].indexOf(":") + 1)
         .trim();
+
+      var pickupAddress2 = await getGoogleCoordinates(pickupZip)
+      var pickupAddress2Split = pickupAddress2.split(",")
+      var pickupCity = pickupAddress2Split[0]
+      var pickupState = pickupAddress2Split[1].trim().slice(0,2)  
+  
+
       //delivery
 
       var deliveryContactName = deliveryInformationSplitByLines[1]
@@ -129,6 +159,11 @@ export default async (req, res) => {
       var deliveryPhone = deliveryInformationSplitByLines[4]
         .substring(deliveryInformationSplitByLines[4].indexOf(":") + 1)
         .trim();
+
+        var deliveryAddress2 = await getGoogleCoordinates(deliveryZip)
+        var deliveryAddress2Split = deliveryAddress2.split(",")
+        var deliveryCity = deliveryAddress2Split[0]
+        var deliveryState = deliveryAddress2Split[1].trim().slice(0,2)  
 
       //payment
       var totalPayment = paymentInformationSplitByLines[1]
@@ -209,26 +244,54 @@ export default async (req, res) => {
         vehiclesArray.push(newVehicle)
       }
 
+      //dates
+
+      var pickupDate = datesInformationSplitByLines[1].substring(
+        datesInformationSplitByLines[1].indexOf(":") + 1
+      ).trim()
+
+      var pickupDateConverted = pickupDate.split('/')
+      var pickupDateConvertedFormat = [pickupDateConverted[2], pickupDateConverted[1], pickupDateConverted[0]].join("-")
+      
+
+
+      var deliveryDate = datesInformationSplitByLines[2].substring(
+        datesInformationSplitByLines[2].indexOf(":") +1
+      ).trim()
+
+      var deliveryDateConverted = deliveryDate.split('/')
+      var deliveryDateConvertedFormat = [deliveryDateConverted[2], deliveryDateConverted[1], deliveryDateConverted[0]].join("-")
+
       let newUploadedObject = {
         shipperOrderId: shipperOrderId,
         pickupPhone: pickupPhone,
         pickupAddress: pickupAddress,
         pickupZip: pickupZip,
+        pickupCity: pickupCity,
+        pickupState: pickupState,
         pickupContactName: pickupContactName,
         deliveryPhone: deliveryPhone,
         deliveryAddress: deliveryAddress,
         deliveryZip: deliveryZip,
+        deliveryCity: deliveryCity,
+        deliveryState: deliveryState,
         deliveryContactName: deliveryContactName,
         shipperName: shipperName,
         shipperAddress: shipperAddress,
         shipperContactName: shipperZip,
         shipperPhone: shipperPhone,
         shipperContactName: shipperContactName,
+        shipperZip: shipperZip,
+        shipperCity: shipperCity,
+        shipperState: shipperState,
         orderAmount: totalPaymentInNumber,
         paymentTerms: paymentTerms,
         paymentMethod: paymentMethod,
         paymentStartUpon: "",
-        vehicles: vehiclesArray,
+        vehiclesArray: vehiclesArray,
+        orderInstructions: instructionInformation,
+        pickupDate: pickupDateConvertedFormat,
+        deliveryDate: deliveryDateConvertedFormat
       };
 
       console.log(newUploadedObject);
@@ -236,4 +299,15 @@ export default async (req, res) => {
       return resolve();
     });
   }
+
+  
 };
+
+
+const getGoogleCoordinates = async (zipToCoordinate) => {
+  let coordinates = await axios.get(
+    `https://maps.googleapis.com/maps/api/geocode/json?key=AIzaSyCYhmug_bUhafqhlnoM_8GIHRcFz_iel4c&components=postal_code:${zipToCoordinate}`
+  );
+
+  return coordinates.data.results[0].formatted_address;
+}

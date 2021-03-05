@@ -257,19 +257,36 @@ function createOrder(props) {
     setBusinessNameOfShipper(parsedData.shipperName);
     setPhoneOfShipper(parsedData.shipperPhone);
     setAddressOfShipper(parsedData.shipperAddress);
+    setCityOfShipper(parsedData.shipperCity)
+    setStateOfShipper(parsedData.shipperState)
+    setZipOfShipper(parsedData.shipperZip)
     setContactNameOfShipper(parsedData.shipperContactName);
 
     setPhoneOnPickup(parsedData.pickupPhone);
     setAddressOnPickup(parsedData.pickupAddress);
+    setCityOnPickup(parsedData.pickupCity)
+    setStateOnPickup(parsedData.pickupState)
+    setZipOnPickup(parsedData.pickupZip)
     setContactNameOnPickup(parsedData.pickupContactName);
 
     setPhoneOnDelivery(parsedData.deliveryPhone);
     setAddressOnDelivery(parsedData.deliveryAddress);
+    setCityOnDelivery(parsedData.deliveryCity)
+    setStateOnDelivery(parsedData.deliveryState)
+    setZipOnDelivery(parsedData.deliveryZip)
     setContactNameOnDelivery(parsedData.deliveryContactName);
 
     setOrderAmount(parsedData.orderAmount);
     setPaymentTerms(parsedData.paymentTerms);
     setPaymentMethodFromParsedDocument(parsedData.paymentMethod)
+
+    setTotalVehicles(parsedData.vehiclesArray)
+
+    setOrderInstructions(parsedData.orderInstructions)
+
+    setScheduledPickupDate(parsedData.pickupDate)
+    setScheduledDeliveryDate(parsedData.deliveryDate)
+
   };
 
   const setPaymentMethodFromParsedDocument = (method) => {
