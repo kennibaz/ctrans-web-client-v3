@@ -41,7 +41,7 @@ import EditPhoneDialogDelivery from "../../components/order/dialogs/EditPhonesDi
 import AutoCompleteAddress from "../../components/order/AutoCompleteAddress";
 import { makes } from "../../src/makes";
 
-import { PaymentMethods } from "../../utils/constants"
+import { PaymentMethods, CarTypes } from "../../utils/constants"
 
 import axios from "axios";
 import { TrendingUp } from "@material-ui/icons";
@@ -1862,11 +1862,10 @@ function createOrder(props) {
                         onChange={(e) => setType(e.target.value)}
                         style={{ fontSize: 12, width: "100%" }}
                       >
-                        <MenuItem value={"car"}>Car</MenuItem>
-                        <MenuItem value={"pickup_truck"}>Pickup truck</MenuItem>
-                        <MenuItem value={"suv"}>SUV</MenuItem>
-                        <MenuItem value={"minivan"}>Minivan</MenuItem>
-                        <MenuItem value={"large_van"}>large Van</MenuItem>
+                        <MenuItem value={CarTypes.CAR}>Car</MenuItem>
+                        <MenuItem value={CarTypes.PICKUP}>Pickup truck</MenuItem>
+                        <MenuItem value={CarTypes.SUV}>SUV</MenuItem>
+                        <MenuItem value={CarTypes.VAN}>Van</MenuItem>
                       </Select>
                     </FormControl>{" "}
                   </TableCell>

@@ -12,3 +12,10 @@ export const PaymentMethods = {
     ACH: "ach",
     COMCHEK: "comchek"
 }
+
+export const CarTypes = {
+    CAR: "car",
+    PICKUP: "pickup",
+    SUV: "suv",
+    VAN: "van"
+}
