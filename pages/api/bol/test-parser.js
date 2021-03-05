@@ -206,8 +206,6 @@ export default async (req, res) => {
           lot: "",
           additionalInfo: "",
         };
-        console.log(newVehicle)
-  
         vehiclesArray.push(newVehicle)
       }
 
