@@ -41,7 +41,7 @@ import EditPhoneDialogDelivery from "../../components/order/dialogs/EditPhonesDi
 import AutoCompleteAddress from "../../components/order/AutoCompleteAddress";
 import { makes } from "../../src/makes";
 
-import { orderValidator } from "../../utils/validators"
+import { PaymentMethods } from "../../utils/constants"
 
 import axios from "axios";
 import { TrendingUp } from "@material-ui/icons";
@@ -193,7 +193,7 @@ function createOrder(props) {
   const [isScheduledPickupDateValid, setIsScheduledPickupDateValid] = useState(
     true
   );
-  const [isFormValid, setIsFormValid] = useState(false)
+  const [isFormValid, setIsFormValid] = useState(false);
   const [isShipperOrderValid, setIsShipperOrderValid] = useState(true);
   const [
     isBusinessNameOfShipperValid,
@@ -207,7 +207,7 @@ function createOrder(props) {
     isAddressZipOnDeliveryValid,
     setIsAddressZipOnDeliveryValid,
   ] = useState(true);
-  
+
   const [
     isScheduledDeliveryDateValid,
     setIsScheduledDeliveryDateValid,
@@ -221,15 +221,12 @@ function createOrder(props) {
   const [isPaymentMethodValid, setIsPaymentMethodValid] = useState(true);
   const [isPaymentStartUponValid, setIsPaymentStartUponValid] = useState(true);
   const [isPaymentTermsValid, setIsPaymentTermsValid] = useState(true);
-  
 
   //TBD for addresses
   const [shipperAddressTBD, setShipperAddressTBD] = useState(false);
   const [originAddressTBD, setOriginAddressTBD] = useState(false);
   const [destinationAddressTBD, setDestinationAddressTBD] = useState(false);
 
- 
- 
   //USEEFFECTS
 
   //Models array setter
@@ -244,12 +241,50 @@ function createOrder(props) {
   // }, [make]);
 
   const setMakeModelHandler = async (make) => {
-    setMake(make)
+    setMake(make);
     const result = await axios.post("/api/vehicles/get-models-by-make", {
       make: make,
     });
     setModelsArray(result.data);
-  }
+  };
+
+  const testParser = async () => {
+    const result = await axios.post("/api/bol/test-parser", {});
+
+    console.log("result", result.data);
+    let parsedData = result.data;
+    setShipperOrderId(parsedData.shipperOrderId);
+    setBusinessNameOfShipper(parsedData.shipperName);
+    setPhoneOfShipper(parsedData.shipperPhone);
+    setAddressOfShipper(parsedData.shipperAddress);
+    setContactNameOfShipper(parsedData.shipperContactName);
+
+    setPhoneOnPickup(parsedData.pickupPhone);
+    setAddressOnPickup(parsedData.pickupAddress);
+    setContactNameOnPickup(parsedData.pickupContactName);
+
+    setPhoneOnDelivery(parsedData.deliveryPhone);
+    setAddressOnDelivery(parsedData.deliveryAddress);
+    setContactNameOnDelivery(parsedData.deliveryContactName);
+
+    setOrderAmount(parsedData.orderAmount);
+    setPaymentTerms(parsedData.paymentTerms);
+    setPaymentMethodFromParsedDocument(parsedData.paymentMethod)
+  };
+
+  const setPaymentMethodFromParsedDocument = (method) => {
+    switch (method) {
+      case "Company Check":
+        setPaymentMethod(PaymentMethods.COMPANY_CHECK);
+        break;
+      case "Certified Funds":
+        setPaymentMethod(PaymentMethods.CERTIFIED_FUNDS);
+        break;
+      case "Cash":
+        setPaymentMethod(PaymentMethods.CASH);
+        break;
+    }
+  };
 
   // add vehicle to array
   const addVehicleHandler = () => {
@@ -516,14 +551,11 @@ function createOrder(props) {
       });
       router.push("/orders/");
     }
-    
   };
 
   //validate inputs
 
-
   const validateLoadId = (e) => {
-    
     if (!e) {
       setIsShipperOrderValid(false);
     } else {
@@ -531,14 +563,13 @@ function createOrder(props) {
     }
   };
 
-
   const validateShipperPhone = (e) => {
     if (!e) {
       setIsPhoneOfShipperValid(false);
     } else {
       setIsPhoneOfShipperValid(true);
     }
-  }
+  };
 
   const validateShipperBusinessName = (e) => {
     if (!e) {
@@ -546,7 +577,7 @@ function createOrder(props) {
     } else {
       setIsBusinessNameOfShipperValid(true);
     }
-  }
+  };
 
   const validateOriginPhone = (e) => {
     if (!e) {
@@ -554,7 +585,7 @@ function createOrder(props) {
     } else {
       setIsPhoneOnPickupValid(true);
     }
-  }
+  };
 
   const validateOriginZip = (e) => {
     if (!e) {
@@ -562,7 +593,7 @@ function createOrder(props) {
     } else {
       setIsAddressZipOnPickupValid(true);
     }
-  }
+  };
 
   const validateOriginDate = (e) => {
     if (!e) {
@@ -570,7 +601,7 @@ function createOrder(props) {
     } else {
       setIsScheduledPickupDateValid(true);
     }
-  }
+  };
 
   const validateDestinationPhone = (e) => {
     if (!e) {
@@ -578,7 +609,7 @@ function createOrder(props) {
     } else {
       setIsPhoneOnDeliveryValid(true);
     }
-  }
+  };
 
   const validateDestinationZip = (e) => {
     if (!e) {
@@ -586,7 +617,7 @@ function createOrder(props) {
     } else {
       setIsAddressZipOnDeliveryValid(true);
     }
-  }
+  };
 
   const validateDestinationDate = (e) => {
     if (!e) {
@@ -594,7 +625,7 @@ function createOrder(props) {
     } else {
       setIsScheduledDeliveryDateValid(true);
     }
-  }
+  };
 
   const validateOrderAmount = (e) => {
     if (!e) {
@@ -602,7 +633,7 @@ function createOrder(props) {
     } else {
       setIsOrderAmountValid(true);
     }
-  }
+  };
 
   const validatePaymentTerms = (e) => {
     if (!e) {
@@ -610,15 +641,15 @@ function createOrder(props) {
     } else {
       setIsPaymentTermsValid(true);
     }
-  }
- 
+  };
+
   const validatePaymentStartDate = (e) => {
     if (!e) {
       setIsPaymentStartUponValid(false);
     } else {
       setIsPaymentStartUponValid(true);
     }
-  }
+  };
 
   const validatePaymentMethod = (e) => {
     if (!e) {
@@ -626,9 +657,7 @@ function createOrder(props) {
     } else {
       setIsPaymentMethodValid(true);
     }
-  }
-
-
+  };
 
   const validateInputs = () => {
     if (
@@ -651,23 +680,22 @@ function createOrder(props) {
     ) {
       setIsFormValid(true);
     } else {
-      
       !shipperOrderId && setIsShipperOrderValid(false),
-      !businessNameOfShipper && setIsBusinessNameOfShipperValid(false)
-      !phoneOfShipper &&  setIsPhoneOfShipperValid(false)
-      !year && setIsYearValid(false)
-      !make && setIsMakeValid(false)
-      !model && setIsModelValid(false)
-      !phoneOnPickup && setIsPhoneOnPickupValid(false)
-      !zipOnPickup && setIsAddressZipOnPickupValid(false)
-      !scheduledPickupDate && setIsScheduledPickupDateValid(false)
-      !phoneOnDelivery && setIsPhoneOnDeliveryValid(false)
-      !zipOnDelivery && setIsAddressZipOnDeliveryValid(false)
-      !scheduledDeliveryDate && setIsScheduledDeliveryDateValid(false)
-      !orderAmount && setIsOrderAmountValid(false)
-      !paymentTerms && setIsPaymentTermsValid(false)
-      !paymentMethod && setIsPaymentMethodValid(false)
-      !paymentStartUpon && setIsPaymentStartUponValid(false)
+        !businessNameOfShipper && setIsBusinessNameOfShipperValid(false);
+      !phoneOfShipper && setIsPhoneOfShipperValid(false);
+      !year && setIsYearValid(false);
+      !make && setIsMakeValid(false);
+      !model && setIsModelValid(false);
+      !phoneOnPickup && setIsPhoneOnPickupValid(false);
+      !zipOnPickup && setIsAddressZipOnPickupValid(false);
+      !scheduledPickupDate && setIsScheduledPickupDateValid(false);
+      !phoneOnDelivery && setIsPhoneOnDeliveryValid(false);
+      !zipOnDelivery && setIsAddressZipOnDeliveryValid(false);
+      !scheduledDeliveryDate && setIsScheduledDeliveryDateValid(false);
+      !orderAmount && setIsOrderAmountValid(false);
+      !paymentTerms && setIsPaymentTermsValid(false);
+      !paymentMethod && setIsPaymentMethodValid(false);
+      !paymentStartUpon && setIsPaymentStartUponValid(false);
     }
     return;
   };
@@ -718,6 +746,13 @@ function createOrder(props) {
                 <Box fontSize="h6.fontSize" m={2}>
                   Shipper and Order
                 </Box>
+                <Button
+                  onClick={() => {
+                    testParser();
+                  }}
+                >
+                  Test
+                </Button>
               </Typography>
             </Grid>
             <Grid item xs={4}>
@@ -756,7 +791,9 @@ function createOrder(props) {
                     required
                     value={shipperOrderId}
                     onChange={(e) => setShipperOrderId(e.target.value)}
-                    onBlur={(e)=>{validateLoadId(e.target.value)}}
+                    onBlur={(e) => {
+                      validateLoadId(e.target.value);
+                    }}
                     margin="dense"
                     name="shipper_id"
                     variant="outlined"
@@ -780,7 +817,9 @@ function createOrder(props) {
                     required
                     value={businessNameOfShipper}
                     onChange={(e) => setBusinessNameOfShipper(e.target.value)}
-                    onBlur={(e)=>{validateShipperBusinessName(e.target.value)}}
+                    onBlur={(e) => {
+                      validateShipperBusinessName(e.target.value);
+                    }}
                     margin="dense"
                     name="shipper_businessName"
                     variant="outlined"
@@ -928,7 +967,9 @@ function createOrder(props) {
                     required
                     value={phoneOfShipper}
                     onChange={(e) => setPhoneOfShipper(e.target.value)}
-                    onBlur={(e)=>{validateShipperPhone(e.target.value)}}
+                    onBlur={(e) => {
+                      validateShipperPhone(e.target.value);
+                    }}
                     margin="dense"
                     name="shipper_phone"
                     variant="outlined"
@@ -1037,7 +1078,9 @@ function createOrder(props) {
                     type="date"
                     value={scheduledPickupDate}
                     onChange={(e) => setScheduledPickupDate(e.target.value)}
-                    onBlur={(e)=>{validateOriginDate(e.target.value)}}
+                    onBlur={(e) => {
+                      validateOriginDate(e.target.value);
+                    }}
                     margin="dense"
                     name="pickupScheduledFirstDate"
                     fullWidth={true}
@@ -1120,7 +1163,9 @@ function createOrder(props) {
                       required
                       value={zipOnPickup}
                       onChange={(e) => setZipOnPickup(e.target.value)}
-                      onBlur={(e)=>{validateOriginZip(e.target.value)}}
+                      onBlur={(e) => {
+                        validateOriginZip(e.target.value);
+                      }}
                       margin="dense"
                       name="zip"
                       fullWidth={true}
@@ -1205,7 +1250,9 @@ function createOrder(props) {
                     required
                     value={phoneOnPickup}
                     onChange={(e) => setPhoneOnPickup(e.target.value)}
-                    onBlur={(e)=>{validateOriginPhone(e.target.value)}}
+                    onBlur={(e) => {
+                      validateOriginPhone(e.target.value);
+                    }}
                     margin="dense"
                     name="phone"
                     variant="outlined"
@@ -1334,7 +1381,9 @@ function createOrder(props) {
                     type="date"
                     value={scheduledDeliveryDate}
                     onChange={(e) => setScheduledDeliveryDate(e.target.value)}
-                    onBlur={(e)=>{validateDestinationDate(e.target.value)}}
+                    onBlur={(e) => {
+                      validateDestinationDate(e.target.value);
+                    }}
                     margin="dense"
                     name="deliveryScheduledFirstDate"
                     fullWidth={true}
@@ -1417,7 +1466,9 @@ function createOrder(props) {
                       required
                       value={zipOnDelivery}
                       onChange={(e) => setZipOnDelivery(e.target.value)}
-                      onBlur={(e)=>{validateDestinationZip(e.target.value)}}
+                      onBlur={(e) => {
+                        validateDestinationZip(e.target.value);
+                      }}
                       margin="dense"
                       name="delivery_zip"
                       fullWidth={true}
@@ -1502,7 +1553,9 @@ function createOrder(props) {
                     required
                     value={phoneOnDelivery}
                     onChange={(e) => setPhoneOnDelivery(e.target.value)}
-                    onBlur={(e)=>{validateDestinationPhone(e.target.value)}}
+                    onBlur={(e) => {
+                      validateDestinationPhone(e.target.value);
+                    }}
                     margin="dense"
                     name="phone"
                     variant="outlined"
@@ -1721,7 +1774,7 @@ function createOrder(props) {
                           input: classes.vehicleInput,
                         }}
                         onChange={(event, newValue) => {
-                           setMakeModelHandler(newValue);
+                          setMakeModelHandler(newValue);
                         }}
                         options={makes.map((vehicle) => vehicle.make)}
                         renderInput={(params) => (
@@ -1944,7 +1997,9 @@ function createOrder(props) {
                     placeholder={"$"}
                     style={{ width: "70%" }}
                     onChange={(e) => setOrderAmount(e.target.value)}
-                    onBlur={(e)=>{validateOrderAmount(e.target.value)}}
+                    onBlur={(e) => {
+                      validateOrderAmount(e.target.value);
+                    }}
                     margin="dense"
                     name="orderAmount"
                     variant="outlined"
@@ -1970,7 +2025,9 @@ function createOrder(props) {
                     name="paymentTerms"
                     value={paymentTerms}
                     onChange={(e) => setPaymentTerms(e.target.value)}
-                    onBlur={(e)=>{validatePaymentTerms(e.target.value)}}
+                    onBlur={(e) => {
+                      validatePaymentTerms(e.target.value);
+                    }}
                     InputProps={{ classes: { input: classes.inputText } }}
                   >
                     <MenuItem value={"cod"}>COD</MenuItem>
@@ -2003,17 +2060,19 @@ function createOrder(props) {
                     name="paymentMethod"
                     value={paymentMethod}
                     onChange={(e) => setPaymentMethod(e.target.value)}
-                    onBlur={(e)=>{validatePaymentMethod(e.target.value)}}
+                    onBlur={(e) => {
+                      validatePaymentMethod(e.target.value);
+                    }}
                     InputProps={{ classes: { input: classes.inputText } }}
                   >
-                    <MenuItem value={"cash"}>Cash</MenuItem>
-                    <MenuItem value={"certified_finds"}>
+                    <MenuItem value={PaymentMethods.CASH}>Cash</MenuItem>
+                    <MenuItem value={PaymentMethods.CERTIFIED_FUNDS}>
                       Certified funds
                     </MenuItem>
-                    <MenuItem value={"comchek"}>Comchek</MenuItem>
-                    <MenuItem value={"ach"}>ACH</MenuItem>
-                    <MenuItem value={"company_check"}>Company check</MenuItem>
-                    <MenuItem value={"mobile_payment"}>Mobile payment</MenuItem>
+                    <MenuItem value={PaymentMethods.COMCHEK}>Comchek</MenuItem>
+                    <MenuItem value={PaymentMethods.ACH}>ACH</MenuItem>
+                    <MenuItem value={PaymentMethods.COMPANY_CHECK}>Company check</MenuItem>
+                    <MenuItem value={PaymentMethods.MOBILE_PAYMENT}>Mobile payment</MenuItem>
                   </Select>
                 </FormControl>{" "}
               </Box>
@@ -2033,7 +2092,9 @@ function createOrder(props) {
                     name="paymentUpon"
                     value={paymentStartUpon}
                     onChange={(e) => setPaymentStartUpon(e.target.value)}
-                    onBlur={(e)=>{validatePaymentStartDate(e.target.value)}}
+                    onBlur={(e) => {
+                      validatePaymentStartDate(e.target.value);
+                    }}
                     InputProps={{ classes: { input: classes.inputText } }}
                   >
                     <MenuItem value={"pickup"}>Pickup</MenuItem>
@@ -2152,9 +2213,9 @@ function createOrder(props) {
   return (
     <div>
       <NavBar>
-      <Head>
-        <title>C|Transporter - Create an Order</title>
-      </Head>
+        <Head>
+          <title>C|Transporter - Create an Order</title>
+        </Head>
         <AppBar position="fixed" className={classes.appBar} elevation={0}>
           <Toolbar className={classes.upperToolBar}>
             <Grid container>
