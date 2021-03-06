@@ -1,3 +1,11 @@
+/*
+TODO
+save when vehicle data was uploaded into array
+*/
+
+
+
+
 import React, { useState, useEffect } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import { withStyles } from "@material-ui/core/styles";
@@ -42,9 +50,10 @@ import EditPhoneDialogDelivery from "../../components/order/dialogs/EditPhonesDi
 import AutoCompleteAddress from "../../components/order/AutoCompleteAddress";
 import { makes } from "../../src/makes";
 
-import { PaymentMethods, CarTypes } from "../../utils/constants"
+import { PaymentMethods, CarTypes, PaymentStartUpon } from "../../utils/constants"
 
 import axios from "axios";
+import { Payment } from "@material-ui/icons";
 
 const drawerWidth = 120;
 
@@ -253,7 +262,7 @@ function createOrder(props) {
 
   const uploadFileParser = async (document) => {
     setUploadSpinner(true)
-    const result = await axios.post("/api/bol/test-parser", {document: Buffer.from(document)});
+    const result = await axios.post("/api/parser/dispatchSheetParser", {document: Buffer.from(document)});
     setUploadSpinner(false)
     let parsedData = result.data;
     setShipperOrderId(parsedData.shipperOrderId);
@@ -271,6 +280,7 @@ function createOrder(props) {
     setStateOnPickup(parsedData.pickupState)
     setZipOnPickup(parsedData.pickupZip)
     setContactNameOnPickup(parsedData.pickupContactName);
+    setBusinessNameOnPickup(parsedData.pickupBusinessName)
 
     setPhoneOnDelivery(parsedData.deliveryPhone);
     setAddressOnDelivery(parsedData.deliveryAddress);
@@ -278,10 +288,12 @@ function createOrder(props) {
     setStateOnDelivery(parsedData.deliveryState)
     setZipOnDelivery(parsedData.deliveryZip)
     setContactNameOnDelivery(parsedData.deliveryContactName);
+    setBusinessNameOnDelivery(parsedData.deliveryBusinessName)
 
     setOrderAmount(parsedData.orderAmount);
     setPaymentTerms(parsedData.paymentTerms);
     setPaymentMethodFromParsedDocument(parsedData.paymentMethod)
+    setPaymentStartUpon(parsedData.paymentStartUpon)
 
     setTotalVehicles(parsedData.vehiclesArray)
 
@@ -289,7 +301,8 @@ function createOrder(props) {
 
     setScheduledPickupDate(parsedData.pickupDate)
     setScheduledDeliveryDate(parsedData.deliveryDate)
-
+    parsedData.pickupMultiplePhones && setPhonesOnPickup(parsedData.pickupMultiplePhones)
+    parsedData.deliveryMultiplePhones && setPhonesOnDelivery(parsedData.deliveryMultiplePhones)
   };
 
   // const uploadedFilesHandler = (files) => {
@@ -1737,7 +1750,7 @@ function createOrder(props) {
                     </TableCell>
 
                     <TableCell className={classes.tableCell}>
-                      {vehicle.lot_number}
+                      {vehicle.lotNumber}
                     </TableCell>
 
                     <TableCell className={classes.tableCell}>
@@ -2132,8 +2145,9 @@ function createOrder(props) {
                     }}
                     InputProps={{ classes: { input: classes.inputText } }}
                   >
-                    <MenuItem value={"pickup"}>Pickup</MenuItem>
-                    <MenuItem value={"delivery"}>Delivery</MenuItem>
+                    <MenuItem value={PaymentStartUpon.PICKUP}>Pickup</MenuItem>
+                    <MenuItem value={PaymentStartUpon.DELIVERY}>Delivery</MenuItem>
+                    <MenuItem value={PaymentStartUpon.RECEIVING_BOL}>Receiving BOL</MenuItem>
                   </Select>
                 </FormControl>{" "}
               </Box>

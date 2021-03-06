@@ -13,6 +13,12 @@ export const PaymentMethods = {
     COMCHEK: "comchek"
 }
 
+export const PaymentStartUpon = {
+    PICKUP: "pickup",
+    DELIVERY: "delivery",
+    RECEIVING_BOL: "receiving_bol"
+}
+
 export const CarTypes = {
     CAR: "car",
     PICKUP: "pickup",
