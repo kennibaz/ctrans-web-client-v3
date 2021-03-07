@@ -3,7 +3,7 @@ import {
   LocalConvenienceStoreOutlined,
 } from "@material-ui/icons";
 import { makes } from "../../../src/makes";
-import { PaymentStartUpon } from "../../../utils/constants";
+import { PaymentStartUpon, PaymentMethods, CarTypes } from "../../../utils/constants";
 const axios = require("axios");
 
 const pdf = require("pdf-parse");
@@ -156,10 +156,10 @@ export default async (req, res) => {
         console.log(error, "Error in shipper");
       }
 
-      //pickup
+      //PICKUP===================================================================================
 
       try {
-        console.log(pickupInformationSplitByLines);
+        
         //check if Contact name is available
         var isContactNameOnPickupAvailable = pickupInformationSplitByLines[1].search(
           "DISPATCHER"
@@ -206,17 +206,20 @@ export default async (req, res) => {
           var pickupAddress = pickupInformationSplitByLines[2].trim();
         }
 
-        var pickupZip = pickupInformationSplitByLines[3]
-          .match(zipNumberPatternInAddress)[0]
-          .trim();
+        var pickupZipMatch = pickupInformationSplitByLines[3]
+          .match(zipNumberPatternInAddress)
+
+        if (pickupZipMatch) {
+          var pickupZip = pickupZipMatch[0].trim()
+        } else {
+          pickupZip = ""
+        }
 
         //check how many phones in order
 
         var phonesOnPickupCount = (
           pickupInformationSplitByLines[4].match(/Phone/g) || []
         ).length;
-
-        console.log(phonesOnPickupCount)
 
         if (phonesOnPickupCount > 1) {
           var pickupPhonesSplit = pickupInformationSplitByLines[4].split(
@@ -246,14 +249,20 @@ export default async (req, res) => {
           }
         }
 
-        var pickupAddress2 = await getGoogleCoordinates(pickupZip);
-        var pickupAddress2Split = pickupAddress2.split(",");
-        var pickupCity = pickupAddress2Split[0];
-        var pickupState = pickupAddress2Split[1].trim().slice(0, 2);
+        if (pickupZip) {
+          var pickupAddress2 = await getGoogleCoordinates(pickupZip);
+          var pickupAddress2Split = pickupAddress2.split(",");
+          var pickupCity = pickupAddress2Split[0];
+          var pickupState = pickupAddress2Split[1].trim().slice(0, 2);
+        } else {
+         var isPickupZipError = true
+        }
+
+       
       } catch (error) {
         console.log(error, "error insude Pickup");
       }
-      //delivery
+      //DELIVERY============================
       try {
         //check if contact name is available
         var isContactNameOnDeliveryAvailable = deliveryInformationSplitByLines[1].search(
@@ -300,9 +309,15 @@ export default async (req, res) => {
           var deliveryAddress = deliveryInformationSplitByLines[2].trim();
         }
 
-        var deliveryZip = deliveryInformationSplitByLines[3]
-          .match(zipNumberPatternInAddress)[0]
-          .trim();
+
+        var deliveryZipMatch = deliveryInformationSplitByLines[3]
+          .match(zipNumberPatternInAddress)
+
+        if (deliveryZipMatch) {
+          var deliveryZip = deliveryZipMatch[0].trim()
+        } else {
+          var deliveryZip = ""
+        }
 
         //check how many phones in order
 
@@ -336,17 +351,24 @@ export default async (req, res) => {
               .trim();
           }
         }
+        if (deliveryZip) {
+          var deliveryAddress2 = await getGoogleCoordinates(deliveryZip);
+          var deliveryAddress2Split = deliveryAddress2.split(",");
+          var deliveryCity = deliveryAddress2Split[0];
+          var deliveryState = deliveryAddress2Split[1].trim().slice(0, 2);
+        } else {
+         var isDeliveryZipError = true
+        }
 
-        var deliveryAddress2 = await getGoogleCoordinates(deliveryZip);
-        var deliveryAddress2Split = deliveryAddress2.split(",");
-        var deliveryCity = deliveryAddress2Split[0];
-        var deliveryState = deliveryAddress2Split[1].trim().slice(0, 2);
+        
       } catch (error) {
         console.log(error, "error inside Delivery");
       }
 
-      //payment
+      //PAYMENT ==============================================================
       try {
+        //Total payment
+        console.log(paymentInformationSplitByLines)
         var totalPayment = paymentInformationSplitByLines[1]
           .substring(paymentInformationSplitByLines[1].indexOf(":") + 1)
           .trim();
@@ -354,6 +376,7 @@ export default async (req, res) => {
           totalPayment.slice(1).replace(",", "")
         ); //remove $ sign, semicolon and parse into Int
 
+        //payment on delivery
         var paymentOnDelivery = paymentInformationSplitByLines[2]
           .substring(paymentInformationSplitByLines[2].indexOf(":") + 1)
           .trim();
@@ -361,9 +384,21 @@ export default async (req, res) => {
           .slice(1)
           .replace(",", ""); //remove $ sign, semicolon and parse into Int
 
+         //Broker owes Carrier after COD or COP 
         var companyOwesPayment = paymentInformationSplitByLines[3].substring(
           paymentInformationSplitByLines[3].indexOf(":") + 1
         );
+
+        //Check if COD
+
+        var isCODasPaymentTerm = paymentInformation.search("COD")
+        var isCOPasPaymentTerm = paymentInformation.search("COP")
+
+        if (totalPaymentInNumber - paymentOnDelivery == 0) { //check if COD, and if is the case - set paymentTerms to CASH
+          paymentTerms = "COD";
+        } 
+
+
 
         var paymentTerms = paymentInformation
           .substring(
@@ -373,20 +408,29 @@ export default async (req, res) => {
           .match(/ \d+/g)[0]
           .trim();
 
-        if (totalPaymentInNumber - paymentOnDelivery == 0) {
-          paymentTerms = "Cash";
-        } //check if COD, and if is the case - set paymentTerms to CASH
+        
 
-        var paymentMethod = paymentInformation
-          .substring(
-            paymentInformation.lastIndexOf("Payment will be made with")
-          )
-          .replace("Payment will be made with", "")
-          .replace("Check. ", "Check")
-          .replace(/(\r\n|\n|\r)/gm, ""); //remove newline and some text
+        //check type of payment
+
+        var paymentMethodInitialData = paymentInformation
+        .substring(
+          paymentInformation.lastIndexOf("Payment will be made with")
+        )
+
+        var isPaymentMethodCertifiedFunds = paymentMethodInitialData.search("Certified")
+        var isPaymentMethodCompanyCheck = paymentMethodInitialData.search("Company")
+
+        if (isPaymentMethodCertifiedFunds > 0) {
+          var paymentMethod = PaymentMethods.CERTIFIED_FUNDS
+        } else if (isPaymentMethodCompanyCheck > 0) {
+          var paymentMethod = PaymentMethods.COMPANY_CHECK
+        }
+
       } catch (error) {
-        console.log(error, "error insude Payment");
+        console.log(error, "error inside Payment");
       }
+
+
 
       //check payment Terms
       var paymentTermsBillOfLadingExistsCheck = paymentInformation.search(
@@ -396,52 +440,67 @@ export default async (req, res) => {
         var paymentStartUpon = PaymentStartUpon.RECEIVING_BOL;
       }
 
-      ///vehicles
+      //VEHICLES ===================================================================
 
       let vehiclesArray = [];
       try {
         for (let vehicle of vehicleInformationSplitByLines) {
           var vehicleDataArray = vehicle.split(" ");
-
           var vehicleYear = vehicleDataArray[0];
           //make
           var initialVehicleName = vehicleDataArray[1];
           var initialVehicleNameToUpper = initialVehicleName.toUpperCase();
-          try {
-            var foundMake = makes.find((make, index) => {
-              if (make.make.includes(initialVehicleNameToUpper)) return true;
-            });
-          } catch (error) {
-            console.log(error, "wrong make");
-          }
-          var vehicleMake = foundMake.make;
-          if (!foundMake) {
-            vehicleMake = initialVehicleName;
+
+          var foundMake = makes.filter((make) => {
+            return make.make.includes(initialVehicleNameToUpper);
+          })[0];
+
+          if (foundMake) {
+            var vehicleMake = foundMake.make;
+          } else {
+            var vehicleMake = initialVehicleName;
+            var isVehicleRecognitionError = true;
           }
 
-          var indexOfVehicleType = vehicleDataArray.findIndex((element) =>
-            element.includes("Color")
+          //MODEL
+          //find index of vehicle type in order to find vehicle model which is just before Type
+          var indexOfVehicleType = vehicleDataArray.findIndex(
+            (element) =>
+              element.includes("SUV") ||
+              element.includes("Pickup") ||
+              element.includes("Van") ||
+              element.includes("Car")
           ); //find an index of an elment in array which contains word Color
+
+          
           var vehicleModel = vehicleDataArray
             .slice(2, indexOfVehicleType)
             .join()
             .replace("Type:", "");
-          var indexOfColor = vehicleDataArray[indexOfVehicleType].indexOf(
-            "Color"
-          );
-          var vehicleType = vehicleDataArray[indexOfVehicleType].slice(
-            0,
-            indexOfColor
-          );
+   
 
+          //TYPE
+          var isCarType = vehicle.search("Car");
+          var isPickupType = vehicle.search("Pickup");
+          var isSUVtype = vehicle.search("SUV");
+          var isVanType = vehicle.search("Van");
+
+          if (isCarType > 0) {
+            var vehicleType = CarTypes.CAR;
+          } else if (isPickupType > 0) {
+            var vehicleType = CarTypes.PICKUP;
+          } else if (isSUVtype > 0) {
+            var vehicleType = CarTypes.SUV;
+          } else if (isVanType > 0) {
+            var vehicleType = CarTypes.VAN;
+          }
+
+          //VIN
           var vehicleVin = vehicle
             .substring(vehicle.lastIndexOf("VIN:"), vehicle.lastIndexOf("Lot"))
             .replace("VIN:", "");
 
-          var indexOfLot = vehicleDataArray.findIndex((element) =>
-            element.includes("Additional")
-          ); //find an index of an elment in array which contains word Additional
-
+          //lot
           var vehicleLot = vehicle
             .substring(
               vehicle.lastIndexOf("Lot #:"),
@@ -459,6 +518,7 @@ export default async (req, res) => {
             plate: "",
             lotNumber: vehicleLot,
             additionalInfo: "",
+            isVehicleRecognitionError: isVehicleRecognitionError,
           };
           vehiclesArray.push(newVehicle);
         }
@@ -531,6 +591,8 @@ export default async (req, res) => {
         orderInstructions: instructionInformation,
         pickupDate: pickupDateConvertedFormat,
         deliveryDate: deliveryDateConvertedFormat,
+        isDeliveryZipError: isDeliveryZipError,
+        isPickupZipError: isPickupZipError
       };
 
       res.status(200).send(newUploadedObject);

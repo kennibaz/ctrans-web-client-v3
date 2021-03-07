@@ -44,6 +44,7 @@ import { Container } from "@material-ui/core";
 import Dropzone from 'react-dropzone'
 import { withAuth } from "../../utils/withAuth";
 import CircularProgress from "@material-ui/core/CircularProgress";
+import ReportProblemIcon from '@material-ui/icons/ReportProblem';
 
 import EditPhoneDialog from "../../components/order/dialogs/EditPhonesDialog";
 import EditPhoneDialogDelivery from "../../components/order/dialogs/EditPhonesDialogDelivery";
@@ -292,7 +293,8 @@ function createOrder(props) {
 
     setOrderAmount(parsedData.orderAmount);
     setPaymentTerms(parsedData.paymentTerms);
-    setPaymentMethodFromParsedDocument(parsedData.paymentMethod)
+
+    setPaymentMethod(parsedData.paymentMethod)
     setPaymentStartUpon(parsedData.paymentStartUpon)
 
     setTotalVehicles(parsedData.vehiclesArray)
@@ -303,6 +305,17 @@ function createOrder(props) {
     setScheduledDeliveryDate(parsedData.deliveryDate)
     parsedData.pickupMultiplePhones && setPhonesOnPickup(parsedData.pickupMultiplePhones)
     parsedData.deliveryMultiplePhones && setPhonesOnDelivery(parsedData.deliveryMultiplePhones)
+
+    if (parsedData.isPickupZipError) {
+      alert("Pickup address was not recognized. Please enter manually")
+      setIsAddressZipOnPickupValid(false)
+    }
+    if (parsedData.isDeliveryZipError) {
+      alert("Delivery address was not recognized. Please enter manually")
+      setIsAddressZipOnDeliveryValid(false)
+    }
+    
+
   };
 
   // const uploadedFilesHandler = (files) => {
@@ -321,19 +334,7 @@ function createOrder(props) {
   // }
 
 
-  const setPaymentMethodFromParsedDocument = (method) => {
-    switch (method) {
-      case "Company Check":
-        setPaymentMethod(PaymentMethods.COMPANY_CHECK);
-        break;
-      case "Certified Funds":
-        setPaymentMethod(PaymentMethods.CERTIFIED_FUNDS);
-        break;
-      case "Cash":
-        setPaymentMethod(PaymentMethods.CASH);
-        break;
-    }
-  };
+
 
   // add vehicle to array
   const addVehicleHandler = () => {
@@ -1743,7 +1744,7 @@ function createOrder(props) {
                       {vehicle.year}
                     </TableCell>
                     <TableCell className={classes.tableCell}>
-                      {vehicle.make}
+                      {vehicle.make} {vehicle.isVehicleRecognitionError ? <ReportProblemIcon color="error" fontSize="small"/> : null} 
                     </TableCell>
                     <TableCell className={classes.tableCell}>
                       {vehicle.model}
