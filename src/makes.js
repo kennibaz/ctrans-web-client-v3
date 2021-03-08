@@ -3,13 +3,7 @@ export const makes = [
     make: "AC",
   },
   {
-    make: "AC PROPULSION",
-  },
-  {
     make: "ACURA",
-  },
-  {
-    make: "A.D. TRAMONTANA",
   },
   {
     make: "ALFA ROMEO",
@@ -22,9 +16,6 @@ export const makes = [
   },
   {
     make: "AMUZA",
-  },
-  {
-    make: "ANTEROS",
   },
   {
     make: "ARASH",
@@ -580,6 +571,9 @@ export const makes = [
   },
   {
     make: "QVALE",
+  },
+  {
+    make: "RAM",
   },
   {
     make: "RADICAL",

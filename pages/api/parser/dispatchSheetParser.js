@@ -1,9 +1,11 @@
-import {
-  ContactsOutlined,
-  LocalConvenienceStoreOutlined,
-} from "@material-ui/icons";
+
 import { makes } from "../../../src/makes";
-import { PaymentStartUpon, PaymentMethods, CarTypes } from "../../../utils/constants";
+import {
+  PaymentStartUpon,
+  PaymentMethods,
+  CarTypes,
+  PaymentTerms,
+} from "../../../utils/constants";
 const axios = require("axios");
 
 const pdf = require("pdf-parse");
@@ -55,7 +57,7 @@ export default async (req, res) => {
         );
         var deliveryInformation = resultData.substring(
           resultData.lastIndexOf("Delivery Information"),
-          resultData.lastIndexOf("DISPATCH INSTRUCTIONS")
+          resultData.indexOf("DISPATCH INSTRUCTIONS")
         );
         var pickupDate = resultData.substring(
           resultData.lastIndexOf("Pickup Estimated:"),
@@ -75,6 +77,10 @@ export default async (req, res) => {
             "*The company (broker, dealer, auction, rental company, etc.)"
           )
         );
+        var paymentInformationTerms = paymentInformation.substring(
+          paymentInformation.lastIndexOf("agrees to pay")
+        );
+
         var shipperInformation = resultData.substring(
           resultData.lastIndexOf("Dispatch Sheet"),
           resultData.lastIndexOf("Vehicle Information")
@@ -119,39 +125,69 @@ export default async (req, res) => {
         console.log(error, "error in secon split");
       }
 
-      //shipper
+      //SHIPPER============================================================
       try {
+        //make substrings with name and contact info
         var shipperNamePartsplitByLines = shipperInformation
-          .substring(0, shipperInformation.lastIndexOf("Co. Phone"))
+          .substring(0, shipperInformation.lastIndexOf("Co. Phone")).trim()
           .split("\n");
-        var shipperContactPartSplitByLines = shipperInformation
+        var shipperContactPart = shipperInformation
           .substring(shipperInformation.lastIndexOf("Contact:"))
-          .split("\n");
-        var shipperName = shipperNamePartsplitByLines
-          .slice(1, -3)
-          .join(" ")
-          .trim(); //get rid of Dispatch word and address and join them together
+        var shipperPhonePart = shipperInformation
+        .substring(shipperInformation.lastIndexOf("Co. Phone"), shipperInformation.lastIndexOf("Dispatch Info") ).trim();
 
-        var shipperAddress = shipperNamePartsplitByLines.slice(-3, -2)[0];
-        var shipperZip = shipperNamePartsplitByLines
-          .slice(-2, -1)[0]
-          .match(zipNumberPatternInAddress)[0];
-        var shipperContactName = shipperContactPartSplitByLines[0]
-          .substring(shipperContactPartSplitByLines[0].indexOf(":") + 1)
-          .trim();
 
-        var shipperPhone = shipperContactPartSplitByLines[1]
-          .substring(shipperContactPartSplitByLines[1].indexOf(":") + 1)
-          .trim();
 
-        var shipperOrderId = resultDataSplitByLines[2]
-          .substring(resultDataSplitByLines[2].indexOf(":") + 1)
-          .trim();
+        //get zip part
 
+        var shipperZipInitial = shipperNamePartsplitByLines[shipperNamePartsplitByLines.length - 1].split(" ")
+        var shipperZip = shipperZipInitial[shipperZipInitial.length - 1];
+
+        //get city and state based on zip part
         var shipperAddress2 = await getGoogleCoordinates(shipperZip);
         var shipperAddress2Split = shipperAddress2.split(",");
         var shipperCity = shipperAddress2Split[0];
         var shipperState = shipperAddress2Split[1].trim().slice(0, 2);
+
+        //remove city, state and zip from array. Remove Dispatch sheet string from array
+        shipperNamePartsplitByLines.shift()
+        shipperNamePartsplitByLines.pop()
+
+
+        //find index of element where first are numbers
+
+        var indexOfAddressElementInShipperAddress = ""
+
+        shipperNamePartsplitByLines.filter((word, index)=> {
+          if (word.match(/^\d+/)) {
+            indexOfAddressElementInShipperAddress = index
+            return true
+          } else {
+            return false
+          }
+        })
+
+        //make array of names
+        var shipperName = shipperNamePartsplitByLines.splice(0, indexOfAddressElementInShipperAddress).join(" ")
+
+        var shipperAddress = shipperNamePartsplitByLines.join(" ");
+        
+     
+        var shipperContactNameSubString = shipperContactPart.substring(
+          shipperContactPart.lastIndexOf("Contact:"),
+          shipperContactPart.lastIndexOf("Phone:")
+        );
+        var shipperContactName = shipperContactNameSubString
+          .replace("Contact:", "")
+          .trim();
+
+        var shipperPhone = shipperPhonePart.replace("Co. Phone:", "").trim();
+       
+        var shipperOrderId = resultDataSplitByLines[2]
+          .substring(resultDataSplitByLines[2].indexOf(":") + 1)
+          .trim();
+
+        
       } catch (error) {
         console.log(error, "Error in shipper");
       }
@@ -159,28 +195,43 @@ export default async (req, res) => {
       //PICKUP===================================================================================
 
       try {
+
+        //Make initial Substrings with Address and Phones
         
-        //check if Contact name is available
-        var isContactNameOnPickupAvailable = pickupInformationSplitByLines[1].search(
-          "DISPATCHER"
+        //substring with pickup contact name and business name information
+        var pickupNameSubstringInitial = pickupInformation.substring(pickupInformation.lastIndexOf("Name:"), pickupInformation.lastIndexOf("Phone:") )
+        // subsring with Pickup phone numbers
+        var pickupPhoneSubstringInitial = pickupInformation.substring(pickupInformation.lastIndexOf("Phone:")).trim()
+
+
+        //check if buyer number is presented
+
+        var isBuyerNumberPresentedInPickupCheck1 = pickupNameSubstringInitial.search(
+          "Buyer"
         );
-        if (isContactNameOnPickupAvailable > 0) {
-          pickupContactName = "CONTACT DISPATCHER";
+        var isBuyerNumberPresentedInPickupCheck2 = pickupNameSubstringInitial.search(
+          "Num:"
+        );
+        //check if buyer number is available then substring again
+        if (
+          isBuyerNumberPresentedInPickupCheck1 > 0 &&
+          isBuyerNumberPresentedInPickupCheck2 > 0
+        ) {
+          var pickupNameSubStringSecondary = pickupNameSubstringInitial.substring(
+            pickupNameSubstringInitial.lastIndexOf("Name:"),
+            pickupNameSubstringInitial.lastIndexOf("Buyer")
+          );
         } else {
-          var pickupContactName = pickupInformationSplitByLines[1]
-            .substring(
-              pickupInformationSplitByLines[1].indexOf(":") + 1,
-              pickupInformationSplitByLines[1].indexOf("(")
-            )
-            .trim();
+          var pickupNameSubStringSecondary = pickupNameSubstringInitial.substring(
+            pickupNameSubstringInitial.lastIndexOf("Name:")
+          );
         }
 
-        //check ib business name is available
-
-        var isBusinessNameOnPickupAvailableCheck1 = pickupInformationSplitByLines[1].includes(
+        //check if business name is presented (double check)
+        var isBusinessNameOnPickupAvailableCheck1 = pickupNameSubStringSecondary.includes(
           "("
         );
-        var isBusinessNameOnPickupAvailableCheck2 = pickupInformationSplitByLines[1].includes(
+        var isBusinessNameOnPickupAvailableCheck2 = pickupNameSubStringSecondary.includes(
           ")"
         );
 
@@ -188,41 +239,211 @@ export default async (req, res) => {
           isBusinessNameOnPickupAvailableCheck1 &&
           isBusinessNameOnPickupAvailableCheck2
         ) {
-          var pickupBusinessName = pickupInformationSplitByLines[1]
+          var pickupBusinessName = pickupNameSubStringSecondary
             .substring(
-              pickupInformationSplitByLines[1].indexOf("(") + 1,
-              pickupInformationSplitByLines[1].indexOf(")")
+              pickupNameSubStringSecondary.indexOf("(") + 1,
+              pickupNameSubStringSecondary.indexOf(")")
             )
             .trim();
         } else pickupBusinessName = "Not Available";
 
-        //check if address is available
-        var isAddressOnPickupAvailable = pickupInformationSplitByLines[2].search(
+        //check if Contact name is available
+        var isContactNameOnPickupAvailable = pickupInformationSplitByLines[1].search(
           "DISPATCHER"
         );
-        if (isAddressOnPickupAvailable > 0) {
-          pickupAddress = "CONTACT DISPATCHER";
+        if (isContactNameOnPickupAvailable > 0) {
+          pickupContactName = "CONTACT DISPATCHER";
         } else {
-          var pickupAddress = pickupInformationSplitByLines[2].trim();
+          if (pickupBusinessName === "Not Available") {
+            var pickupContactName = pickupInformationSplitByLines[1]
+              .substring(pickupInformationSplitByLines[1].indexOf(":") + 1)
+              .trim();
+          } else {
+            var pickupContactName = pickupInformationSplitByLines[1]
+              .substring(
+                pickupInformationSplitByLines[1].indexOf(":") + 1,
+                pickupInformationSplitByLines[1].indexOf("(")
+              )
+              .trim();
+          }
         }
 
-        var pickupZipMatch = pickupInformationSplitByLines[3]
-          .match(zipNumberPatternInAddress)
+        //detect substring in pickup address
 
-        if (pickupZipMatch) {
-          var pickupZip = pickupZipMatch[0].trim()
-        } else {
-          pickupZip = ""
+        //case if buyer number is not presented. 
+        //Remove from substrinng COntact and Business names and other text. left only address
+        if (
+          isBuyerNumberPresentedInPickupCheck1 < 0 &&
+          isBuyerNumberPresentedInPickupCheck2 < 0
+        ) {
+          var pickupAddressSubStringInitial = pickupNameSubStringSecondary
+            .replace(pickupBusinessName, "")
+            .replace(pickupContactName, "")
+            .replace("**", "")
+            .replace("(", "")
+            .replace(")", "")
+            .replace("Name:", "")
+            .trim();
+
+            //Then split string into array
+          var pickupAddressSubStringInitialSplit = pickupAddressSubStringInitial.split(
+            " "
+          );
+
+          //get zip from split array
+          var pickupAddressZipMatch =
+            pickupAddressSubStringInitialSplit[
+              pickupAddressSubStringInitialSplit.length - 1
+            ];
+
+            //check if ZIP is correct
+            //check if length is 5 and all are numbers
+            var isZipCorrect = zipCheck(pickupAddressZipMatch)
+
+            //get City, State by ZIP
+          if (isZipCorrect) {
+            var pickupAddressGoogleRequest = await getGoogleCoordinates(
+              pickupAddressZipMatch
+            );
+            var pickupAddressGoogleRequestSplit = pickupAddressGoogleRequest.split(
+              ","
+            );
+            var pickupCity = pickupAddressGoogleRequestSplit[0];
+            var pickupState = pickupAddressGoogleRequestSplit[1]
+              .trim()
+              .slice(0, 2);
+            var pickupZip = pickupAddressZipMatch;
+          } else {
+            var pickupCity = ""
+            var pickupState = ""
+            var pickupZip = ""
+            var isPickupZipError = true;
+          }
+
+          var pickupCityAllLower = pickupCity.toLowerCase(); //Remove city duplicate in lower case from DS
+
+          //remove city state zip from address line. Keep only street 
+          var pickupAddressSubStringThird = pickupAddressSubStringInitial
+            .replace(pickupCity, "")
+            .replace(pickupState, "")
+            .replace(pickupAddressZipMatch, "")
+            .replace(pickupCityAllLower, "")
+            .replace(",", "")
+            .trim();
+
+          //check if address is available
+          var isAddressOnPickupAvailable = pickupAddressSubStringThird.search(
+            "DISPATCHER"
+          );
+
+          if (isAddressOnPickupAvailable > 0) {
+            pickupAddress = "CONTACT DISPATCHER";
+          } else {
+            var pickupAddress = pickupAddressSubStringThird.trim();
+          }
+        }
+
+        //Case when buyer number is presented
+        if (
+          isBuyerNumberPresentedInPickupCheck1 > 0 &&
+          isBuyerNumberPresentedInPickupCheck2 > 0
+        ) {
+
+
+          //get substring with address
+          var pickupAddressSubStringWithBuyerNumber = pickupNameSubstringInitial
+            .substring(pickupNameSubstringInitial.lastIndexOf("Buyer Num:"))
+            .trim();
+          //then split into array
+          var pickupAddressSubStringWithBuyerNumberSplit = pickupAddressSubStringWithBuyerNumber.split(
+            "\n"
+          );
+
+          //find element of array with Buyer Number 
+
+          var buyerIndexInArray = pickupAddressSubStringWithBuyerNumberSplit.findIndex(
+            (element) => element.includes("Buyer")
+          );
+          var buyerNumber = pickupAddressSubStringWithBuyerNumberSplit[
+            buyerIndexInArray
+          ]
+            .replace("Buyer Num:", "")
+            .trim();
+
+          
+
+          //get last element with state, zip ,city and split
+
+          var pickupAdressCityStateZipSplit = pickupAddressSubStringWithBuyerNumberSplit[
+            pickupAddressSubStringWithBuyerNumberSplit.length - 1
+          ].split(" ");
+
+          // get zip frpm array
+
+          var pickupAddressZipMatch =
+            pickupAdressCityStateZipSplit[
+              pickupAdressCityStateZipSplit.length - 1
+            ];
+          //check if ZIP is correct
+          //check if length is 5 and all are numbers
+          var isZipCorrect = zipCheck(pickupAddressZipMatch);
+
+          //get City, State by ZIP
+          if (isZipCorrect) {
+            var pickupAddressGoogleRequest = await getGoogleCoordinates(
+              pickupAddressZipMatch
+            );
+            var pickupAddressGoogleRequestSplit = pickupAddressGoogleRequest.split(
+              ","
+            );
+            var pickupCity = pickupAddressGoogleRequestSplit[0];
+            var pickupState = pickupAddressGoogleRequestSplit[1]
+              .trim()
+              .slice(0, 2);
+            var pickupZip = pickupAddressZipMatch;
+          } else {
+            var pickupCity = "";
+            var pickupState = "";
+            var pickupZip = "";
+            var isPickupZipError = true;
+          }
+
+          //remove element with buyer number from array
+
+          pickupAddressSubStringWithBuyerNumberSplit.splice(buyerIndexInArray,1)
+          //gete street Address
+          var pickupAddressStreet = pickupAddressSubStringWithBuyerNumberSplit[0]
+
+          //check if address is exists
+
+           //check if address is available
+           var isAddressOnPickupAvailable = pickupAddressStreet.search(
+            "DISPATCHER"
+          );
+
+          if (isAddressOnPickupAvailable > 0) {
+            pickupAddress = "CONTACT DISPATCHER";
+          } else {
+            var pickupAddress = pickupAddressStreet.trim();
+          }
         }
 
         //check how many phones in order
 
+        
+
         var phonesOnPickupCount = (
-          pickupInformationSplitByLines[4].match(/Phone/g) || []
+          pickupPhoneSubstringInitial.match(/Phone/g) || []
         ).length;
 
+
+        // var phonesOnPickupCount = (
+        //   pickupInformationSplitByLines[4].match(/Phone/g) || []
+        // ).length;
+
+        //if more than 1 phone in order:
         if (phonesOnPickupCount > 1) {
-          var pickupPhonesSplit = pickupInformationSplitByLines[4].split(
+          var pickupPhonesSplit = pickupPhoneSubstringInitial.split(
             "Phone"
           );
           pickupPhonesSplit.shift();
@@ -231,102 +452,190 @@ export default async (req, res) => {
             var formattedPhone = element.split(":").pop();
             formattedPhonesOnPickup.push(formattedPhone);
           });
-
           pickupPhone = formattedPhonesOnPickup.pop();
         } else {
           // check if phone is available
-
-          var isPhoneOnPickupAvailable = pickupInformationSplitByLines[4].search(
+          var isPhoneOnPickupAvailable = pickupPhoneSubstringInitial.search(
             "DISPATCHER"
           );
 
           if (isPhoneOnPickupAvailable > 0) {
             pickupPhone = "CONTACT DISPATCHER";
           } else {
-            var pickupPhone = pickupInformationSplitByLines[4]
-              .substring(pickupInformationSplitByLines[4].indexOf(":") + 1)
+            var pickupPhone = pickupPhoneSubstringInitial
+              .substring(pickupPhoneSubstringInitial.indexOf(":") + 1)
               .trim();
           }
         }
-
-        if (pickupZip) {
-          var pickupAddress2 = await getGoogleCoordinates(pickupZip);
-          var pickupAddress2Split = pickupAddress2.split(",");
-          var pickupCity = pickupAddress2Split[0];
-          var pickupState = pickupAddress2Split[1].trim().slice(0, 2);
-        } else {
-         var isPickupZipError = true
-        }
-
-       
       } catch (error) {
         console.log(error, "error insude Pickup");
       }
+
       //DELIVERY============================
+
       try {
-        //check if contact name is available
+
+
+        //Make initial Substrings with Address and Phones
+        
+        //substring with delivery contact name and business name information
+        var deliveryNameSubstringInitial = deliveryInformation.substring(deliveryInformation.lastIndexOf("Name:"), deliveryInformation.lastIndexOf("Phone:") )
+        // subsring with delivery phone numbers
+        var deliveryPhoneSubstringInitial = deliveryInformation.substring(deliveryInformation.lastIndexOf("Phone:")).trim()
+
+
+        //check if buyer number is presented
+
+        var isBuyerNumberPresentedInDeliveryCheck1 = deliveryNameSubstringInitial.search(
+          "Buyer"
+        );
+        var isBuyerNumberPresentedInDeliveryCheck2 = deliveryNameSubstringInitial.search(
+          "Num:"
+        );
+        //check if buyer number is available then substring again
+        if (
+          isBuyerNumberPresentedInDeliveryCheck1 > 0 &&
+          isBuyerNumberPresentedInDeliveryCheck2 > 0
+        ) {
+          var deliveryNameSubStringSecondary = deliveryNameSubstringInitial.substring(
+            deliveryNameSubstringInitial.lastIndexOf("Name:"),
+            deliveryNameSubstringInitial.lastIndexOf("Buyer")
+          );
+        } else {
+          var deliveryNameSubStringSecondary = deliveryNameSubstringInitial.substring(
+            deliveryNameSubstringInitial.lastIndexOf("Name:")
+          );
+        }
+
+        //check if business name is presented (double check)
+        var isBusinessNameOnDeliveryAvailableCheck1 = deliveryNameSubStringSecondary.includes(
+          "("
+        );
+        var isBusinessNameOnDeliveryAvailableCheck2 = deliveryNameSubStringSecondary.includes(
+          ")"
+        );
+
+        if (
+          isBusinessNameOnDeliveryAvailableCheck1 &&
+          isBusinessNameOnDeliveryAvailableCheck2
+        ) {
+          var deliveryBusinessName = deliveryNameSubStringSecondary
+            .substring(
+              deliveryNameSubStringSecondary.indexOf("(") + 1,
+              deliveryNameSubStringSecondary.indexOf(")")
+            )
+            .trim();
+        } else deliveryBusinessName = "Not Available";
+
+        //check if Contact name is available
         var isContactNameOnDeliveryAvailable = deliveryInformationSplitByLines[1].search(
           "DISPATCHER"
         );
         if (isContactNameOnDeliveryAvailable > 0) {
           deliveryContactName = "CONTACT DISPATCHER";
         } else {
-          var deliveryContactName = deliveryInformationSplitByLines[1]
-            .substring(
-              deliveryInformationSplitByLines[1].indexOf(":") + 1,
-              deliveryInformationSplitByLines[1].indexOf("(")
-            )
-            .trim();
+          if (deliveryBusinessName === "Not Available") {
+            var deliveryContactName = deliveryInformationSplitByLines[1]
+              .substring(deliveryInformationSplitByLines[1].indexOf(":") + 1)
+              .trim();
+          } else {
+            var deliveryContactName = deliveryInformationSplitByLines[1]
+              .substring(
+                deliveryInformationSplitByLines[1].indexOf(":") + 1,
+                deliveryInformationSplitByLines[1].indexOf("(")
+              )
+              .trim();
+          }
         }
-        // check if business name is available
-        var isBusinessNameOnDeliveryAvailableCheck1 = deliveryInformationSplitByLines[1].includes(
-          "("
-        );
-        var isBusinessNameOnDeliveryAvailableCheck2 = deliveryInformationSplitByLines[1].includes(
-          ")"
-        );
+
+        //detect substring in delivery address
+
+        //case if buyer number is not presented. 
+        //Remove from substrinng COntact and Business names and other text. left only address
         if (
-          isBusinessNameOnDeliveryAvailableCheck1 &&
-          isBusinessNameOnDeliveryAvailableCheck2
+          isBuyerNumberPresentedInDeliveryCheck1 < 0 &&
+          isBuyerNumberPresentedInDeliveryCheck2 < 0
         ) {
-          var deliveryBusinessName = deliveryInformationSplitByLines[1]
-            .substring(
-              deliveryInformationSplitByLines[1].indexOf("(") + 1,
-              deliveryInformationSplitByLines[1].indexOf(")")
-            )
+          var deliveryAddressSubStringInitial = deliveryNameSubStringSecondary
+            .replace(deliveryBusinessName, "")
+            .replace(deliveryContactName, "")
+            .replace("**", "")
+            .replace("(", "")
+            .replace(")", "")
+            .replace("Name:", "")
             .trim();
-        } else {
-          deliveryBusinessName = "Not Available";
-        }
 
-        //check if address is available
-        var isAddressOnDeliveryAvailable = deliveryInformationSplitByLines[2].search(
-          "DISPATCHER"
-        );
-        if (isAddressOnDeliveryAvailable > 0) {
-          deliveryAddress = "CONTACT DISPATCHER";
-        } else {
-          var deliveryAddress = deliveryInformationSplitByLines[2].trim();
-        }
+            //Then split string into array
+          var deliveryAddressSubStringInitialSplit = deliveryAddressSubStringInitial.split(
+            " "
+          );
 
+          //get zip from split array
+          var deliveryAddressZipMatch =
+            deliveryAddressSubStringInitialSplit[
+              deliveryAddressSubStringInitialSplit.length - 1
+            ];
 
-        var deliveryZipMatch = deliveryInformationSplitByLines[3]
-          .match(zipNumberPatternInAddress)
+            //check if ZIP is correct
+            //check if length is 5 and all are numbers
+            var isZipCorrect = zipCheck(deliveryAddressZipMatch)
+  
 
-        if (deliveryZipMatch) {
-          var deliveryZip = deliveryZipMatch[0].trim()
-        } else {
-          var deliveryZip = ""
+            //get City, State by ZIP
+          if (isZipCorrect) {
+            var deliveryAddressGoogleRequest = await getGoogleCoordinates(
+              deliveryAddressZipMatch
+            );
+            var deliveryAddressGoogleRequestSplit = deliveryAddressGoogleRequest.split(
+              ","
+            );
+            var deliveryCity = deliveryAddressGoogleRequestSplit[0];
+            var deliveryState = deliveryAddressGoogleRequestSplit[1]
+              .trim()
+              .slice(0, 2);
+            var deliveryZip = deliveryAddressZipMatch;
+          } else {
+            var deliveryCity = ""
+            var deliveryState = ""
+            var deliveryZip = ""
+            var isDeliveryZipError = true;
+          }
+
+          var deliveryCityAllLower = deliveryCity.toLowerCase(); //Remove city duplicate in lower case from DS
+
+          //remove city state zip from address line. Keep only street 
+          var deliveryAddressSubStringThird = deliveryAddressSubStringInitial
+            .replace(deliveryCity, "")
+            .replace(deliveryState, "")
+            .replace(deliveryAddressZipMatch, "")
+            .replace(deliveryCityAllLower, "")
+            .replace(",", "")
+            .trim();
+
+          //check if address is available
+          var isAddressOnDeliveryAvailable = deliveryAddressSubStringThird.search(
+            "DISPATCHER"
+          );
+
+          if (isAddressOnDeliveryAvailable > 0) {
+            deliveryAddress = "CONTACT DISPATCHER";
+          } else {
+            var deliveryAddress = deliveryAddressSubStringThird.trim();
+          }
         }
 
         //check how many phones in order
 
+        
+
         var phonesOnDeliveryCount = (
-          deliveryInformationSplitByLines[4].match(/Phone/g) || []
+          pickupPhoneSubstringInitial.match(/Phone/g) || []
         ).length;
 
+
+        //if more than 1 phone in order:
         if (phonesOnDeliveryCount > 1) {
-          var deliveryPhonesSplit = deliveryInformationSplitByLines[4].split(
+          var deliveryPhonesSplit = deliveryPhoneSubstringInitial.split(
             "Phone"
           );
           deliveryPhonesSplit.shift();
@@ -335,48 +644,45 @@ export default async (req, res) => {
             var formattedPhone = element.split(":").pop();
             formattedPhonesOnDelivery.push(formattedPhone);
           });
-
           deliveryPhone = formattedPhonesOnDelivery.pop();
         } else {
           // check if phone is available
-
-          var isPhoneOnDeliveryAvailable = deliveryInformationSplitByLines[4].search(
+          var isPhoneOnDeliveryAvailable = deliveryPhoneSubstringInitial.search(
             "DISPATCHER"
           );
+
           if (isPhoneOnDeliveryAvailable > 0) {
             deliveryPhone = "CONTACT DISPATCHER";
           } else {
-            var deliveryPhone = deliveryInformationSplitByLines[4]
-              .substring(deliveryInformationSplitByLines[4].indexOf(":") + 1)
+            var deliveryPhone = deliveryPhoneSubstringInitial
+              .substring(deliveryPhoneSubstringInitial.indexOf(":") + 1)
               .trim();
           }
         }
-        if (deliveryZip) {
-          var deliveryAddress2 = await getGoogleCoordinates(deliveryZip);
-          var deliveryAddress2Split = deliveryAddress2.split(",");
-          var deliveryCity = deliveryAddress2Split[0];
-          var deliveryState = deliveryAddress2Split[1].trim().slice(0, 2);
-        } else {
-         var isDeliveryZipError = true
-        }
 
-        
       } catch (error) {
         console.log(error, "error inside Delivery");
       }
 
       //PAYMENT ==============================================================
       try {
+
         //Total payment
-        console.log(paymentInformationSplitByLines)
-        var totalPayment = paymentInformationSplitByLines[1]
-          .substring(paymentInformationSplitByLines[1].indexOf(":") + 1)
-          .trim();
+
+        var totalPaymentSubString = paymentInformation.substring(
+          paymentInformation.lastIndexOf("Total Payment"),
+          paymentInformation.lastIndexOf("On Delivery to Carrier")
+        );
+        var totalPayment = totalPaymentSubString.replace(
+          "Total Payment to Carrier:",
+          ""
+        ).trim();
+
         var totalPaymentInNumber = parseFloat(
           totalPayment.slice(1).replace(",", "")
         ); //remove $ sign, semicolon and parse into Int
 
-        //payment on delivery
+        //payment on delivery. Not in use. For future needs
         var paymentOnDelivery = paymentInformationSplitByLines[2]
           .substring(paymentInformationSplitByLines[2].indexOf(":") + 1)
           .trim();
@@ -384,60 +690,75 @@ export default async (req, res) => {
           .slice(1)
           .replace(",", ""); //remove $ sign, semicolon and parse into Int
 
-         //Broker owes Carrier after COD or COP 
+        //Broker owes Carrier after COD or COP . Not in use. For future needs
         var companyOwesPayment = paymentInformationSplitByLines[3].substring(
           paymentInformationSplitByLines[3].indexOf(":") + 1
         );
 
-        //Check if COD
+        //Check if COD. Then define the Payment terms
 
-        var isCODasPaymentTerm = paymentInformation.search("COD")
-        var isCOPasPaymentTerm = paymentInformation.search("COP")
+        var isCODasPaymentTerm = paymentInformation.search("COD");
+        var isCOPasPaymentTerm = paymentInformation.search("COP");
 
-        if (totalPaymentInNumber - paymentOnDelivery == 0) { //check if COD, and if is the case - set paymentTerms to CASH
-          paymentTerms = "COD";
-        } 
-
-
-
-        var paymentTerms = paymentInformation
-          .substring(
-            paymentInformation.lastIndexOf("within"),
-            paymentInformation.lastIndexOf("business")
-          )
-          .match(/ \d+/g)[0]
-          .trim();
-
-        
+        if (isCODasPaymentTerm > 0) {
+          var paymentTerms = PaymentTerms.COD;
+        } else if (isCOPasPaymentTerm > 0) {
+          var paymentTerms = PaymentTerms.COP;
+        } else {
+          var paymentTerms = paymentInformation
+            .substring(
+              paymentInformation.lastIndexOf("within"),
+              paymentInformation.lastIndexOf("business")
+            )
+            .match(/ \d+/g)[0]
+            .trim();
+        }
 
         //check type of payment
 
-        var paymentMethodInitialData = paymentInformation
-        .substring(
-          paymentInformation.lastIndexOf("Payment will be made with")
-        )
+        if (
+          paymentTerms === PaymentTerms.COD ||
+          paymentTerms === PaymentTerms.COP
+        ) {
+          var paymentMethod = PaymentMethods.CASH;
+        } else {
+          var paymentMethodInitialData = paymentInformation.substring(
+            paymentInformation.lastIndexOf("Payment will be made with")
+          );
 
-        var isPaymentMethodCertifiedFunds = paymentMethodInitialData.search("Certified")
-        var isPaymentMethodCompanyCheck = paymentMethodInitialData.search("Company")
+          var isPaymentMethodCertifiedFunds = paymentMethodInitialData.search(
+            "Certified"
+          );
+          var isPaymentMethodCompanyCheck = paymentMethodInitialData.search(
+            "Company"
+          );
 
-        if (isPaymentMethodCertifiedFunds > 0) {
-          var paymentMethod = PaymentMethods.CERTIFIED_FUNDS
-        } else if (isPaymentMethodCompanyCheck > 0) {
-          var paymentMethod = PaymentMethods.COMPANY_CHECK
+          if (isPaymentMethodCertifiedFunds > 0) {
+            var paymentMethod = PaymentMethods.CERTIFIED_FUNDS;
+          } else if (isPaymentMethodCompanyCheck > 0) {
+            var paymentMethod = PaymentMethods.COMPANY_CHECK;
+          }
         }
-
       } catch (error) {
         console.log(error, "error inside Payment");
       }
 
-
-
       //check payment Terms
-      var paymentTermsBillOfLadingExistsCheck = paymentInformation.search(
-        "Bill"
-      );
-      if (paymentTermsBillOfLadingExistsCheck > 0) {
-        var paymentStartUpon = PaymentStartUpon.RECEIVING_BOL;
+
+      if (paymentTerms === PaymentTerms.COD) {
+        var paymentStartUpon = PaymentStartUpon.DELIVERY;
+      } else if (paymentTerms === PaymentTerms.COP) {
+        var paymentStartUpon = PaymentStartUpon.PICKUP;
+      } else  {
+        var paymentTermsBillOfLadingExistsCheck = paymentInformation.search(
+          "Bill"
+        );
+        var paymentTermsDeliveryExists = paymentInformationTerms.search("delivery")
+        if (paymentTermsBillOfLadingExistsCheck > 0) {
+          var paymentStartUpon = PaymentStartUpon.RECEIVING_BOL;
+        } else if (paymentTermsDeliveryExists > 0) {
+          var paymentStartUpon = PaymentStartUpon.DELIVERY
+        }
       }
 
       //VEHICLES ===================================================================
@@ -472,12 +793,10 @@ export default async (req, res) => {
               element.includes("Car")
           ); //find an index of an elment in array which contains word Color
 
-          
           var vehicleModel = vehicleDataArray
             .slice(2, indexOfVehicleType)
             .join()
             .replace("Type:", "");
-   
 
           //TYPE
           var isCarType = vehicle.search("Car");
@@ -497,7 +816,7 @@ export default async (req, res) => {
 
           //VIN
           var vehicleVin = vehicle
-            .substring(vehicle.lastIndexOf("VIN:"), vehicle.lastIndexOf("Lot"))
+            .substring(vehicle.indexOf("VIN:"), vehicle.lastIndexOf("Lot"))
             .replace("VIN:", "");
 
           //lot
@@ -567,8 +886,11 @@ export default async (req, res) => {
         pickupState: pickupState,
         pickupBusinessName: pickupBusinessName,
         pickupContactName: pickupContactName,
+        buyerNumber: buyerNumber,
         deliveryPhone: deliveryPhone,
-        deliveryMultiplePhones: formattedPhonesOnDelivery ? formattedPhonesOnDelivery: "",
+        deliveryMultiplePhones: formattedPhonesOnDelivery
+          ? formattedPhonesOnDelivery
+          : "",
         deliveryAddress: deliveryAddress,
         deliveryZip: deliveryZip,
         deliveryCity: deliveryCity,
@@ -592,7 +914,7 @@ export default async (req, res) => {
         pickupDate: pickupDateConvertedFormat,
         deliveryDate: deliveryDateConvertedFormat,
         isDeliveryZipError: isDeliveryZipError,
-        isPickupZipError: isPickupZipError
+        isPickupZipError: isPickupZipError,
       };
 
       res.status(200).send(newUploadedObject);
@@ -608,3 +930,14 @@ const getGoogleCoordinates = async (zipToCoordinate) => {
 
   return coordinates.data.results[0].formatted_address;
 };
+
+
+const zipCheck = (zip) => {
+  let isnum = /^\d+$/.test(zip);
+
+  if (zip.length  >=5 && isnum ) {
+    return true
+  } else {
+    return false
+  }
+}

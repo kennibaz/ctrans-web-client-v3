@@ -45,16 +45,16 @@ import Dropzone from 'react-dropzone'
 import { withAuth } from "../../utils/withAuth";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import ReportProblemIcon from '@material-ui/icons/ReportProblem';
+import Tooltip from '@material-ui/core/Tooltip';
 
 import EditPhoneDialog from "../../components/order/dialogs/EditPhonesDialog";
 import EditPhoneDialogDelivery from "../../components/order/dialogs/EditPhonesDialogDelivery";
 import AutoCompleteAddress from "../../components/order/AutoCompleteAddress";
 import { makes } from "../../src/makes";
 
-import { PaymentMethods, CarTypes, PaymentStartUpon } from "../../utils/constants"
-
+import { PaymentMethods, CarTypes, PaymentStartUpon, PaymentTerms } from "../../utils/constants"
 import axios from "axios";
-import { Payment } from "@material-ui/icons";
+
 
 const drawerWidth = 120;
 
@@ -305,6 +305,8 @@ function createOrder(props) {
     setScheduledDeliveryDate(parsedData.deliveryDate)
     parsedData.pickupMultiplePhones && setPhonesOnPickup(parsedData.pickupMultiplePhones)
     parsedData.deliveryMultiplePhones && setPhonesOnDelivery(parsedData.deliveryMultiplePhones)
+
+    parsedData.buyerNumber && setPickupNotes(`Buyer Number ${parsedData.buyerNumber}`)
 
     if (parsedData.isPickupZipError) {
       alert("Pickup address was not recognized. Please enter manually")
@@ -796,13 +798,7 @@ function createOrder(props) {
                 <Box fontSize="h6.fontSize" m={2}>
                   Shipper and Order
                 </Box>
-                <Button
-                  onClick={() => {
-                    uploadFileParser();
-                  }}
-                >
-                  Test
-                </Button>
+            
               </Typography>
             </Grid>
             <Grid item xs={4}>
@@ -1744,7 +1740,7 @@ function createOrder(props) {
                       {vehicle.year}
                     </TableCell>
                     <TableCell className={classes.tableCell}>
-                      {vehicle.make} {vehicle.isVehicleRecognitionError ? <ReportProblemIcon color="error" fontSize="small"/> : null} 
+                      {vehicle.make} {vehicle.isVehicleRecognitionError ? <ReportProblemIcon color="error" fontSize="small"/>  : null} 
                     </TableCell>
                     <TableCell className={classes.tableCell}>
                       {vehicle.model}
@@ -2079,14 +2075,14 @@ function createOrder(props) {
                     }}
                     InputProps={{ classes: { input: classes.inputText } }}
                   >
-                    <MenuItem value={"cod"}>COD</MenuItem>
-                    <MenuItem value={"cop"}>COP</MenuItem>
-                    <MenuItem value={"2"}>QuickPay</MenuItem>
-                    <MenuItem value={"5"}>5 days</MenuItem>
-                    <MenuItem value={"10"}>10 days</MenuItem>
-                    <MenuItem value={"15"}>15 days</MenuItem>
-                    <MenuItem value={"20"}>20 days</MenuItem>
-                    <MenuItem value={"30"}>30 days</MenuItem>
+                    <MenuItem value={PaymentTerms.COD}>COD</MenuItem>
+                    <MenuItem value={PaymentTerms.COP}>COP</MenuItem>
+                    <MenuItem value={PaymentTerms.DAYS_2}>QuickPay</MenuItem>
+                    <MenuItem value={PaymentTerms.DAYS_5}>5 days</MenuItem>
+                    <MenuItem value={PaymentTerms.DAYS_10}>10 days</MenuItem>
+                    <MenuItem value={PaymentTerms.DAYS_15}>15 days</MenuItem>
+                    <MenuItem value={PaymentTerms.DAYS_20}>20 days</MenuItem>
+                    <MenuItem value={PaymentTerms.DAYS_30}>30 days</MenuItem>
                   </Select>
                 </FormControl>{" "}
               </Box>

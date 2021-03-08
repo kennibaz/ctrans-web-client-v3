@@ -25,3 +25,14 @@ export const CarTypes = {
     SUV: "suv",
     VAN: "van"
 }
+
+export const PaymentTerms = {
+    COD: "cod",
+    COP: "cop",
+    DAYS_2: "2",
+    DAYS_5: "5",
+    DAYS_10: "10",
+    DAYS_15: "15",
+    DAYS_20: "20",
+    DAYS_30: "30"
+}
