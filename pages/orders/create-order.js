@@ -305,6 +305,7 @@ function createOrder(props) {
     setScheduledDeliveryDate(parsedData.deliveryDate)
     parsedData.pickupMultiplePhones && setPhonesOnPickup(parsedData.pickupMultiplePhones)
     parsedData.deliveryMultiplePhones && setPhonesOnDelivery(parsedData.deliveryMultiplePhones)
+    parsedData.brokerFee && setBrokerFee(parsedData.brokerFee)
 
     parsedData.buyerNumber && setPickupNotes(`Buyer Number ${parsedData.buyerNumber}`)
 

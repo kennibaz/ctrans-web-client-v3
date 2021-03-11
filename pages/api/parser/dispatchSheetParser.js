@@ -683,17 +683,18 @@ export default async (req, res) => {
         ); //remove $ sign, semicolon and parse into Int
 
         //payment on delivery. Not in use. For future needs
-        var paymentOnDelivery = paymentInformationSplitByLines[2]
-          .substring(paymentInformationSplitByLines[2].indexOf(":") + 1)
+        var paymentOnDelivery = paymentInformation
+          .substring(paymentInformation.lastIndexOf("On Delivery to Carrier"),
+          paymentInformation.lastIndexOf("Carrier owes Company"))
           .trim();
         var paymentOnDeliveryInNumber = paymentOnDelivery
           .slice(1)
           .replace(",", ""); //remove $ sign, semicolon and parse into Int
 
         //Broker owes Carrier after COD or COP . Not in use. For future needs
-        var companyOwesPayment = paymentInformationSplitByLines[3].substring(
-          paymentInformationSplitByLines[3].indexOf(":") + 1
-        );
+        // var companyOwesPayment = paymentInformationSplitByLines[3].substring(
+        //   paymentInformationSplitByLines[3].indexOf(":") + 1
+        // );
 
         //Check if COD. Then define the Payment terms
 
@@ -721,6 +722,26 @@ export default async (req, res) => {
           paymentTerms === PaymentTerms.COP
         ) {
           var paymentMethod = PaymentMethods.CASH;
+
+        //Check if there is broker fee
+
+        var isCarrierOwesCompany = paymentInformation.match(
+          /Carrier.*owes.*Company/
+        );
+        if (isCarrierOwesCompany) {
+          //payment on delivery
+          var paymentOnDelivery = paymentInformation
+            .substring(
+              paymentInformation.lastIndexOf("Carrier owes Company"),
+              paymentInformation.indexOf("after")
+            )
+            .trim()
+            .replace("Carrier owes Company**:", "")
+            .replace("$", "")
+          var brokerFee = paymentOnDelivery
+            .replace(",", ""); //remove $ sign, semicolon and parse into Int
+        }
+
         } else {
           var paymentMethodInitialData = paymentInformation.substring(
             paymentInformation.lastIndexOf("Payment will be made with")
@@ -915,6 +936,7 @@ export default async (req, res) => {
         deliveryDate: deliveryDateConvertedFormat,
         isDeliveryZipError: isDeliveryZipError,
         isPickupZipError: isPickupZipError,
+        brokerFee: brokerFee? brokerFee : ""
       };
 
       res.status(200).send(newUploadedObject);

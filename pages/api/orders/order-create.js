@@ -71,6 +71,10 @@ export default async (req, res) => {
   } = req.body;
 
   const vehicleId = uuid();
+  console.log(vehicleId)
+
+  var orderAmountConverted = orderAmount.toString()
+  console.log(orderAmount)
 
   if (!carrierId || !userId || !token) {
     res.status(405).end();
@@ -93,6 +97,13 @@ export default async (req, res) => {
   }
 
   const createdAt = firebase.firestore.Timestamp.now();
+
+  totalVehicles.length > 0 && totalVehicles.forEach((vehicle)=>{
+   vehicle.vehicleId = vehicleId
+   console.log(totalVehicles)
+ })
+
+
 
   if (
     (totalVehicles.length !== 0 && year) ||
@@ -226,7 +237,7 @@ export default async (req, res) => {
       },
 
       orderPayment: {
-        orderAmount: orderAmount,
+        orderAmount: orderAmountConverted,
         driverPay: driverPay,
         brokerFee: brokerFee,
         paymentUpon: paymentStartUpon,
